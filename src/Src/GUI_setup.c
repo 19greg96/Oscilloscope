@@ -38,9 +38,10 @@ GUI_RadioButton* scopeModeFFT2RadioButton;
 GUI_Component* fs1_fnMenuButton;
 GUI_Component* fs2_prevButton;
 GUI_Component* fs3_nextButton;
-GUI_Component* fs4_outputMenuButton;
+GUI_ToggleButton* fs4_channelToggleButton;
+GUI_Component* fs4_channelToggleButtonComponent;
 
-GUI_ToggleButton* channelToggleButton;
+GUI_Label* fs_channelLabel;
 GUI_Range* frequencyRange;
 GUI_Range* maxRange;
 GUI_Range* minRange;
@@ -48,7 +49,7 @@ GUI_Range* riseRange;
 GUI_Range* dutyRange;
 GUI_Range* shapeRange;
 
-GUI_Component* channelToggleButtonComponent;
+GUI_Component* fs_channelLabelComponent;
 GUI_Component* frequencyRangeComponent;
 GUI_Component* maxRangeComponent;
 GUI_Component* minRangeComponent;
@@ -60,10 +61,10 @@ GUI_RadioButton* fnSineRadioButton;
 GUI_RadioButton* fnSquareRadioButton;
 GUI_RadioButton* fnTriRadioButton;
 
-GUI_ToggleButton* output1OnToggleButton;
-GUI_ToggleButton* output1BuffToggleButton;
-GUI_ToggleButton* output2OnToggleButton;
-GUI_ToggleButton* output2BuffToggleButton;
+GUI_ToggleButton* outputEnableToggleButton;
+GUI_ToggleButton* outputBufferToggleButton;
+GUI_Component* outputEnableToggleButtonComponent;
+GUI_Component* outputBufferToggleButtonComponent;
 
 // Bode Screen
 GUI_Component* bs1_measureButton;
@@ -327,12 +328,15 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	GUI_Component* fnSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 44, 1, fnSprite);
 	GUI_screen_add_component(fnGenScreen, fnSpriteComponent);
 	// Setting buttons
-	channelToggleButton = GUI_toggleButton_create("CH 1", defaultFont, onChannelSelect);
-	strcpy(channelToggleButton->checkedText, "CH 2");
-	channelToggleButton->showCheckbox = 0;
-	channelToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 102, 40, channelToggleButton);
-	channelToggleButtonComponent->width = 21;
-	GUI_screen_add_component(fnGenScreen, channelToggleButtonComponent);
+	fs_channelLabel = GUI_label_create("CH 1", defaultFont);
+	fs_channelLabelComponent = GUI_component_create(GUI_COMPONENT_LABEL, 102, 32, fs_channelLabel);
+	GUI_screen_add_component(fnGenScreen, fs_channelLabelComponent);
+	outputEnableToggleButton = GUI_toggleButton_create("Output", defaultFont, setDACConfig);
+	outputBufferToggleButton = GUI_toggleButton_create("Buffer", defaultFont, setDACConfig);
+	outputEnableToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 102, 40, outputEnableToggleButton);
+	outputBufferToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 102, 48, outputBufferToggleButton);
+	GUI_screen_add_component(fnGenScreen, outputEnableToggleButtonComponent);
+	GUI_screen_add_component(fnGenScreen, outputBufferToggleButtonComponent);
 	
 	frequencyRange = GUI_range_create("1 Freq", defaultFont, 1.0f, 1000000.1f, 1000.0f, onFreqScroll, 38, formatFrequency);
 	frequencyRangeComponent = GUI_component_create(GUI_COMPONENT_RANGE, 1, 38, frequencyRange);
@@ -394,28 +398,13 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	
 	fs1_fnMenuButton		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	2,						GLCD_height - LINE_HEIGHT, GUI_menuButton_create("Fn", defaultFont, NULL, fnMenu));
 	
-	GUI_Menu* outputMenu = GUI_menu_create();
-	
-	GUI_MenuColumn* outputMenuColumn = GUI_menuColumn_create();
-	output1OnToggleButton = GUI_toggleButton_create("1on", defaultFont, setDACConfig);
-	output1BuffToggleButton = GUI_toggleButton_create("1buff", defaultFont, setDACConfig);
-	output2OnToggleButton = GUI_toggleButton_create("2on", defaultFont, setDACConfig);
-	output2BuffToggleButton = GUI_toggleButton_create("2buff", defaultFont, setDACConfig);
-	GUI_Component* output1OnToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 0, 0, output1OnToggleButton);
-	GUI_Component* output1BuffToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 0, 0, output1BuffToggleButton);
-	GUI_Component* output2OnToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 0, 0, output2OnToggleButton);
-	GUI_Component* output2BuffToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 0, 0, output2BuffToggleButton);
-	GUI_menuColumn_add_component(outputMenuColumn, output1OnToggleButtonComponent);
-	GUI_menuColumn_add_component(outputMenuColumn, output1BuffToggleButtonComponent);
-	GUI_menuColumn_add_component(outputMenuColumn, output2OnToggleButtonComponent);
-	GUI_menuColumn_add_component(outputMenuColumn, output2BuffToggleButtonComponent);
-	
-	GUI_menu_add_column(outputMenu, outputMenuColumn);
-	fs4_outputMenuButton	= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	GLCD_width / 4 * 3 + 2,	GLCD_height - LINE_HEIGHT, GUI_menuButton_create("Output", defaultFont, NULL, outputMenu));
+	fs4_channelToggleButton = GUI_toggleButton_create("Toggle", defaultFont, onChannelSelect);
+	fs4_channelToggleButton->showCheckbox = 0;
+	fs4_channelToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, GLCD_width / 4 * 3 + 2,	GLCD_height - LINE_HEIGHT, fs4_channelToggleButton);
 	GUI_screen_add_component(fnGenScreen, fs1_fnMenuButton);
 	GUI_screen_add_component(fnGenScreen, fs2_prevButton);
 	GUI_screen_add_component(fnGenScreen, fs3_nextButton);
-	GUI_screen_add_component(fnGenScreen, fs4_outputMenuButton);
+	GUI_screen_add_component(fnGenScreen, fs4_channelToggleButtonComponent);
 }
 
 void bodeScreenSetup() { // Bode screen
@@ -503,7 +492,7 @@ void onSoftBtn4Click(UIIO_BtnTypedef* btn) {
 	} else if (GUI_curr_screen == SCREEN_SCOPE) {
 		GUI_click_component(ss4_cfgMenuButtonComponent);
 	} else if (GUI_curr_screen == SCREEN_FNGEN) {
-		GUI_click_component(fs4_outputMenuButton);
+		GUI_click_component(fs4_channelToggleButtonComponent);
 	} else if (GUI_curr_screen == SCREEN_BODE) {
 		GUI_click_component(bs4_toggleButton);
 	}
@@ -696,7 +685,7 @@ void drawFunctionSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 }
 
 typedef struct {
-	DAC_WaveformTypedef waveform;
+	GUI_RadioButton* waveform;
 	uint8_t bufferEnable;
 	uint8_t outputEnable;
 	float min;
@@ -704,14 +693,22 @@ typedef struct {
 	float duty;
 	float rise;
 	float shape;
+	float frequency;
 } DACChannelConfigurationTypedef;
 
-DACChannelConfigurationTypedef ch1Config;
-DACChannelConfigurationTypedef ch2Config;
+DACChannelConfigurationTypedef ch1Config = {0};
+DACChannelConfigurationTypedef ch2Config = {0};
 
 void setDACConfig(void* caller) {
-	DAC_disable(DAC_CHANNEL_1);
-	DAC_disable(DAC_CHANNEL_2);
+	uint32_t ch;
+	DACChannelConfigurationTypedef* chConfig;
+	if (fs4_channelToggleButton->checked) { // channel 2
+		ch = DAC_CHANNEL_2;
+		chConfig = &ch2Config;
+	} else { // channel 1
+		ch = DAC_CHANNEL_1;
+		chConfig = &ch1Config;
+	}
 	
 	DAC_WaveformTypedef waveform = DAC_WAVEFORM_SINE;
 	
@@ -730,14 +727,21 @@ void setDACConfig(void* caller) {
 	float rise = riseRange->scrollButton->value / 100.0f;
 	float shape = shapeRange->scrollButton->value / 100.0f;
 	
-	if (output1OnToggleButton->checked) {
-		DAC_configure(DAC_CHANNEL_1, frequencyRange->scrollButton->value, waveform, min, max, (waveform == DAC_WAVEFORM_SQUARE) ? duty : shape, rise);
-		DAC_enable(DAC_CHANNEL_1);
-	}
+	chConfig->bufferEnable = outputBufferToggleButton->checked;
+	chConfig->outputEnable = outputEnableToggleButton->checked;
+	chConfig->waveform = rbtn;
+	chConfig->max = maxRange->scrollButton->value;
+	chConfig->min = minRange->scrollButton->value;
+	chConfig->duty = dutyRange->scrollButton->value;
+	chConfig->rise = riseRange->scrollButton->value;
+	chConfig->shape = shapeRange->scrollButton->value;
+	chConfig->frequency = frequencyRange->scrollButton->value;
 	
-	if (output2OnToggleButton->checked) {
-		DAC_configure(DAC_CHANNEL_2, frequencyRange->scrollButton->value, waveform, min, max, (waveform == DAC_WAVEFORM_SQUARE) ? duty : shape, rise);
-		DAC_enable(DAC_CHANNEL_2);
+	if (outputEnableToggleButton->checked) {
+		DAC_configure(ch, frequencyRange->scrollButton->value, waveform, min, max, (waveform == DAC_WAVEFORM_SQUARE) ? duty : shape, rise);
+		DAC_enable(ch);
+	} else {
+		DAC_disable(ch);
 	}
 	/*
 	TODO: 1. DAC output buffer toggle buttons
@@ -746,10 +750,28 @@ void setDACConfig(void* caller) {
 	*/
 }
 void onChannelSelect(void* caller) {
-	if (channelToggleButton->checked) { // channel 2
-		
+	DACChannelConfigurationTypedef* chConfig;
+	if (fs4_channelToggleButton->checked) { // channel 2
+		strcpy(fs_channelLabel->value, "CH 2");
+		chConfig = &ch2Config;
 	} else { // channel 1
-		
+		strcpy(fs_channelLabel->value, "CH 1");
+		chConfig = &ch1Config;
+	}
+	outputBufferToggleButton->checked = chConfig->bufferEnable;
+	outputEnableToggleButton->checked = chConfig->outputEnable;
+	
+	maxRange->scrollButton->value = chConfig->max;
+	minRange->scrollButton->value = chConfig->min;
+	dutyRange->scrollButton->value = chConfig->duty;
+	riseRange->scrollButton->value = chConfig->rise;
+	shapeRange->scrollButton->value = chConfig->shape;
+	frequencyRange->scrollButton->value = chConfig->frequency;
+	
+	if (chConfig->waveform) { // for non initialized channel 2
+		GUI_radioButton_click(chConfig->waveform);
+	} else {
+		GUI_radioButton_click(fnSineRadioButton); // DEFAULT CONFIG: select sine
 	}
 }
 void onFunctionSelect(void* caller) {
@@ -758,8 +780,9 @@ void onFunctionSelect(void* caller) {
 	if (rbtn == fnSineRadioButton) { // Sine
 		GUI_component_set_tabNext(frequencyRangeComponent, minRangeComponent);
 		GUI_component_set_tabNext(minRangeComponent, maxRangeComponent);
-		GUI_component_set_tabNext(maxRangeComponent, channelToggleButtonComponent);
-		GUI_component_set_tabNext(channelToggleButtonComponent, frequencyRangeComponent);
+		GUI_component_set_tabNext(maxRangeComponent, outputEnableToggleButtonComponent);
+		GUI_component_set_tabNext(outputEnableToggleButtonComponent, outputBufferToggleButtonComponent);
+		GUI_component_set_tabNext(outputBufferToggleButtonComponent, frequencyRangeComponent);
 		
 		dutyRangeComponent->visible = 0;
 		riseRangeComponent->visible = 0;
@@ -769,8 +792,9 @@ void onFunctionSelect(void* caller) {
 		GUI_component_set_tabNext(minRangeComponent, maxRangeComponent);
 		GUI_component_set_tabNext(maxRangeComponent, dutyRangeComponent);
 		GUI_component_set_tabNext(dutyRangeComponent, riseRangeComponent);
-		GUI_component_set_tabNext(riseRangeComponent, channelToggleButtonComponent);
-		GUI_component_set_tabNext(channelToggleButtonComponent, frequencyRangeComponent);
+		GUI_component_set_tabNext(riseRangeComponent, outputEnableToggleButtonComponent);
+		GUI_component_set_tabNext(outputEnableToggleButtonComponent, outputBufferToggleButtonComponent);
+		GUI_component_set_tabNext(outputBufferToggleButtonComponent, frequencyRangeComponent);
 		
 		dutyRangeComponent->visible = 1;
 		riseRangeComponent->visible = 1;
@@ -779,8 +803,9 @@ void onFunctionSelect(void* caller) {
 		GUI_component_set_tabNext(frequencyRangeComponent, minRangeComponent);
 		GUI_component_set_tabNext(minRangeComponent, maxRangeComponent);
 		GUI_component_set_tabNext(maxRangeComponent, shapeRangeComponent);
-		GUI_component_set_tabNext(shapeRangeComponent, channelToggleButtonComponent);
-		GUI_component_set_tabNext(channelToggleButtonComponent, frequencyRangeComponent);
+		GUI_component_set_tabNext(shapeRangeComponent, outputEnableToggleButtonComponent);
+		GUI_component_set_tabNext(outputEnableToggleButtonComponent, outputBufferToggleButtonComponent);
+		GUI_component_set_tabNext(outputBufferToggleButtonComponent, frequencyRangeComponent);
 		
 		dutyRangeComponent->visible = 0;
 		riseRangeComponent->visible = 0;

@@ -34,7 +34,7 @@ all: src.elf
 src.elf: $(OBJS) $(USER_OBJS) ../STM32F446RETx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L"D:\google_drive\shared\BME\8. félév\mikro_lab\hf\src\Drivers\CMSIS\Lib" -specs=nosys.specs -specs=nano.specs -u _printf_float -T"../STM32F446RETx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "src.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -L"D:\google_drive\shared\BME\8. félév\mikro_lab\oscilloscope\src\Drivers\CMSIS\Lib" -specs=nosys.specs -specs=nano.specs -u _printf_float -T"../STM32F446RETx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "src.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
