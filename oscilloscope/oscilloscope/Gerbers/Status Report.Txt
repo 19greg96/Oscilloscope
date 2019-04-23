@@ -1,0 +1,13 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : PCB Document [Oscilloscope.PcbDoc]
+   Generated File[Oscilloscope-RoundHoles.TXT]
+   Generated File[Oscilloscope-SlotHoles.TXT]
+   Generated File[Oscilloscope.LDP]
+   Generated File[Oscilloscope.DRR]
+
+
+Files Generated   : 4
+Documents Printed : 0
+
+Finished Output Generation At 18:20:34 On 2019. 03. 11.
