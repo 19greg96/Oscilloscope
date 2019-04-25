@@ -750,7 +750,6 @@ GUI_Graph* GUI_graph_create(uint32_t w, uint32_t h) {
 	
 	return graph;
 }
-
 void calculateLabelPosition(GUI_Graph* graph, GUI_Component* tmp, int32_t x, int32_t y, float vOffset1, float vOffset2, float hOffset, float pixelsPerVDiv1, float pixelsPerVDiv2, float pixelsPerHDiv) {
 	GUI_GraphLabel* tmpGraphLabel = ((GUI_GraphLabel*)tmp->component);
 	float tmpOffset = 0.0f;
@@ -787,7 +786,6 @@ void calculateLabelPosition(GUI_Graph* graph, GUI_Component* tmp, int32_t x, int
 		}
 	}
 }
-
 void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
 	uint32_t numVDots = 4;
 	uint32_t numHDots = 6;
@@ -951,21 +949,20 @@ for (n = 0; n < numSamples; n++) {
 		}
 	}
 	
-	GLCD_draw_line(x + 19, y, x + 19, y + GUI_ROW_HEIGHT * 3 - 6, GLCD_COLOR_ON); // top left box right line
-	GLCD_draw_line(x, y + GUI_ROW_HEIGHT * 3 - 5, x + 18, y + GUI_ROW_HEIGHT * 3 - 5, GLCD_COLOR_ON); // top left box bottom line
+	GLCD_draw_line(x + 19, y, x + 19, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top left box right line
+	GLCD_draw_line(x, y + GUI_ROW_HEIGHT - 1, x + 18, y + GUI_ROW_HEIGHT - 1, GLCD_COLOR_ON); // top left box bottom line
+	GLCD_fill_rect(x, y, 19, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // top left box background
 	
-	GLCD_fill_rect(x, y, 19, GUI_ROW_HEIGHT * 3 - 5, GLCD_COLOR_OFF); // top left box background
-	
-	graph->hDivScrollButtonComponent->x = x + 1;							// TODO: this should be in center
-	graph->hDivScrollButtonComponent->y = y + 1;
-	GUI_component_render(graph->hDivScrollButtonComponent);
+	GLCD_draw_line(x + graph->w - 19, y, x + graph->w - 19, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top right box left line
+	GLCD_draw_line(x + graph->w, y + GUI_ROW_HEIGHT - 1, x + graph->w - 18, y + GUI_ROW_HEIGHT - 1, GLCD_COLOR_ON); // top right box bottom line
+	GLCD_fill_rect(x + graph->w - 18, y, 19, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // top right box background
 	
 	graph->vDiv1ScrollButtonComponent->x = x + 1;
-	graph->vDiv1ScrollButtonComponent->y = y + GUI_ROW_HEIGHT - 1;			// TODO: this should be on top
+	graph->vDiv1ScrollButtonComponent->y = y + 1;
 	GUI_component_render(graph->vDiv1ScrollButtonComponent);
 	
-	graph->vDiv2ScrollButtonComponent->x = x + 1;
-	graph->vDiv2ScrollButtonComponent->y = y + GUI_ROW_HEIGHT * 2 - 3;		// TODO: this should be on top right side
+	graph->vDiv2ScrollButtonComponent->x = x + graph->w - 17;
+	graph->vDiv2ScrollButtonComponent->y = y + 1;
 	GUI_component_render(graph->vDiv2ScrollButtonComponent);
 	
 	GUI_Component* tmp = graph->labels;
@@ -983,6 +980,17 @@ for (n = 0; n < numSamples; n++) {
 		}
 		tmp = tmpGraphLabel->nextLabel;
 	} while(tmp != graph->labels);
+	
+	// draw center box after labels so it's not occluded by hScrollBtn
+	GLCD_draw_line(x + (graph->w - 19) / 2 - 1, y, x + (graph->w - 19) / 2 - 1, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top center box left line
+	GLCD_draw_line(x + (graph->w + 19) / 2, y, x + (graph->w + 19) / 2, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top center box right line
+	GLCD_draw_line(x + (graph->w + 19) / 2 - 1, y + GUI_ROW_HEIGHT - 1, x + (graph->w - 19) / 2, y + GUI_ROW_HEIGHT - 1, GLCD_COLOR_ON); // top center box bottom line
+	GLCD_fill_rect(x + (graph->w - 19) / 2, y, 19, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // top center box background
+	
+	graph->hDivScrollButtonComponent->x = x + (graph->w - 19) / 2 + 1;
+	graph->hDivScrollButtonComponent->y = y + 1;
+	GUI_component_render(graph->hDivScrollButtonComponent);
+	
 	if (selectedLabel) { // render selected label last, so it's on top
 		if (selectedLabel->visible) {
 			calculateLabelPosition(graph, selectedLabel, x, y, vOffset1, vOffset2, hOffset, pixelsPerVDiv1, pixelsPerVDiv2, pixelsPerHDiv);

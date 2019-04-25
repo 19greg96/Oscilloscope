@@ -192,14 +192,14 @@ void scopeScreenSetup(float* outputBuffer1_V, float* outputBuffer2_V) { // scope
 	scopeGraph->hOffsetGraphLabel = hScrollLabel;
 	GUI_graph_add_label(scopeGraph, hScrollLabelComponent);
 	
-	scopeScreen->defaultTabComponent = scopeGraph->hDivScrollButtonComponent;
-	GUI_component_set_tabNext(scopeGraph->hDivScrollButtonComponent, scopeGraph->vDiv1ScrollButtonComponent);
-	GUI_component_set_tabNext(scopeGraph->vDiv1ScrollButtonComponent, scopeGraph->vDiv2ScrollButtonComponent);
+	scopeScreen->defaultTabComponent = scopeGraph->vDiv1ScrollButtonComponent;
+	GUI_component_set_tabNext(scopeGraph->vDiv1ScrollButtonComponent, scopeGraph->hDivScrollButtonComponent);
+	GUI_component_set_tabNext(scopeGraph->hDivScrollButtonComponent, scopeGraph->vDiv2ScrollButtonComponent);
 	GUI_component_set_tabNext(scopeGraph->vDiv2ScrollButtonComponent, trigLevelLabelComponent);
 	GUI_component_set_tabNext(trigLevelLabelComponent, zeroLevelALabelComponent);
 	GUI_component_set_tabNext(zeroLevelALabelComponent, zeroLevelBLabelComponent);
 	GUI_component_set_tabNext(zeroLevelBLabelComponent, hScrollLabelComponent);
-	GUI_component_set_tabNext(hScrollLabelComponent, scopeGraph->hDivScrollButtonComponent);
+	GUI_component_set_tabNext(hScrollLabelComponent, scopeGraph->vDiv1ScrollButtonComponent);
 	
 	GUI_screen_add_component(scopeScreen, scopeGraphComponent);
 	
@@ -207,7 +207,7 @@ void scopeScreenSetup(float* outputBuffer1_V, float* outputBuffer2_V) { // scope
 	
 	zeroLevelALabel->scrollButton->min = -5.0f;
 	zeroLevelALabel->scrollButton->max = 5.0f;
-	zeroLevelALabel->scrollButton->value = 0.0f;
+	zeroLevelALabel->scrollButton->value = 2.0f;
 	zeroLevelALabel->scrollButton->largeStep = 0.1f;
 	zeroLevelALabel->scrollButton->smallStep = 0.01f;
 	
@@ -913,6 +913,7 @@ void onPrevBtn(void* caller) {
 	GUI_close_all_menus();
 	if (GUI_selected_component == NULL) {
 		GUI_select_component(GUI_screens[GUI_curr_screen]->defaultTabComponent);
+		GUI_tab(-1);
 	} else {
 		GUI_tab(-1);
 	}

@@ -95,12 +95,12 @@ void UIIO_update() {
 		if (UIIO_btnTable[i].state & UIIO_BTN_STATE_PRESSED) {
 			if (HAL_GPIO_ReadPin(UIIO_btnTable[i].port, UIIO_btnTable[i].pin) == GPIO_PIN_RESET) { // in case the IT didn't record a true release event because of bounce condition
 				UIIO_handleRelease(&UIIO_btnTable[i]);
-			} else { // previous state is pressed and is stil pressed
+			} else { // previous state is pressed and is still pressed
 				if ((UIIO_btnTable[i].state & UIIO_BTN_STATE_LONG_PRESSED) == 0) { // only fire long press event once
 					if (HAL_GetTick() - UIIO_btnTable[i].pressTime > UIIO_LONG_PRESS_TIME_MS) {
 						UIIO_btnTable[i].state |= UIIO_BTN_STATE_LONG_PRESSED;
 						if (UIIO_scrollTime > UIIO_btnTable[i].pressTime) { // TODO: di/ei
-							// a scroll event has occured after button press: don't send long press event
+							// a scroll event has occurred after button press: don't send long press event
 						} else {
 							if (UIIO_btnTable[i].onLongPress != NULL) {
 								UIIO_btnTable[i].onLongPress(&UIIO_btnTable[i]);
