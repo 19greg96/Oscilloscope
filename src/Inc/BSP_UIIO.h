@@ -42,7 +42,7 @@
 
 struct UIIO_BtnTypedef;
 typedef void (*UIIO_CallbackTypedef)(struct UIIO_BtnTypedef* caller);
-typedef void (*UIIO_ScrollEventCallbackTypedef)(int32_t delta);
+typedef void (*UIIO_ScrollEventCallbackTypedef)(int16_t delta);
 
 #define UIIO_BTN_STATE_LONG_PRESSED	0x02
 #define UIIO_BTN_STATE_PRESSED		0x01
@@ -69,8 +69,7 @@ typedef struct UIIO_BtnTypedef {
 	UIIO_CallbackTypedef onClick;		// called once if release occurs less than 1000ms after press
 } UIIO_BtnTypedef;
 
-volatile int16_t UIIO_pendingScrollCounter;
-volatile int16_t UIIO_lastScrollCounter;
+int16_t UIIO_lastScrollCounter;
 UIIO_ScrollEventCallbackTypedef UIIO_onScrollEvent;
 
 

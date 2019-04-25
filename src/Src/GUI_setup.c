@@ -82,13 +82,14 @@ void onSoftBtn3Click(UIIO_BtnTypedef* btn);
 void onSoftBtn4Click(UIIO_BtnTypedef* btn);
 void onMainLongPress(UIIO_BtnTypedef* mainBtn);
 void onMainClick(UIIO_BtnTypedef* mainBtn);
-void onScroll(int32_t delta);
+void onScroll(int16_t delta);
 
 // main screen
 void onScopeBtnClick(void* caller);
 void onFnGenBtnClick(void* caller);
 void onBodeBtnClick(void* caller);
 void onBrightnessScroll(void* caller);
+void onDrawEncoderDebugSprite(GUI_Sprite* sprite, int32_t x, int32_t y);
 
 // scope screen
 void on1ACToggle(void* caller);
@@ -130,7 +131,11 @@ uint32_t defaultFont;
 void mainScreenSetup(){ // main screen
 	GUI_Screen* functionSelectScreen = GUI_screen_create();
 	GUI_screen_add_component(functionSelectScreen, bottomMenuOutlineSpriteComponent);
-	
+	/*
+	GUI_Sprite* encoderDebugSprite = GUI_sprite_create(onDrawEncoderDebugSprite);
+	GUI_Component* encoderDebugSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 0, 0, encoderDebugSprite);
+	GUI_screen_add_component(functionSelectScreen, encoderDebugSpriteComponent);
+	*/
 	GUI_ScrollButton* sb = GUI_scrollButton_create("Light", defaultFont, 0.0f, 100.0f, 50.0f, onBrightnessScroll);
 	sb->smallStep = 1.0f;
 	sb->largeStep = 5.0f;
@@ -451,6 +456,7 @@ void GUI_setup_init(float* outputBuffer1_V, float* outputBuffer2_V) {
 	UIIO_onScrollEvent = onScroll;
 }
 
+int32_t scrollCountr = 0;
 
 // general event handlers
 void onSoftBtn1Click(UIIO_BtnTypedef* btn) {
@@ -503,8 +509,9 @@ void onMainLongPress(UIIO_BtnTypedef* mainBtn) {
 void onMainClick(UIIO_BtnTypedef* mainBtn) {
 	GUI_mainBtnClick();
 }
-void onScroll(int32_t delta) {
+void onScroll(int16_t delta) {
 	GUI_scroll(delta, (UIIO_getButton(UIIO_BTN_MAIN)->state & UIIO_BTN_STATE_PRESSED) ? 1 : 0);
+	scrollCountr += delta;
 }
 
 // main screen
@@ -522,6 +529,30 @@ void onBrightnessScroll(void* caller) {
 	
 	GLCD_setBacklight(sb->value / 100.0f);
 }
+void onDrawEncoderDebugSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
+	uint8_t currStateA = HAL_GPIO_ReadPin(ROT_ENC_A_GPIO_Port, ROT_ENC_A_Pin);
+	uint8_t currStateB = HAL_GPIO_ReadPin(ROT_ENC_B_GPIO_Port, ROT_ENC_B_Pin);
+	uint8_t lastStateA = !currStateA;
+	uint8_t lastStateB = !currStateB;
+	
+	int8_t padding = 10;
+	int8_t lineLen = 20;
+	int8_t lineHeight = 10;
+	GLCD_draw_line(x + padding, y + padding + (lastStateA ? 0 : lineHeight), x + padding + lineLen, y + padding + (lastStateA ? 0 : lineHeight), GLCD_COLOR_ON);
+	GLCD_draw_line(x + padding + lineLen, y + padding + (lastStateA ? 0 : lineHeight), x + padding + lineLen, y + padding + (currStateA ? 0 : lineHeight), GLCD_COLOR_ON);
+	GLCD_draw_line(x + padding + lineLen, y + padding + (currStateA ? 0 : lineHeight), x + padding + lineLen * 2, y + padding + (currStateA ? 0 : lineHeight), GLCD_COLOR_ON);
+	GUI_write_string(x + padding + lineLen * 2 + 5, y + padding, "A", 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+	
+	GLCD_draw_line(x + padding, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), x + padding + lineLen, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), GLCD_COLOR_ON);
+	GLCD_draw_line(x + padding + lineLen, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), x + padding + lineLen, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), GLCD_COLOR_ON);
+	GLCD_draw_line(x + padding + lineLen, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), x + padding + lineLen * 2, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), GLCD_COLOR_ON);
+	GUI_write_string(x + padding + lineLen * 2 + 5, y + lineHeight + padding * 2, "B", 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+	
+	char tmpBuff[10];
+	sprintf(tmpBuff, "%ld, %ld", TIM3->CNT, scrollCountr);
+	GUI_write_string(x + padding + lineLen * 2 + 10, y + padding + lineHeight, tmpBuff, 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+}
+
 
 // scope screen
 void on1ACToggle(void* caller) {

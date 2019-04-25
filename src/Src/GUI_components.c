@@ -238,7 +238,7 @@ void GUI_scrollButton_clamp_value(GUI_ScrollButton* scrollButton) {
 		scrollButton->value = scrollButton->min;
 	}
 }
-void GUI_scrollButton_scroll(GUI_ScrollButton* scrollButton, int32_t delta, uint8_t largeStep) {
+void GUI_scrollButton_scroll(GUI_ScrollButton* scrollButton, int16_t delta, uint8_t largeStep) {
 	scrollButton->value += (largeStep ? scrollButton->largeStep : scrollButton->smallStep) * delta;
 	GUI_scrollButton_clamp_value(scrollButton);
 	
@@ -877,7 +877,7 @@ void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
 			} break;
 			case GUI_GRAPH_MODE_1CH_FFT:
 			case GUI_GRAPH_MODE_2CH_FFT: {
-				// TODO: FFT goes wild when no trigger is occuring
+				// TODO: FFT goes wild when no trigger is occuring (because we write to other channels buffer, and it's not updated from last time)
 				// TODO: windowing function before FFT
 				float* inputBuffer;
 				float* fftBuffer;

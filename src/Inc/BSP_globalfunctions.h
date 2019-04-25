@@ -1,9 +1,3 @@
-/**
-*****************************************************************************
-** Kommunikációs mérés - globalfunctions.h
-** Globális funkciók
-*****************************************************************************
-*/
 #pragma once
 #ifndef _GLOBALFUNCTIONS_H__
 #define _GLOBALFUNCTIONS_H__

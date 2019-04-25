@@ -149,7 +149,7 @@ void GUI_click_component(GUI_Component* component) {
 			break;
 	}
 }
-void GUI_tab(int32_t delta) {
+void GUI_tab(int16_t delta) {
 	if (delta > 0) {
 		GUI_Component* tmp = GUI_selected_component->tabNext;
 		while (tmp != NULL && tmp->visible == 0) { // find next non null, visible component
@@ -159,7 +159,7 @@ void GUI_tab(int32_t delta) {
 			tmp = tmp->tabNext;
 		}
 		GUI_select_component(tmp);
-	} else {
+	} else if (delta < 0) {
 		GUI_Component* tmp = GUI_selected_component->tabPrev;
 		while (tmp != NULL && tmp->visible == 0) { // find prev non null, visible component
 			if (tmp == GUI_selected_component) { // prevent infinite cycle, if we reach the first element, return
@@ -170,7 +170,7 @@ void GUI_tab(int32_t delta) {
 		GUI_select_component(GUI_selected_component->tabPrev);
 	}
 }
-void GUI_scroll(int32_t delta, uint8_t largeStep) { // called externally
+void GUI_scroll(int16_t delta, uint8_t largeStep) { // called externally
 	if (GUI_selected_component == NULL) {
 		return;
 	}

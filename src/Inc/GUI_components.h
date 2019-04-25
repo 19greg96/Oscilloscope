@@ -98,7 +98,7 @@ typedef struct GUI_ScrollButton {
 GUI_ScrollButton* GUI_scrollButton_create(char* text, uint32_t fontID, float min, float max, float val, GUI_CallbackTypedef onScroll);
 void GUI_scrollButton_render(GUI_ScrollButton* scrollButton, int32_t x, int32_t y);
 void GUI_scrollButton_clamp_value(GUI_ScrollButton* scrollButton);
-void GUI_scrollButton_scroll(GUI_ScrollButton* scrollButton, int32_t delta, uint8_t largeStep);
+void GUI_scrollButton_scroll(GUI_ScrollButton* scrollButton, int16_t delta, uint8_t largeStep);
 
 typedef struct GUI_Range {
 	GUI_ScrollButton* scrollButton;

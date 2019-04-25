@@ -13,7 +13,7 @@ UIIO_BtnTypedef UIIO_btnTable[] = {
 	{.pin = BTN_4_Pin, .port = BTN_4_GPIO_Port, .pressTime = 0, .releaseTime = 0, .state = UIIO_BTN_STATE_RELEASED, .onPress = NULL, .onRelease = NULL, .onLongPress = NULL, .onClick = NULL},
 };
 uint32_t UIIO_numButtons = 5;
-volatile uint32_t UIIO_lastScrollTime = 0;
+volatile uint32_t UIIO_scrollTime = 0;
 
 void EXTI9_5_IRQHandler() {
 	uint32_t pending = EXTI->PR;
@@ -36,6 +36,10 @@ void EXTI9_5_IRQHandler() {
 
 void EXTI4_IRQHandler() {
 	HAL_GPIO_EXTI_IRQHandler(BTN_MAIN_Pin);
+}
+
+void TIM3_IRQHandler() {
+	HAL_TIM_IRQHandler(&htim3);
 }
 
 UIIO_BtnTypedef* UIIO_getButton(uint32_t id) {
@@ -80,15 +84,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 }
 
-void TIM3_IRQHandler() {
-	HAL_TIM_IRQHandler(&htim3);
-}
-
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM3) {
-		UIIO_pendingScrollCounter += (int16_t)TIM3->CNT - UIIO_lastScrollCounter;
-		UIIO_lastScrollCounter = TIM3->CNT; // TODO: debounce encoder
-		UIIO_lastScrollTime = HAL_GetTick();
+		UIIO_scrollTime = HAL_GetTick();
 	}
 }
 
@@ -101,7 +99,7 @@ void UIIO_update() {
 				if ((UIIO_btnTable[i].state & UIIO_BTN_STATE_LONG_PRESSED) == 0) { // only fire long press event once
 					if (HAL_GetTick() - UIIO_btnTable[i].pressTime > UIIO_LONG_PRESS_TIME_MS) {
 						UIIO_btnTable[i].state |= UIIO_BTN_STATE_LONG_PRESSED;
-						if (UIIO_lastScrollTime > UIIO_btnTable[i].pressTime) {
+						if (UIIO_scrollTime > UIIO_btnTable[i].pressTime) { // TODO: di/ei
 							// a scroll event has occured after button press: don't send long press event
 						} else {
 							if (UIIO_btnTable[i].onLongPress != NULL) {
@@ -116,10 +114,9 @@ void UIIO_update() {
 		}
 	}
 	if (UIIO_onScrollEvent != NULL) {
-		if (UIIO_pendingScrollCounter) {
-			int32_t tmp = UIIO_pendingScrollCounter;
-			UIIO_pendingScrollCounter -= tmp; // used so we don't discard anything in case IT comes before this line
-			UIIO_onScrollEvent(tmp);
+		if (UIIO_lastScrollCounter != TIM3->CNT) { // TODO: di/ei
+			UIIO_onScrollEvent(TIM3->CNT - UIIO_lastScrollCounter);
+			UIIO_lastScrollCounter = TIM3->CNT;
 		}
 	}
 }
@@ -129,7 +126,6 @@ void UIIO_init() {
 	MX_TIM3_Init();
 	
 	UIIO_onScrollEvent = NULL;
-	UIIO_pendingScrollCounter = 0;
 	UIIO_lastScrollCounter = 0;
 	
 	/*
@@ -179,7 +175,7 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* htim_encoder) {
 		GPIO_InitStruct.Pull = GPIO_NOPULL;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 		GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
-		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		HAL_GPIO_Init(ROT_ENC_A_GPIO_Port, &GPIO_InitStruct);
 
 	/* USER CODE BEGIN TIM3_MspInit 1 */
 

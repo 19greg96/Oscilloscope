@@ -25,8 +25,8 @@ void GUI_close_all_menus();
 void GUI_select_component(GUI_Component* component);
 void GUI_click_component(GUI_Component* component);
 GUI_Component* GUI_component_set_select_state(GUI_Component* component, uint8_t selectState);
-void GUI_tab(int32_t delta);
-void GUI_scroll(int32_t delta, uint8_t largeStep);
+void GUI_tab(int16_t delta);
+void GUI_scroll(int16_t delta, uint8_t largeStep);
 void GUI_mainBtnClick();
 void GUI_set_screen(int32_t screen);
 

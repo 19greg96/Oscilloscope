@@ -1,27 +1,13 @@
-/**
-*****************************************************************************
-** Kommunikációs mérés - globalfunctions.c
-** Egyéb, globális függvények
-*****************************************************************************
-*/
-
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
 #include "BSP_globalfunctions.h"
 
-/* ----------------- Publikus globális változók ----------------- */
-/* ----------------- Belso globális változók ----------------- */
 
-// A timer us-onként csökkenti, ha nagyobb, mint 0.
-volatile int sys_delay = 0;
+volatile int sys_delay = 0; // decremented by 1 every us if larger than zero
 
 TIM_HandleTypeDef Tim4Handle;
 
-/* ----------------- Publikus függvények ----------------- */
-
-/** Globális funkciók inicializálása. */
-void GlobalFunctions_Init(void)
-{
+void GlobalFunctions_Init(void) {
 	__TIM4_CLK_ENABLE();
 
 	Tim4Handle.Instance = TIM4;
@@ -36,33 +22,24 @@ void GlobalFunctions_Init(void)
 	HAL_TIM_Base_Start_IT(&Tim4Handle);
 }
 
-/** us számú mikroszekundum várakozás (blokkolva). */
-void Sys_DelayUs(int us)
-{
+void Sys_DelayUs(int us) { // blocking delay
 	sys_delay = us;
 	while(sys_delay);
 }
 
-/** ms számú milliszekundum várakozás (blokkolva). */
-void Sys_DelayMs(int ms)
-{
+void Sys_DelayMs(int ms) { // blocking delay
 	sys_delay = ms*1000;
 	while(sys_delay);
 }
 
-/* ----------------- Megszakításkezelő és callback függvények ----------------- */
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *handle)
-{
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *handle) {
 	UNUSED(handle);
-
-	if (sys_delay>0)
-	{
+	
+	if (sys_delay>0) {
 		sys_delay--;
 	}
 }
 
-void TIM4_IRQHandler(void)
-{
+void TIM4_IRQHandler(void) {
 	HAL_TIM_IRQHandler(&Tim4Handle);
 }
