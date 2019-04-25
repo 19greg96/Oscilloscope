@@ -1,6 +1,5 @@
 
 #include "BSP_GLCD.h"
-#include "BSP_globalfunctions.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +8,27 @@
 uint8_t* GLCD_old_buffer;
 uint8_t* GLCD_new_buffer;
 uint32_t GLCD_buffer_size;
+
+
+volatile int32_t sys_delay = 0; // decremented by 1 every us if larger than zero
+
+void Sys_DelayUs(int32_t us) { // blocking delay
+	sys_delay = us;
+	while(sys_delay);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if(htim->Instance == TIM4) {
+		if (sys_delay > 0) {
+			sys_delay--;
+		}
+	}
+}
+
+void TIM4_IRQHandler(void) {
+	HAL_TIM_IRQHandler(&htim4);
+}
+
 
 
 void GLCD_init(uint32_t w, uint32_t h) {
@@ -21,6 +41,7 @@ void GLCD_init(uint32_t w, uint32_t h) {
 	
 	MX_GLCD_GPIO_Init();
 	MX_TIM8_Init();
+	MX_TIM4_Init();
 	HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
 	// GLCD_setBacklight(0x000F);
 	
@@ -599,8 +620,20 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm) {
 
 }
 
-
-
+void MX_TIM4_Init(void) {
+	__TIM4_CLK_ENABLE();
+	
+	htim4.Instance = TIM4;
+	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim4.Init.CounterMode = TIM_COUNTERMODE_DOWN;
+	htim4.Init.Prescaler = 1;
+	htim4.Init.Period = 180; // 180 value to measure 1us
+	htim4.State = HAL_TIM_STATE_RESET;
+	HAL_TIM_Base_Init(&htim4);
+	HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(TIM4_IRQn);
+	HAL_TIM_Base_Start_IT(&htim4);
+}
 
 /**
 	* @brief TIM8 Initialization Function

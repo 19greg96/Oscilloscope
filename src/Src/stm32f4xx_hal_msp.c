@@ -41,7 +41,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "BSP_globalfunctions.h"
 
 										/**
 	* Initializes the Global MSP.
@@ -89,7 +88,6 @@ void HAL_HardwareInit() {
 
 	/* Initialize all configured peripherals */
 	
-	GlobalFunctions_Init();
 	UART_init();
 	GLCD_init(128, 64);
 	
