@@ -57,7 +57,7 @@ void UART_update() {
 			case 'f': // dac frequency
 				f = UART_readFloat();
 				
-				DAC_configure(DAC_CHANNEL_1, f, DAC_WAVEFORM_SINE, 0.2f, 3.1f, 0.0f, 0.0f);
+				DAC_configure(DAC_CHANNEL_1, 1, f, DAC_WAVEFORM_SINE, 0.2f, 3.1f, 0.0f, 0.0f);
 				break;
 			case 't': // trigger level
 				t = UART_read8();

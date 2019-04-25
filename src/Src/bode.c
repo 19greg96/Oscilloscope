@@ -143,7 +143,7 @@ void BODE_processBuffer(float* inputBuffer_V, float* outputBuffer_V) {
 			return;
 		}
 		
-		DAC_configure(DAC_CHANNEL_1, BODE_configurations[BODE_CURR_CONFIGURATION_IDX].DAC_frequency_Hz, DAC_WAVEFORM_SINE, 0.3f, 3.0f, 0.0f, 0.0f);
+		DAC_configure(DAC_CHANNEL_1, 1, BODE_configurations[BODE_CURR_CONFIGURATION_IDX].DAC_frequency_Hz, DAC_WAVEFORM_SINE, 0.3f, 3.0f, 0.0f, 0.0f);
 		DAC_enable(DAC_CHANNEL_1);
 		ADC_SetFrequencyID(BODE_configurations[BODE_CURR_CONFIGURATION_IDX].ADC_frequency_ID);
 		

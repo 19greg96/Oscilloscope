@@ -167,8 +167,6 @@ void scopeScreenSetup(float* outputBuffer1_V, float* outputBuffer2_V) { // scope
 	
 	zeroLevelALabel = GUI_graphLabel_create("A0", GLCD_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, NULL);
 	GUI_Component* zeroLevelALabelComponent = GUI_component_create(GUI_COMPONENT_GRAPH_LABEL, 0, 0, zeroLevelALabel);
-	zeroLevelALabel->scrollButton->min = -10.0f;
-	zeroLevelALabel->scrollButton->max = 10.0f;
 	
 	zeroLevelALabel->nextLabel = zeroLevelALabelComponent;
 	scopeGraph->vOffset1GraphLabel = zeroLevelALabel;
@@ -207,13 +205,13 @@ void scopeScreenSetup(float* outputBuffer1_V, float* outputBuffer2_V) { // scope
 	
 	GUI_screen_add_component(scopeScreen, bottomMenuOutlineSpriteComponent);
 	
-	zeroLevelALabel->scrollButton->min = 0.0f;
+	zeroLevelALabel->scrollButton->min = -5.0f;
 	zeroLevelALabel->scrollButton->max = 5.0f;
 	zeroLevelALabel->scrollButton->value = 0.0f;
 	zeroLevelALabel->scrollButton->largeStep = 0.1f;
 	zeroLevelALabel->scrollButton->smallStep = 0.01f;
 	
-	zeroLevelBLabel->scrollButton->min = 0.0f;
+	zeroLevelBLabel->scrollButton->min = -5.0f;
 	zeroLevelBLabel->scrollButton->max = 5.0f;
 	zeroLevelBLabel->scrollButton->value = 0.0f;
 	zeroLevelBLabel->scrollButton->largeStep = 0.1f;
@@ -240,13 +238,13 @@ void scopeScreenSetup(float* outputBuffer1_V, float* outputBuffer2_V) { // scope
 	((GUI_ScrollButton*)scopeGraph->hDivScrollButtonComponent->component)->labelIsValue = 0;
 	GUI_scrollButton_scroll(((GUI_ScrollButton*)scopeGraph->hDivScrollButtonComponent->component), 0, 0); // DEFAULT CONFIG: set horizontal div
 	
-	((GUI_ScrollButton*)scopeGraph->vDiv1ScrollButtonComponent->component)->min = 0.01f;
+	((GUI_ScrollButton*)scopeGraph->vDiv1ScrollButtonComponent->component)->min = 0.25f;
 	((GUI_ScrollButton*)scopeGraph->vDiv1ScrollButtonComponent->component)->max = 2.0f;
 	((GUI_ScrollButton*)scopeGraph->vDiv1ScrollButtonComponent->component)->value = 1.0f;
 	((GUI_ScrollButton*)scopeGraph->vDiv1ScrollButtonComponent->component)->largeStep = 0.1f;
 	((GUI_ScrollButton*)scopeGraph->vDiv1ScrollButtonComponent->component)->smallStep = 0.01f;
 	
-	((GUI_ScrollButton*)scopeGraph->vDiv2ScrollButtonComponent->component)->min = 0.01f;
+	((GUI_ScrollButton*)scopeGraph->vDiv2ScrollButtonComponent->component)->min = 0.25f;
 	((GUI_ScrollButton*)scopeGraph->vDiv2ScrollButtonComponent->component)->max = 2.0f;
 	((GUI_ScrollButton*)scopeGraph->vDiv2ScrollButtonComponent->component)->value = 1.0f;
 	((GUI_ScrollButton*)scopeGraph->vDiv2ScrollButtonComponent->component)->largeStep = 0.1f;
@@ -342,6 +340,8 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	outputBufferToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 102, 48, outputBufferToggleButton);
 	GUI_screen_add_component(fnGenScreen, outputEnableToggleButtonComponent);
 	GUI_screen_add_component(fnGenScreen, outputBufferToggleButtonComponent);
+	
+	outputBufferToggleButton->checked = 1; // DEFAULT CONFIG: buffer enabled
 	
 	frequencyRange = GUI_range_create("1 Freq", defaultFont, 1.0f, 1000000.1f, 1000.0f, onFreqScroll, 38, formatFrequency);
 	frequencyRangeComponent = GUI_component_create(GUI_COMPONENT_RANGE, 1, 38, frequencyRange);
@@ -716,7 +716,7 @@ void drawFunctionSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 }
 
 typedef struct {
-	GUI_RadioButton* waveform;
+	GUI_RadioButton* waveformRadioButton;
 	uint8_t bufferEnable;
 	uint8_t outputEnable;
 	float min;
@@ -727,8 +727,8 @@ typedef struct {
 	float frequency;
 } DACChannelConfigurationTypedef;
 
-DACChannelConfigurationTypedef ch1Config = {0};
-DACChannelConfigurationTypedef ch2Config = {0};
+DACChannelConfigurationTypedef ch1Config = {.waveformRadioButton = NULL, .bufferEnable = 1, .outputEnable = 0, .min = 0.3f, .max = 3.0f, .duty = 50.0f, .rise = 0.0f, .shape = 50.0f, .frequency = 1000.0f};
+DACChannelConfigurationTypedef ch2Config = {.waveformRadioButton = NULL, .bufferEnable = 1, .outputEnable = 0, .min = 0.3f, .max = 3.0f, .duty = 50.0f, .rise = 0.0f, .shape = 50.0f, .frequency = 1000.0f};
 
 void setDACConfig(void* caller) {
 	uint32_t ch;
@@ -760,7 +760,7 @@ void setDACConfig(void* caller) {
 	
 	chConfig->bufferEnable = outputBufferToggleButton->checked;
 	chConfig->outputEnable = outputEnableToggleButton->checked;
-	chConfig->waveform = rbtn;
+	chConfig->waveformRadioButton = rbtn;
 	chConfig->max = maxRange->scrollButton->value;
 	chConfig->min = minRange->scrollButton->value;
 	chConfig->duty = dutyRange->scrollButton->value;
@@ -769,16 +769,11 @@ void setDACConfig(void* caller) {
 	chConfig->frequency = frequencyRange->scrollButton->value;
 	
 	if (outputEnableToggleButton->checked) {
-		DAC_configure(ch, frequencyRange->scrollButton->value, waveform, min, max, (waveform == DAC_WAVEFORM_SQUARE) ? duty : shape, rise);
+		DAC_configure(ch, outputBufferToggleButton->checked, frequencyRange->scrollButton->value, waveform, min, max, (waveform == DAC_WAVEFORM_SQUARE) ? duty : shape, rise);
 		DAC_enable(ch);
 	} else {
 		DAC_disable(ch);
 	}
-	/*
-	TODO: 1. DAC output buffer toggle buttons
-	GUI_ToggleButton* output1BuffToggleButton;
-	GUI_ToggleButton* output2BuffToggleButton;
-	*/
 }
 void onChannelSelect(void* caller) {
 	DACChannelConfigurationTypedef* chConfig;
@@ -799,8 +794,8 @@ void onChannelSelect(void* caller) {
 	shapeRange->scrollButton->value = chConfig->shape;
 	frequencyRange->scrollButton->value = chConfig->frequency;
 	
-	if (chConfig->waveform) { // for non initialized channel 2
-		GUI_radioButton_click(chConfig->waveform);
+	if (chConfig->waveformRadioButton) { // for non initialized channel 2
+		GUI_radioButton_click(chConfig->waveformRadioButton);
 	} else {
 		GUI_radioButton_click(fnSineRadioButton); // DEFAULT CONFIG: select sine
 	}

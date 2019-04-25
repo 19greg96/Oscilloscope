@@ -4,6 +4,7 @@
 #include "math.h"
 
 static void MX_DAC_Init(void);
+void MX_DAC_ChannelConfig(uint32_t channel, uint32_t bufferEnable);
 
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac) {
 	// record ADC DMA position, trigger offset from that is deltaT
@@ -167,7 +168,7 @@ void DAC_enable(uint32_t channel) {
 	}
 }
 
-void DAC_configure(uint32_t channel, float frequency_Hz, DAC_WaveformTypedef waveform, float min_V, float max_V, float shape_Percent, float rise_Percent) {
+void DAC_configure(uint32_t channel, uint32_t bufferEnable, float frequency_Hz, DAC_WaveformTypedef waveform, float min_V, float max_V, float shape_Percent, float rise_Percent) {
 	DAC_SettingsTypedef* in;
 	uint32_t* buffer;
 	if (channel == DAC_CHANNEL_1) {
@@ -229,6 +230,8 @@ void DAC_configure(uint32_t channel, float frequency_Hz, DAC_WaveformTypedef wav
 		htim7.Instance->ARR = in->frequencySettings.period;
 		htim7.Instance->PSC = in->frequencySettings.prescaler;
 	}
+	
+	MX_DAC_ChannelConfig(channel, bufferEnable);
 }
 void DAC_createFreqSettings(DAC_FrequencySettingsTypedef* out, float frequency_Hz) {
 	if (frequency_Hz < 1.0f) {
@@ -259,9 +262,6 @@ void DAC_createFreqSettings(DAC_FrequencySettingsTypedef* out, float frequency_H
 	
 	out->frequency = F_PERIPHERY / ((out->prescaler + 1.0f) * (float)out->buffSize * ((float)out->period + 1.0f));
 }
-
-
-
 
 
 /**
@@ -365,6 +365,16 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac) {
 }
 
 
+void MX_DAC_ChannelConfig(uint32_t channel, uint32_t bufferEnable) {
+	DAC_ChannelConfTypeDef sConfig = {0};
+	
+	// DAC_TRIGGER_T7_TRGO
+	sConfig.DAC_Trigger = (channel == DAC_CHANNEL_1 ? DAC_TRIGGER_T6_TRGO : DAC_TRIGGER_T7_TRGO);
+	sConfig.DAC_OutputBuffer = (bufferEnable ? DAC_OUTPUTBUFFER_ENABLE : DAC_OUTPUTBUFFER_DISABLE);
+	if (HAL_DAC_ConfigChannel(&hdac, &sConfig, channel) != HAL_OK) {
+		Error_Handler();
+	}
+}
 
 /**
 	* @brief DAC Initialization Function
@@ -381,8 +391,6 @@ static void MX_DAC_Init(void) {
 	*/
 	/* USER CODE END DAC_Init 0 */
 
-	DAC_ChannelConfTypeDef sConfig = {0};
-
 	/* USER CODE BEGIN DAC_Init 1 */
 	
 	/* USER CODE END DAC_Init 1 */
@@ -393,11 +401,7 @@ static void MX_DAC_Init(void) {
 		Error_Handler();
 	}
 	/**DAC channel OUT1 config */
-	sConfig.DAC_Trigger = DAC_TRIGGER_T6_TRGO;
-	sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
-	if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK) {
-		Error_Handler();
-	}
+	MX_DAC_ChannelConfig(DAC_CHANNEL_1, 1);
 	/* USER CODE BEGIN DAC_Init 2 */
 	
 	__HAL_RCC_TIM6_CLK_ENABLE();
@@ -421,14 +425,7 @@ static void MX_DAC_Init(void) {
 	}
 	HAL_TIM_Base_Start(&htim6);
 	
-	
-	
-	
-	sConfig.DAC_Trigger = DAC_TRIGGER_T7_TRGO;
-	sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
-	if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK) {
-		Error_Handler();
-	}
+	MX_DAC_ChannelConfig(DAC_CHANNEL_2, 1);
 	__HAL_RCC_TIM7_CLK_ENABLE();
 	
 	htim7.Instance = TIM7;
@@ -451,7 +448,6 @@ static void MX_DAC_Init(void) {
 	/* USER CODE END DAC_Init 2 */
 
 }
-
 
 
 

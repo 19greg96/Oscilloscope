@@ -53,7 +53,7 @@ void DAC_createSquareBuffer(uint32_t* buffer, uint32_t bufferSize, uint32_t min,
 
 void DAC_disable(uint32_t channel);
 void DAC_enable(uint32_t channel);
-void DAC_configure(uint32_t channel, float frequency_Hz, DAC_WaveformTypedef waveform, float min_V, float max_V, float shape_Percent, float rise_Percent);
+void DAC_configure(uint32_t channel, uint32_t bufferEnable, float frequency_Hz, DAC_WaveformTypedef waveform, float min_V, float max_V, float shape_Percent, float rise_Percent);
 void DAC_createFreqSettings(DAC_FrequencySettingsTypedef* out, float frequency_Hz);
 
 DMA_HandleTypeDef hdma1dac1;
