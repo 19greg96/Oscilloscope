@@ -375,6 +375,7 @@ uint32_t ADC_FrequencySettingID;
 // Ret: 1 on failure, 0 on success
 // values are measured on buff2 compared to buff1
 // out_period is measured in samples
+/*
 uint32_t ADC_measurePeriodPhaseAmplitude(uint32_t *buff1, uint32_t *buff2, float *out_period, float *out_phase_deg, float *out_amplitude_dB) {
 	uint32_t val1, val2;
 	uint32_t last_val1, last_val2;
@@ -429,7 +430,7 @@ uint32_t ADC_measurePeriodPhaseAmplitude(uint32_t *buff1, uint32_t *buff2, float
 		val1 = buff1[(i + ADC_Oversampled_triggered_at - (ADC_INPUT_BUFFER_SIZE / 4)) & ADC_INPUT_BUFFER_MASK];
 		val2 = buff2[(i + ADC_bufferDelta + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK];
 		
-		if (last_val1 < avg1 && val1 >= avg1) { // TODO: implement hysteresis trigger
+		if (last_val1 < avg1 && val1 >= avg1) { // TOD O: implement hysteresis trigger
 			if (triggerPoint1_ch1 == 0xFFFFFFFF) {
 				triggerPoint1_ch1 = i;
 				nTriggerPointsFound++;
@@ -438,7 +439,7 @@ uint32_t ADC_measurePeriodPhaseAmplitude(uint32_t *buff1, uint32_t *buff2, float
 				nTriggerPointsFound++;
 			}
 		}
-		if (last_val2 < avg2 && val2 >= avg2) { // TODO: implement hysteresis trigger
+		if (last_val2 < avg2 && val2 >= avg2) { // TOD O: implement hysteresis trigger
 			if (triggerPoint1_ch2 == 0xFFFFFFFF) {
 				triggerPoint1_ch2 = i;
 				nTriggerPointsFound++;
@@ -459,7 +460,7 @@ uint32_t ADC_measurePeriodPhaseAmplitude(uint32_t *buff1, uint32_t *buff2, float
 	measuredPeriod2 = triggerPoint2_ch2 - triggerPoint1_ch2;
 	if (abs(measuredPeriod1 - measuredPeriod2) > 5) {
 		// magic const, if input and output frequencies differ too much, it means we measured noise
-		// TODO: we could use this branch to determine when to find new trigger points in previous cycle
+		// TOD O: we could use this branch to determine when to find new trigger points in previous cycle
 		// when it shows an error, we look for the next trigger point for every channel
 		// if there are no more trigger points, we return error
 		// also magic const should be %, not absolute error
@@ -478,7 +479,7 @@ uint32_t ADC_measurePeriodPhaseAmplitude(uint32_t *buff1, uint32_t *buff2, float
 		deltaSamples2 = triggerPoint2_ch2 - triggerPoint2_ch1;
 	}
 	if (abs(deltaSamples1 - deltaSamples2) > 5) {
-		// TODO: magic const should be %, not absolute error
+		// TOD O: magic const should be %, not absolute error
 		return 1;
 	}
 	
@@ -506,7 +507,7 @@ uint32_t ADC_measurePeriodPhaseAmplitude(uint32_t *buff1, uint32_t *buff2, float
 	UART_writeString(tmpBuff);
 	
 	return 0;
-}
+}*/
 
 void ADC_SetFrequencyID(uint32_t id) {
 	if (id >= numADCFrequencySettings) {

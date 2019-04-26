@@ -14,7 +14,7 @@ arm_rfft_fast_instance_f32 BODE_FFTStruct;
 float BODE_cFFTBuff[ADC_INPUT_BUFFER_SIZE / 2]; // half of ADC buffer is usable data, FFT is symmetric, so half of that is enough, but complex numbers use two floats per value	// TODO: reduce number of redundant ADC buffers
 float BODE_tmpFFTBuff[ADC_INPUT_BUFFER_SIZE / 2]; // Temporary input buffer, so we don't overwrite input	// TODO: reduce number of redundant ADC buffers
 float BODE_magFFTBuff[ADC_INPUT_BUFFER_SIZE / 4]; // complex -> magnitude, half the space is enough	// TODO: reduce number of redundant ADC buffers
-
+/*
 BODE_MeasurementConfigurationTypedef BODE_configurations[] = {
 	{ .DAC_frequency_Hz = 1.0f,			.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 0
 	{ .DAC_frequency_Hz = 2.0f,			.ADC_frequency_ID = 16,	.numMeasurements = 2},		// 1
@@ -35,6 +35,70 @@ BODE_MeasurementConfigurationTypedef BODE_configurations[] = {
 	{ .DAC_frequency_Hz = 200000.0f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 16	// 9us
 	{ .DAC_frequency_Hz = 500000.0f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 17	// 9us
 	{ .DAC_frequency_Hz = 1000000.0f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 18	// 9us
+};*/
+BODE_MeasurementConfigurationTypedef BODE_configurations[] = {
+// 10^(x) where x increment is 0.1
+	{ .DAC_frequency_Hz = 1.0f,				.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 0
+	{ .DAC_frequency_Hz = 1.25892541179f,	.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 1
+	{ .DAC_frequency_Hz = 1.58489319246f,	.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 2
+	{ .DAC_frequency_Hz = 1.99526231497f,	.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 3
+	{ .DAC_frequency_Hz = 2.51188643151f,	.ADC_frequency_ID = 16,	.numMeasurements = 2},		// 4
+	{ .DAC_frequency_Hz = 3.16227766017f,	.ADC_frequency_ID = 16,	.numMeasurements = 2},		// 5
+	{ .DAC_frequency_Hz = 3.98107170553f,	.ADC_frequency_ID = 16,	.numMeasurements = 2},		// 6
+	{ .DAC_frequency_Hz = 5.01187233627f,	.ADC_frequency_ID = 16,	.numMeasurements = 2},		// 7
+	{ .DAC_frequency_Hz = 6.3095734448f,	.ADC_frequency_ID = 16,	.numMeasurements = 2},		// 8
+	{ .DAC_frequency_Hz = 7.94328234724f,	.ADC_frequency_ID = 15,	.numMeasurements = 4},		// 9
+	{ .DAC_frequency_Hz = 10.0f,			.ADC_frequency_ID = 15,	.numMeasurements = 4},		// 10
+	{ .DAC_frequency_Hz = 12.5892541179f,	.ADC_frequency_ID = 15,	.numMeasurements = 4},		// 11
+	{ .DAC_frequency_Hz = 15.8489319246f,	.ADC_frequency_ID = 15,	.numMeasurements = 4},		// 12
+	{ .DAC_frequency_Hz = 19.9526231497f,	.ADC_frequency_ID = 14,	.numMeasurements = 4},		// 13
+	{ .DAC_frequency_Hz = 25.1188643151f,	.ADC_frequency_ID = 14,	.numMeasurements = 4},		// 14
+	{ .DAC_frequency_Hz = 31.6227766017f,	.ADC_frequency_ID = 13,	.numMeasurements = 4},		// 15
+	{ .DAC_frequency_Hz = 39.8107170553f,	.ADC_frequency_ID = 13,	.numMeasurements = 4},		// 16
+	{ .DAC_frequency_Hz = 50.1187233627f,	.ADC_frequency_ID = 12,	.numMeasurements = 4},		// 17
+	{ .DAC_frequency_Hz = 63.095734448f,	.ADC_frequency_ID = 12,	.numMeasurements = 4},		// 18
+	{ .DAC_frequency_Hz = 79.4328234724f,	.ADC_frequency_ID = 12,	.numMeasurements = 4},		// 19
+	{ .DAC_frequency_Hz = 100.0f,			.ADC_frequency_ID = 11,	.numMeasurements = 5},		// 20
+	{ .DAC_frequency_Hz = 125.892541179f,	.ADC_frequency_ID = 11,	.numMeasurements = 5},		// 21
+	{ .DAC_frequency_Hz = 158.489319246f,	.ADC_frequency_ID = 11,	.numMeasurements = 5},		// 22
+	{ .DAC_frequency_Hz = 199.526231497f,	.ADC_frequency_ID = 11,	.numMeasurements = 5},		// 23
+	{ .DAC_frequency_Hz = 251.188643151f,	.ADC_frequency_ID = 10,	.numMeasurements = 5},		// 24
+	{ .DAC_frequency_Hz = 316.227766017f,	.ADC_frequency_ID = 10,	.numMeasurements = 5},		// 25
+	{ .DAC_frequency_Hz = 398.107170553f,	.ADC_frequency_ID = 10,	.numMeasurements = 5},		// 26
+	{ .DAC_frequency_Hz = 501.187233627f,	.ADC_frequency_ID = 10,	.numMeasurements = 5},		// 27
+	{ .DAC_frequency_Hz = 630.95734448f,	.ADC_frequency_ID = 9,	.numMeasurements = 5},		// 28
+	{ .DAC_frequency_Hz = 794.328234724f,	.ADC_frequency_ID = 9,	.numMeasurements = 5},		// 29
+	{ .DAC_frequency_Hz = 1000.0f,			.ADC_frequency_ID = 9,	.numMeasurements = 10},		// 30	// 683us
+	{ .DAC_frequency_Hz = 1258.92541179f,	.ADC_frequency_ID = 9,	.numMeasurements = 10},		// 31
+	{ .DAC_frequency_Hz = 1584.89319246f,	.ADC_frequency_ID = 9,	.numMeasurements = 10},		// 32
+	{ .DAC_frequency_Hz = 1995.26231497f,	.ADC_frequency_ID = 8,	.numMeasurements = 10},		// 33
+	{ .DAC_frequency_Hz = 2511.88643151f,	.ADC_frequency_ID = 8,	.numMeasurements = 10},		// 34
+	{ .DAC_frequency_Hz = 3162.27766017f,	.ADC_frequency_ID = 8,	.numMeasurements = 10},		// 35
+	{ .DAC_frequency_Hz = 3981.07170553f,	.ADC_frequency_ID = 8,	.numMeasurements = 10},		// 36
+	{ .DAC_frequency_Hz = 5011.87233627f,	.ADC_frequency_ID = 7,	.numMeasurements = 10},		// 37
+	{ .DAC_frequency_Hz = 6309.5734448f,	.ADC_frequency_ID = 7,	.numMeasurements = 10},		// 38
+	{ .DAC_frequency_Hz = 7943.28234724f,	.ADC_frequency_ID = 7,	.numMeasurements = 10},		// 39
+	{ .DAC_frequency_Hz = 10000.0f,			.ADC_frequency_ID = 6,	.numMeasurements = 10},		// 40	// 85us
+	{ .DAC_frequency_Hz = 12589.2541179f,	.ADC_frequency_ID = 6,	.numMeasurements = 10},		// 41
+	{ .DAC_frequency_Hz = 15848.9319246f,	.ADC_frequency_ID = 6,	.numMeasurements = 10},		// 42
+	{ .DAC_frequency_Hz = 19952.6231497f,	.ADC_frequency_ID = 5,	.numMeasurements = 10},		// 43
+	{ .DAC_frequency_Hz = 25118.8643151f,	.ADC_frequency_ID = 5,	.numMeasurements = 10},		// 44
+	{ .DAC_frequency_Hz = 31622.7766017f,	.ADC_frequency_ID = 5,	.numMeasurements = 10},		// 45
+	{ .DAC_frequency_Hz = 39810.7170553f,	.ADC_frequency_ID = 4,	.numMeasurements = 10},		// 46
+	{ .DAC_frequency_Hz = 50118.7233627f,	.ADC_frequency_ID = 3,	.numMeasurements = 10},		// 47
+	{ .DAC_frequency_Hz = 63095.734448f,	.ADC_frequency_ID = 3,	.numMeasurements = 10},		// 48
+	{ .DAC_frequency_Hz = 79432.8234724f,	.ADC_frequency_ID = 3,	.numMeasurements = 10},		// 49
+	{ .DAC_frequency_Hz = 100000.0f,		.ADC_frequency_ID = 1,	.numMeasurements = 10},		// 50	// 14us
+	{ .DAC_frequency_Hz = 125892.541179f,	.ADC_frequency_ID = 1,	.numMeasurements = 10},		// 51
+	{ .DAC_frequency_Hz = 158489.319246f,	.ADC_frequency_ID = 1,	.numMeasurements = 10},		// 52
+	{ .DAC_frequency_Hz = 199526.231497f,	.ADC_frequency_ID = 1,	.numMeasurements = 10},		// 53
+	{ .DAC_frequency_Hz = 251188.643151f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 54
+	{ .DAC_frequency_Hz = 316227.766017f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 55
+	{ .DAC_frequency_Hz = 398107.170553f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 56
+	{ .DAC_frequency_Hz = 501187.233627f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 57
+	{ .DAC_frequency_Hz = 630957.34448f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 58
+	{ .DAC_frequency_Hz = 794328.234724f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 59
+	{ .DAC_frequency_Hz = 1000000.0f,		.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 60	// 9us
 };
 // 1.0f
 // 1.58489319246f
@@ -55,7 +119,7 @@ void BODE_init() {
 		float sampleTime = 1.0f / ADC_FrequencyTable[BODE_configurations[i].ADC_frequency_ID].frequency;
 		float numSamples = ((float)ADC_INPUT_BUFFER_SIZE);
 		float numMeasurements = (float)BODE_configurations[i].numMeasurements + 1.0f; // error compensation
-		BODE_measurementTime += (uint32_t)((sampleTime * numSamples * numMeasurements) * 1000.0f * 2.0f); // plus processing time
+		BODE_measurementTime += (uint32_t)((sampleTime * numSamples * numMeasurements) * 1000.0f); // plus processing time
 	}
 }
 
@@ -143,7 +207,7 @@ void BODE_processBuffer(float* inputBuffer_V, float* outputBuffer_V) {
 			return;
 		}
 		
-		DAC_configure(DAC_CHANNEL_1, 1, BODE_configurations[BODE_CURR_CONFIGURATION_IDX].DAC_frequency_Hz, DAC_WAVEFORM_SINE, 0.3f, 3.0f, 0.0f, 0.0f);
+		DAC_configure(DAC_CHANNEL_1, 0, BODE_configurations[BODE_CURR_CONFIGURATION_IDX].DAC_frequency_Hz, DAC_WAVEFORM_SINE, 0.3f, 3.0f, 0.0f, 0.0f);
 		DAC_enable(DAC_CHANNEL_1);
 		ADC_SetFrequencyID(BODE_configurations[BODE_CURR_CONFIGURATION_IDX].ADC_frequency_ID);
 		
