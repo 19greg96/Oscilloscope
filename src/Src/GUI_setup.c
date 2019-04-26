@@ -769,6 +769,7 @@ void setDACConfig(void* caller) {
 	chConfig->frequency = frequencyRange->scrollButton->value;
 	
 	if (outputEnableToggleButton->checked) {
+		DAC_disable(ch);
 		DAC_configure(ch, outputBufferToggleButton->checked, frequencyRange->scrollButton->value, waveform, min, max, (waveform == DAC_WAVEFORM_SQUARE) ? duty : shape, rise);
 		DAC_enable(ch);
 	} else {

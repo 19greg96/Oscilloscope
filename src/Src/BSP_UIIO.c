@@ -67,9 +67,14 @@ void UIIO_handleRelease(UIIO_BtnTypedef* btn) {
 				btn->onRelease(btn); // TODO: this should not be called in ISR
 			}
 			if (HAL_GetTick() - btn->pressTime < UIIO_LONG_PRESS_TIME_MS) {
-				if (btn->onClick != NULL) { // TODO: only call click event if no scroll occurred while pressed
-					btn->onClick(btn); // TODO: this should not be called in ISR
+				if (UIIO_scrollTime > btn->pressTime) { // TODO: di/ei
+					// only call click event if no scroll occurred while pressed
+				} else {
+					if (btn->onClick != NULL) {
+						btn->onClick(btn); // TODO: this should not be called in ISR
+					}
 				}
+				
 			}
 		}
 	}

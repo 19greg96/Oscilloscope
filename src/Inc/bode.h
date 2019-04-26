@@ -22,7 +22,7 @@ typedef struct {
 	uint32_t numMeasurements;
 } BODE_MeasurementConfigurationTypedef;
 
-#define BODE_NUM_CONFIGURATIONS		19
+#define BODE_NUM_CONFIGURATIONS		61
 #define BODE_CURR_CONFIGURATION_IDX	(BODE_status >> 1)
 
 extern BODE_MeasurementConfigurationTypedef BODE_configurations[BODE_NUM_CONFIGURATIONS];
