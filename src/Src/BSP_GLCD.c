@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint8_t* GLCD_new_buffer;
-uint32_t GLCD_buffer_size;
+uint8_t* GLCD_backBuffer;
+uint32_t GLCD_bufferSize;
 
 
 volatile int32_t sys_delay = 0; // decremented by 1 every us if larger than zero
@@ -34,8 +34,8 @@ void GLCD_init(uint32_t w, uint32_t h) {
 	GLCD_width = w;
 	GLCD_height = h;
 	
-	GLCD_buffer_size = GLCD_width * GLCD_height / 8;
-	GLCD_new_buffer = (uint8_t*)malloc(sizeof(uint8_t) * GLCD_buffer_size); // data size is 8
+	GLCD_bufferSize = GLCD_width * GLCD_height / 8;
+	GLCD_backBuffer = (uint8_t*)malloc(sizeof(uint8_t) * GLCD_bufferSize); // data size is 8
 	
 	MX_GLCD_GPIO_Init();
 	MX_TIM8_Init();
@@ -61,23 +61,27 @@ void GLCD_update() {
 		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR); // set column to 0
 		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y)); // send row number
 		for (x = 0; x < 64; x ++) {
-			GLCD_Write(GLCD_CS_1, GLCD_DI_DATA, GLCD_new_buffer[pos]);
+			GLCD_Write(GLCD_CS_1, GLCD_DI_DATA, GLCD_backBuffer[pos]);
 			pos++;
 		}
 		GLCD_Write(GLCD_CS_2, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR);
 		GLCD_Write(GLCD_CS_2, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y));
 		for (x = 0; x < 64; x ++) {
-			GLCD_Write(GLCD_CS_2, GLCD_DI_DATA, GLCD_new_buffer[pos]);
+			GLCD_Write(GLCD_CS_2, GLCD_DI_DATA, GLCD_backBuffer[pos]);
 			pos++;
 		}
 	}
 }
 void GLCD_clear() {
-	for (uint32_t i = 0; i < GLCD_buffer_size; i ++) {
-		GLCD_new_buffer[i] = 0;
+	for (uint32_t i = 0; i < GLCD_bufferSize; i ++) {
+		GLCD_backBuffer[i] = 0;
 	}
 }
 
+uint8_t* GLCD_getBuffer(uint32_t* buffSize) {
+	*buffSize = GLCD_bufferSize;
+	return GLCD_backBuffer;
+}
 
 void GLCD_flood_fill_util(int32_t x, int32_t y, uint8_t prevC, uint8_t newC);
 void GLCD_draw_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornername, uint8_t color);
@@ -89,13 +93,13 @@ uint8_t GLCD_set_pixel(int32_t x, int32_t y, uint8_t v) {
 	}
 	if (v == GLCD_COLOR_ON) {
 		//GLCD_new_buffer[30 * y + (x >> 3)] |= 0x80 >> (x & 7);
-		GLCD_new_buffer[x + ((y >> 3) << 7)] |= 0x01 << (y & 7);
+		GLCD_backBuffer[x + ((y >> 3) << 7)] |= 0x01 << (y & 7);
 	} else if (v == GLCD_COLOR_INVERT) {
 		//GLCD_new_buffer[30 * y + (x >> 3)] ^= 0x80 >> (x & 7);
-		GLCD_new_buffer[x + ((y >> 3) << 7)] ^= 0x01 << (y & 7);
+		GLCD_backBuffer[x + ((y >> 3) << 7)] ^= 0x01 << (y & 7);
 	} else if (v == GLCD_COLOR_OFF) {
 		//GLCD_new_buffer[30 * y + (x >> 3)] &= ~(0x80 >> (x & 7));
-		GLCD_new_buffer[x + ((y >> 3) << 7)] &= ~(0x01 << (y & 7));
+		GLCD_backBuffer[x + ((y >> 3) << 7)] &= ~(0x01 << (y & 7));
 	}
 	return v;
 }
@@ -104,7 +108,7 @@ uint8_t GLCD_get_pixel(int32_t x, int32_t y) {
 		return -1;
 	}
 	// return (GLCD_new_buffer[30 * y + (x >> 3)] >> ((~x) & 7)) & 1;
-	return (GLCD_new_buffer[x + ((y >> 3) << 7)] >> (y & 7)) & 1;
+	return (GLCD_backBuffer[x + ((y >> 3) << 7)] >> (y & 7)) & 1;
 }
 
 void GLCD_flood_fill_util(int32_t x, int32_t y, uint8_t prevC, uint8_t newC) {
