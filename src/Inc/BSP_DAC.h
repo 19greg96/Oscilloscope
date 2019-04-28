@@ -10,7 +10,7 @@
 // Clock frequency is 90MHz
 // 90MHz / (DAC_OUTPUT_BUFFER_SIZE * Timer Period)
 #define DAC_VREF		3.3f
-#define DAC_ACCURACY	4096
+#define DAC_ACCURACY	4095
 
 
 uint32_t g_DACBuffer1[DAC_OUTPUT_BUFFER_SIZE];
