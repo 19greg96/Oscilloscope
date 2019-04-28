@@ -59,8 +59,8 @@ int main(void) {
 	BODE_init();
 	
 	while (1) {
-		UART_update(); // read commands from uart
 		ADC_update(graphBuffer1_V, graphBuffer2_V); // process ADC buffer
+		UART_update(); // read commands from uart
 		
 		UIIO_update(); // update button states
 		GUI_render(); // draw GUI elements to buffer

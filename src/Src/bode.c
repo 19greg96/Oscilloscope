@@ -37,10 +37,7 @@ BODE_MeasurementConfigurationTypedef BODE_configurations[] = {
 	{ .DAC_frequency_Hz = 1000000.0f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 18	// 9us
 };*/
 BODE_MeasurementConfigurationTypedef BODE_configurations[] = {
-<<<<<<< HEAD
 // 10^(x) where x increment is 0.1
-=======
->>>>>>> 6fdfa67114a3318df925ebb261039420c6992317
 	{ .DAC_frequency_Hz = 1.0f,				.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 0
 	{ .DAC_frequency_Hz = 1.25892541179f,	.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 1
 	{ .DAC_frequency_Hz = 1.58489319246f,	.ADC_frequency_ID = 17,	.numMeasurements = 2},		// 2

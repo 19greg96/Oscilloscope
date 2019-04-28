@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-uint8_t* GLCD_old_buffer;
 uint8_t* GLCD_new_buffer;
 uint32_t GLCD_buffer_size;
 
@@ -29,7 +27,8 @@ void TIM4_IRQHandler(void) {
 	HAL_TIM_IRQHandler(&htim4);
 }
 
-
+// TODO: fix & write tests for graphics functions
+// TODO: separate graphics functions, STM32 and SBN6400G-D + SBN0064G-D code
 
 void GLCD_init(uint32_t w, uint32_t h) {
 	GLCD_width = w;
@@ -37,13 +36,11 @@ void GLCD_init(uint32_t w, uint32_t h) {
 	
 	GLCD_buffer_size = GLCD_width * GLCD_height / 8;
 	GLCD_new_buffer = (uint8_t*)malloc(sizeof(uint8_t) * GLCD_buffer_size); // data size is 8
-	GLCD_old_buffer = (uint8_t*)malloc(sizeof(uint8_t) * GLCD_buffer_size);
 	
 	MX_GLCD_GPIO_Init();
 	MX_TIM8_Init();
 	MX_TIM4_Init();
 	HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
-	// GLCD_setBacklight(0x000F);
 	
 	GLCDEN(1);
 	
@@ -58,37 +55,19 @@ void GLCD_init(uint32_t w, uint32_t h) {
 }
 
 void GLCD_update() {
-	/*
-	for (uint32_t i = 0; i < GLCD_buffer_size; i ++) {
-		int8_t newBlock = GLCD_new_buffer[i];
-		if (newBlock != GLCD_old_buffer[i]) {
-			GLCD_Write_Block(newBlock, i & 0x7F, (i >> 7) & 0x07);
-			// x goes from 0 to 127
-			// y goes from 0 to 7
-			
-			GLCD_old_buffer[i] = newBlock;
-		}
-	}
-	*/
-	
 	int8_t x, y;
-	int8_t newBlock;
 	uint32_t pos = 0;
 	for (y = 0; y < 8; y ++) {
-		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR);
-		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y));
+		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR); // set column to 0
+		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y)); // send row number
 		for (x = 0; x < 64; x ++) {
-			newBlock = GLCD_new_buffer[pos];
-			GLCD_Write(GLCD_CS_1, GLCD_DI_DATA, newBlock);
-			GLCD_old_buffer[pos] = newBlock;
+			GLCD_Write(GLCD_CS_1, GLCD_DI_DATA, GLCD_new_buffer[pos]);
 			pos++;
 		}
 		GLCD_Write(GLCD_CS_2, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR);
 		GLCD_Write(GLCD_CS_2, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y));
 		for (x = 0; x < 64; x ++) {
-			newBlock = GLCD_new_buffer[pos];
-			GLCD_Write(GLCD_CS_2, GLCD_DI_DATA, newBlock);
-			GLCD_old_buffer[pos] = newBlock;
+			GLCD_Write(GLCD_CS_2, GLCD_DI_DATA, GLCD_new_buffer[pos]);
 			pos++;
 		}
 	}
@@ -96,7 +75,6 @@ void GLCD_update() {
 void GLCD_clear() {
 	for (uint32_t i = 0; i < GLCD_buffer_size; i ++) {
 		GLCD_new_buffer[i] = 0;
-		GLCD_old_buffer[i] = 0xFF;
 	}
 }
 
@@ -512,18 +490,6 @@ void GLCD_Write(int8_t cs_s, int8_t d_i, int8_t g_data) {
 	HAL_GPIO_WritePin(GLCD_CS1_Port, GLCD_CS1_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GLCD_CS2_Port, GLCD_CS2_Pin, GPIO_PIN_RESET);
 }
-/*
-void GLCD_Clear(void) {
-	int8_t x, y;
-	for (x = 0; x < 8; x++) {
-		GLCD_Write(GLCD_CS_12, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR);
-		GLCD_Write(GLCD_CS_12, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | x));
-		for (y = 0; y < 64; y ++) {
-			GLCD_Write(GLCD_CS_12, GLCD_DI_DATA, 0x00);
-		}
-	}
-}
-*/
 
 /**
  * 		m_data: adott metszet rajzolata in hex format
@@ -539,37 +505,6 @@ void GLCD_Write_Block(int8_t m_data, int8_t cY, int8_t cX) {
 	GLCD_Write(chip, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | cY));
 	GLCD_Write(chip, GLCD_DI_DATA, m_data);
 }
-
-/*
-void GLCD_WriteString(const int8_t* string, int8_t Y, int8_t X) {
-	int8_t temp = 0;
-	int i = 0;
-	while (string[i] != '\0') {
-		temp = string[i];
-		GLCD_Write_Char(temp - 32, X, Y + 6 * i);
-		i++;
-	}
-}
-
-void GLCD_Write_Char(int8_t cPlace, int8_t cX, int8_t cY) {
-	int8_t i = 0;
-	int8_t chip = GLCD_CS_1;
-	if(cY >= 64) {
-		chip = GLCD_CS_2;
-		cY -= 64;
-	}
-	GLCD_Write(chip, GLCD_DI_COMMAND, (GLCD_REG_COLUMN_ADDR | cY));
-	GLCD_Write(chip, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | cX));
-	for (i = 0; i < 5; i++) {
-		if (cY + i >= 64) {
-			chip = 2;
-			GLCD_Write(chip, GLCD_DI_COMMAND, (GLCD_REG_COLUMN_ADDR | (cY + i - 64)));
-			GLCD_Write(chip, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | cX));
-		}
-		GLCD_Write(chip, GLCD_DI_DATA, fontdata[cPlace * 5 + i]);
-	}
-}
-*/
 
 
 /**
@@ -692,11 +627,6 @@ void MX_TIM8_Init(void) {
 	/* USER CODE END TIM8_Init 2 */
 }
 
-
-
-
-
-
 /**
 	* @brief GPIO Initialization Function
 	* @param None
@@ -735,12 +665,3 @@ void MX_GLCD_GPIO_Init(void) {
 	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
-
-
-
-
-
-
-
-
-
