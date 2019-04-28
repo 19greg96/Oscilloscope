@@ -196,7 +196,7 @@ float avarageAnglesRad(float a_rad, float b_rad) {
 	return atan2f(y, x);
 }
 
-void BODE_processBuffer(float* inputBuffer_V, float* outputBuffer_V) {
+void BODE_processBuffer() {
 	if (BODE_status == -1) {
 		return;
 	}
@@ -234,8 +234,8 @@ void BODE_processBuffer(float* inputBuffer_V, float* outputBuffer_V) {
 	float mag1, mag2; // power
 	float phase_rad1, phase_rad2;
 	// TODO: in theory, full buffer can be used here to double the frequency resolution of the FFT
-	BODE_getMaxBinParams(inputBuffer_V, &binIdx1, &mag1, &phase_rad1); // channel 1 is DAC output fed straight back to ADC (Uin)
-	BODE_getMaxBinParams(outputBuffer_V, &binIdx2, &mag2, &phase_rad2); // channel 2 goes through passive network (Uout)
+	BODE_getMaxBinParams(g_graphBuffer1_V, &binIdx1, &mag1, &phase_rad1); // channel 1 is DAC output fed straight back to ADC (Uin)
+	BODE_getMaxBinParams(g_graphBuffer2_V, &binIdx2, &mag2, &phase_rad2); // channel 2 goes through passive network (Uout)
 	
 	// dF = Fs / N
 	float dF_Hz = ADC_GetFrequencySettings()->frequency / (float)(ADC_INPUT_BUFFER_SIZE / 2); // frequency resolution of DFT = Fs / N

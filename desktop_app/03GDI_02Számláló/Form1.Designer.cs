@@ -35,6 +35,8 @@
 			this.label3 = new System.Windows.Forms.Label();
 			this.label4 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
+			this.captureBufferBtn = new System.Windows.Forms.Button();
+			this.captureScreenBtn = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
 			this.SuspendLayout();
@@ -105,11 +107,33 @@
 			this.label5.TabIndex = 6;
 			this.label5.Text = "label5";
 			// 
+			// captureBufferBtn
+			// 
+			this.captureBufferBtn.Location = new System.Drawing.Point(997, 63);
+			this.captureBufferBtn.Name = "captureBufferBtn";
+			this.captureBufferBtn.Size = new System.Drawing.Size(75, 40);
+			this.captureBufferBtn.TabIndex = 7;
+			this.captureBufferBtn.Text = "Capture Buffer";
+			this.captureBufferBtn.UseVisualStyleBackColor = true;
+			this.captureBufferBtn.Click += new System.EventHandler(this.captureBufferBtn_Click);
+			// 
+			// captureScreenBtn
+			// 
+			this.captureScreenBtn.Location = new System.Drawing.Point(997, 109);
+			this.captureScreenBtn.Name = "captureScreenBtn";
+			this.captureScreenBtn.Size = new System.Drawing.Size(75, 40);
+			this.captureScreenBtn.TabIndex = 8;
+			this.captureScreenBtn.Text = "Capture Screen";
+			this.captureScreenBtn.UseVisualStyleBackColor = true;
+			this.captureScreenBtn.Click += new System.EventHandler(this.captureScreenBtn_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1084, 473);
+			this.Controls.Add(this.captureScreenBtn);
+			this.Controls.Add(this.captureBufferBtn);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.label4);
 			this.Controls.Add(this.label3);
@@ -136,6 +160,8 @@
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.Button captureBufferBtn;
+		private System.Windows.Forms.Button captureScreenBtn;
 	}
 }
 

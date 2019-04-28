@@ -569,11 +569,8 @@ void ADC_setTriggerLevel(float level_V) {
 	}
 }
 
-void ADC_update(float* outputBuffer1_V, float* outputBuffer2_V) {
-	char tmpBuff[32];
-	
+void ADC_update() {
 	if (ADC_conversionEnd) {
-		UART_writeString("\nclr\n");
 		float rangeOffset;
 		float divisor = (1 << ADC_oversampling);
 		
@@ -586,15 +583,9 @@ void ADC_update(float* outputBuffer1_V, float* outputBuffer2_V) {
 		}
 		for (uint32_t i = 0; i < ADC_INPUT_BUFFER_SIZE / 2; i ++) {
 			uint32_t val = g_ADCOversampledBuffer1[(i + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK];
-			outputBuffer1_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
-			
-			// TODO: if uart transmit enabled
-			//sprintf(tmpBuff, "%ld\n", (int32_t)(outputBuffer1_V[i] * 4096.0f));
-			//UART_writeString(tmpBuff);
+			g_graphBuffer1_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
 		}
 		// End process Channel A
-		
-		UART_writeString("\nrst\n");
 		
 		// Process Channel B
 		if (HAL_GPIO_ReadPin(IN1_AC_GPIO_Port, IN2_AC_Pin) == GPIO_PIN_RESET) { // AC coupling is on
@@ -605,40 +596,11 @@ void ADC_update(float* outputBuffer1_V, float* outputBuffer2_V) {
 		int32_t bufferOffset = ((ADC_bufferDelta & 512) ? (-(((~(int32_t)ADC_bufferDelta) & ADC_INPUT_BUFFER_MASK) + 1)) : (int32_t)ADC_bufferDelta) / (int32_t)divisor; // convert from 10bit two's complement to hardware two's complement
 		for (uint32_t i = 0; i < ADC_INPUT_BUFFER_SIZE / 2; i ++) {
 			uint32_t val = g_ADCOversampledBuffer2[(i + (bufferOffset) + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK];
-			outputBuffer2_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
-			
-			// TODO: if uart transmit enabled
-			//sprintf(tmpBuff, "%ld\n", (int32_t)(outputBuffer2_V[i] * 4096.0f));
-			//UART_writeString(tmpBuff);
+			g_graphBuffer2_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
 		}
 		// End process Channel B
 		
-		
-		BODE_processBuffer(outputBuffer1_V, outputBuffer2_V);
-		
-		/*
-		// UART transmit
-		for (uint32_t i = 0; i < ADC_INPUT_BUFFER_SIZE / 2; i ++) { // only half the buffer is usable
-			// g_ADCBuffer[(i + ADC_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK]
-			sprintf(tmpBuff, "%lu\n", (uint32_t)(g_ADCOversampledBuffer2[(i + ADC_bufferDelta + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK]));
-			UART_writeString(tmpBuff);
-		}
-		
-		
-		
-		uint32_t max = (ADC_INPUT_BUFFER_SIZE / 2);
-		uint32_t val;
-		for (uint32_t i = 0; i < max; i ++) { // only half the buffer is usable
-			val = g_ADCOversampledBuffer1[(i + ADC_Oversampled_triggered_at - (max >> 1)) & ADC_INPUT_BUFFER_MASK];
-			sprintf(tmpBuff, "%lu\n", val >> ADC_oversampling); // center the trigger point
-			UART_writeString(tmpBuff);
-		}
-		*/
-		sprintf(tmpBuff, "capat %d\n", (ADC_INPUT_BUFFER_SIZE / 4));
-		UART_writeString(tmpBuff);
-		sprintf(tmpBuff, "triglv %lu\n", SCOPE_triggerLevel >> ADC_oversampling);
-		UART_writeString(tmpBuff);
-		// End UART transmit
+		BODE_processBuffer();
 		
 		if (SCOPE_triggerMode == SCOPE_TRIGGER_CONTINUOUS || SCOPE_triggerMode == SCOPE_TRIGGER_DISABLE) {
 			if (runEnabled) {

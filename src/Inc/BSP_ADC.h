@@ -2,8 +2,7 @@
 #ifndef __BSP_ADC_H
 #define __BSP_ADC_H
 
-
-#include "main.h"
+#include "stm32f4xx_hal.h"
 #include <stdint.h>
 
 #define ADC_VREF		3.3f
@@ -81,7 +80,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc);
 extern ADC_FrequencySettingsTypedef ADC_FrequencyTable[];
 void ADC_Init();
 void ADC_setTriggerLevel(float level_V);
-void ADC_update(float* outputBuffer1_V, float* outputBuffer2_V);
+void ADC_update();
 
 uint32_t numADCFrequencySettings;
 void ADC_SetFrequencyID(uint32_t id);

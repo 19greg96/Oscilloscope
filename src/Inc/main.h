@@ -57,7 +57,6 @@ extern "C" {
 #include "math.h"
 
 
-
 TIM_HandleTypeDef htim3; // encoder
 
 
@@ -68,6 +67,11 @@ TIM_HandleTypeDef htim3; // encoder
 #include "BSP_ADC.h"
 #include "BSP_DAC.h"
 #include "BSP_UIIO.h"
+
+float g_graphBuffer1_V[ADC_INPUT_BUFFER_SIZE / 2];	// TODO: reduce number of redundant ADC buffers
+float g_graphBuffer2_V[ADC_INPUT_BUFFER_SIZE / 2];	// TODO: reduce number of redundant ADC buffers
+
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

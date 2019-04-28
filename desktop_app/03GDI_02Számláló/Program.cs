@@ -168,6 +168,14 @@ namespace Demo2
 			}
 		}
 
+		internal static void captureScreen() {
+			_serialPort.Write("s");
+		}
+
+		internal static void captureBuffer() {
+			_serialPort.Write("b");
+		}
+
 		internal static void setTriggerLevel(int value) {
 			byte val = (byte)value;
 			_serialPort.Write(new byte[] { (byte)'t', val}, 0, 2);

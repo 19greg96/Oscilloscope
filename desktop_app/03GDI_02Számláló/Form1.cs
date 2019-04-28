@@ -108,6 +108,14 @@ namespace Demo2
 		private void trackBar2_Scroll(object sender, EventArgs e) {
 			Program.setTriggerLevel(trackBar2.Value);
 		}
+
+		private void captureBufferBtn_Click(object sender, EventArgs e) {
+			Program.captureBuffer();
+		}
+
+		private void captureScreenBtn_Click(object sender, EventArgs e) {
+			Program.captureScreen();
+		}
 	}
 
     
