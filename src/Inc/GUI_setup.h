@@ -22,7 +22,7 @@
 
 
 
-void GUI_setup_init(float* outputBuffer1_V, float* outputBuffer2_V);
+void GUI_setup_init();
 
 
 #endif /* GUI_SETUP_H_ */

@@ -48,18 +48,15 @@
 #include "GUI_setup.h"
 #include "bode.h"
 
-float graphBuffer1_V[ADC_INPUT_BUFFER_SIZE / 2];	// TODO: reduce number of redundant ADC buffers
-float graphBuffer2_V[ADC_INPUT_BUFFER_SIZE / 2];	// TODO: reduce number of redundant ADC buffers
-
 int main(void) {
 	HAL_HardwareInit();
 	
 	GUI_init();
-	GUI_setup_init(graphBuffer1_V, graphBuffer2_V);
+	GUI_setup_init();
 	BODE_init();
 	
 	while (1) {
-		ADC_update(graphBuffer1_V, graphBuffer2_V); // process ADC buffer
+		ADC_update(); // process ADC buffer
 		UART_update(); // read commands from uart
 		
 		UIIO_update(); // update button states

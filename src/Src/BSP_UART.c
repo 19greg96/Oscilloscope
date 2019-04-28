@@ -50,7 +50,8 @@ void UART_init() {
 void UART_update() {
     float f;
     uint32_t t;
-	
+    char tmpBuff[32];
+    
 	if (UART_available()) {
 		uint8_t inChar = UART_read8();
 		switch (inChar) {
@@ -64,6 +65,28 @@ void UART_update() {
 				
 				SCOPE_triggerLevel = t << ADC_oversampling;
 
+				break;
+			case 's': // screen capture
+				
+				break;
+			case 'b': // buffer capture
+				UART_writeString("\nclr\n");
+				
+				for (uint32_t i = 0; i < (ADC_INPUT_BUFFER_SIZE / 2); i ++) {
+					sprintf(tmpBuff, "%ld\n", (int32_t)(g_graphBuffer1_V[i] * 4096.0f));
+					UART_writeString(tmpBuff);
+				}
+				UART_writeString("\nrst\n");
+				for (uint32_t i = 0; i < (ADC_INPUT_BUFFER_SIZE / 2); i ++) {
+					sprintf(tmpBuff, "%ld\n", (int32_t)(g_graphBuffer2_V[i] * 4096.0f));
+					UART_writeString(tmpBuff);
+				}
+				
+				sprintf(tmpBuff, "capat %d\n", (ADC_INPUT_BUFFER_SIZE / 4));
+				UART_writeString(tmpBuff);
+				sprintf(tmpBuff, "triglv %lu\n", SCOPE_triggerLevel >> ADC_oversampling);
+				UART_writeString(tmpBuff);
+				
 				break;
 			default:
 				UART_write8(inChar);

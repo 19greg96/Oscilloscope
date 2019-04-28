@@ -39,7 +39,7 @@ uint32_t BODE_measurementTime; // ms time it takes to run a complete measurement
 uint32_t BODE_measurementStartTime; // ms
 
 void BODE_init();
-void BODE_processBuffer(float* inputBuffer_V, float* outputBuffer_V); // called by BSP_ADC.c::ADC_update
+void BODE_processBuffer(); // called by BSP_ADC.c::ADC_update
 void BODE_startMeasurement();
 
 #endif /* BODE_H_ */

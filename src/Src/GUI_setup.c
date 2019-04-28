@@ -153,12 +153,12 @@ void mainScreenSetup(){ // main screen
 	GUI_screen_add_component(functionSelectScreen, ms4_backlightScrollButton);
 }
 
-void scopeScreenSetup(float* outputBuffer1_V, float* outputBuffer2_V) { // scope screen
+void scopeScreenSetup() { // scope screen
 	GUI_Screen* scopeScreen = GUI_screen_create();
 	
 	scopeGraph = GUI_graph_create(GLCD_width, GLCD_height - 9);
-	scopeGraph->data_1 = outputBuffer1_V;
-	scopeGraph->data_2 = outputBuffer2_V;
+	scopeGraph->data_1 = g_graphBuffer1_V;
+	scopeGraph->data_2 = g_graphBuffer2_V;
 	scopeGraph->dataBufferSize = ADC_INPUT_BUFFER_SIZE / 2;
 	scopeGraph->mode = GUI_GRAPH_MODE_12CH_NORMAL;
 	arm_rfft_fast_init_f32(&scopeGraph->FFTStruct, scopeGraph->dataBufferSize); // this graph will be able to run FFT (TODO: this should be done in graph or in global math handler)
@@ -433,7 +433,7 @@ void bodeScreenSetup() { // Bode screen
 	// TODO: bode graph
 }
 
-void GUI_setup_init(float* outputBuffer1_V, float* outputBuffer2_V) {
+void GUI_setup_init() {
 	defaultFont = GUI_register_font(&GUI_font_legible3x5_6ptFontInfo);
 	
 	GUI_Sprite* bottomMenuOutlineSprite = GUI_sprite_create(onDrawBottomMenuOutlineSprite);
@@ -443,7 +443,7 @@ void GUI_setup_init(float* outputBuffer1_V, float* outputBuffer2_V) {
 	fs3_nextButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 * 2 + 2,	GLCD_height - LINE_HEIGHT, GUI_button_create("   >", defaultFont, onNextBtn));
 	
 	mainScreenSetup();
-	scopeScreenSetup(outputBuffer1_V, outputBuffer2_V);
+	scopeScreenSetup();
 	functionGeneratorScreenSetup();
 	bodeScreenSetup();
 	
