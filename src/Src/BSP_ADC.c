@@ -345,7 +345,6 @@ void SCOPE_startConversion() {
 	}
 }
 
-// TODO: the correction values here depend on buffer size implying issue with oversampling
 ADC_FrequencySettingsTypedef ADC_FrequencyTable[] = {
 	{ .frequency = 2500000.0f,			.prescaler = ADC_CLOCK_SYNC_PCLK_DIV4, .resolution = ADC_RESOLUTION_6B,		.sampleTime = ADC_SAMPLETIME_3CYCLES,	.oversampling = 0}, // 0	9us		good
 	{ .frequency = 1500000.0f,			.prescaler = ADC_CLOCK_SYNC_PCLK_DIV4, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_3CYCLES,	.oversampling = 0}, // 1	14us	good
@@ -359,12 +358,12 @@ ADC_FrequencySettingsTypedef ADC_FrequencyTable[] = {
 	{ .frequency = 31250.0f,			.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_3CYCLES,	.oversampling = 5}, // 9	683us	good
 	{ .frequency = 10340.0f,			.prescaler = ADC_CLOCK_SYNC_PCLK_DIV8, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_56CYCLES,	.oversampling = 4}, // 10	2ms		good
 	{ .frequency = 3000.0f,				.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_144CYCLES,	.oversampling = 5}, // 11	7ms		good
-	{ .frequency = 1365.33f/*1500.0f*/,	.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_144CYCLES,	.oversampling = 6}, // 12	16ms	good with correction
+	{ .frequency = 1500.0f,				.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_144CYCLES,	.oversampling = 6}, // 12	14ms	good
 	{ .frequency = 952.74f,				.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 5}, // 13	22ms	good
-	{ .frequency = 580.27f/*751.2f*/,	.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_144CYCLES,	.oversampling = 7}, // 14	37ms	good with correction
-	{ .frequency = 426.66f/*357.28f*/,	.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 6}, // 15	50ms	good with correction		(128/6)/Fs
-	{ .frequency = 178.64f,				.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 7}, // 16	210ms	good
-	{ .frequency = 46.933f/*89.32f*/,	.prescaler = ADC_CLOCK_SYNC_PCLK_DIV8, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 8}, // 17	240ms	good with correction
+	{ .frequency = 751.2f,				.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_144CYCLES,	.oversampling = 7}, // 14	28ms	good
+	{ .frequency = 469.33f/*357.28f*/,	.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 6}, // 15	45ms	correction		(128/6)/Fs
+	{ .frequency = 234.66f/*178.64f*/,	.prescaler = ADC_CLOCK_SYNC_PCLK_DIV6, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 7}, // 16	91ms	correction	
+	{ .frequency = 89.32f,				.prescaler = ADC_CLOCK_SYNC_PCLK_DIV8, .resolution = ADC_RESOLUTION_12B,	.sampleTime = ADC_SAMPLETIME_480CYCLES,	.oversampling = 8}, // 17	240ms
 };
 // Correction values calculated by setting DAC frequency so one whole period fills 4 horizontal divisions
 // Fs is then (128/6)*4*Fdac
@@ -593,7 +592,7 @@ void ADC_update() {
 		} else { // AC coupling is off
 			rangeOffset = 0.0f;
 		}
-		int32_t bufferOffset = ((ADC_bufferDelta & 512) ? (-(((~(int32_t)ADC_bufferDelta) & ADC_INPUT_BUFFER_MASK) + 1)) : (int32_t)ADC_bufferDelta) / (int32_t)divisor; // convert from 10bit two's complement to hardware two's complement
+		int32_t bufferOffset = ((ADC_bufferDelta & (ADC_INPUT_BUFFER_SIZE / 2)) ? (-(((~(int32_t)ADC_bufferDelta) & ADC_INPUT_BUFFER_MASK) + 1)) : (int32_t)ADC_bufferDelta) / (int32_t)divisor; // convert from 10bit two's complement to hardware two's complement
 		for (uint32_t i = 0; i < ADC_INPUT_BUFFER_SIZE / 2; i ++) {
 			uint32_t val = g_ADCOversampledBuffer2[(i + (bufferOffset) + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK];
 			g_graphBuffer2_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
