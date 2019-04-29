@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO.Ports;
 using System.Threading;
 using System.Windows.Forms;
@@ -16,6 +17,9 @@ namespace Demo2
 		static int bufferSize;
 		static int[] data1;
 		static int[] data2;
+		static Bitmap scopeDisplay;
+		static bool isScreenCapture;
+		private static int screenCurrByte;
 		static int currBuff;
 		static int capturedAt;
 		static List<int> verticalLinesCH1;
@@ -26,6 +30,9 @@ namespace Demo2
 		static float Fout;
 		static int triggerLevel;
 		static Form1 mainForm;
+		private static int screenWidth;
+		private static int screenHeight;
+		private static int screenNumBytes;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -47,6 +54,7 @@ namespace Demo2
 
 			Thread readThread = new Thread(Read);
 			_continue = true;
+			isScreenCapture = false;
 
 			_serialPort = new SerialPort();
 			// _serialPort.PortName = "COM5";
@@ -112,6 +120,12 @@ namespace Demo2
 			_serialPort.Write(new byte[] { (byte)'f', byteArray[0], byteArray[1], byteArray[2], byteArray[3] }, 0, 5);
 		}
 
+		public static void copyScreenCapture() {
+			Clipboard.SetImage(scopeDisplay);
+		}
+
+		public delegate void copyScreenCaptureDelegate();
+
 		public static void Read() {
 			while (_continue) {
 				try {
@@ -125,6 +139,15 @@ namespace Demo2
 
 						verticalLinesCH1.Clear();
 						verticalLinesCH2.Clear();
+					} else if (msg.StartsWith("s")) {
+						screenWidth = int.Parse(msg.Split(' ')[1]);
+						screenHeight = int.Parse(msg.Split(' ')[2]);
+						screenNumBytes = int.Parse(msg.Split(' ')[3]);
+						isScreenCapture = true;
+						screenCurrByte = 0;
+
+						scopeDisplay = new Bitmap(screenWidth, screenHeight);
+						// dataSize = int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("capat")) {
 						capturedAt = int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("triglv")) {
@@ -149,15 +172,37 @@ namespace Demo2
 							currBuff = 1;
 						}
 					} else {
-						if (currBuff == 1) {
-							data1[dataPtr1] = int.Parse(msg);
-							dataPtr1++;
-							if (dataPtr1 > bufferSize) {
-								bufferSize = dataPtr1;
+						if (isScreenCapture) {
+							int vertical8Pixels = int.Parse(msg);
+							int x = screenCurrByte % screenWidth;
+							int y = (screenCurrByte / screenWidth) * 8;
+
+							if ((vertical8Pixels & 0x80) != 0) { scopeDisplay.SetPixel(x, y + 7, Color.Black); }
+							if ((vertical8Pixels & 0x40) != 0) { scopeDisplay.SetPixel(x, y + 6, Color.Black); }
+							if ((vertical8Pixels & 0x20) != 0) { scopeDisplay.SetPixel(x, y + 5, Color.Black); }
+							if ((vertical8Pixels & 0x10) != 0) { scopeDisplay.SetPixel(x, y + 4, Color.Black); }
+
+							if ((vertical8Pixels & 0x08) != 0) { scopeDisplay.SetPixel(x, y + 3, Color.Black); }
+							if ((vertical8Pixels & 0x04) != 0) { scopeDisplay.SetPixel(x, y + 2, Color.Black); }
+							if ((vertical8Pixels & 0x02) != 0) { scopeDisplay.SetPixel(x, y + 1, Color.Black); }
+							if ((vertical8Pixels & 0x01) != 0) { scopeDisplay.SetPixel(x, y + 0, Color.Black); }
+
+							screenCurrByte++;
+							if (screenCurrByte == screenNumBytes) {
+								isScreenCapture = false;
+								Program.mainForm.Invoke(new copyScreenCaptureDelegate(Program.copyScreenCapture));
 							}
 						} else {
-							data2[dataPtr2] = int.Parse(msg);
-							dataPtr2++;
+							if (currBuff == 1) {
+								data1[dataPtr1] = int.Parse(msg);
+								dataPtr1++;
+								if (dataPtr1 > bufferSize) {
+									bufferSize = dataPtr1;
+								}
+							} else {
+								data2[dataPtr2] = int.Parse(msg);
+								dataPtr2++;
+							}
 						}
 					}
 					

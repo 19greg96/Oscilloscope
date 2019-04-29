@@ -70,6 +70,7 @@ void GLCD_update();
 void GLCD_clear();
 
 uint8_t* GLCD_getBuffer(uint32_t* buffSize); // for UART screen capture
+void GLCD_getSize(uint32_t* w, uint32_t* h);
 
 uint32_t GLCD_width;
 uint32_t GLCD_height;

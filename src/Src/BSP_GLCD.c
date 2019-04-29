@@ -82,6 +82,10 @@ uint8_t* GLCD_getBuffer(uint32_t* buffSize) {
 	*buffSize = GLCD_bufferSize;
 	return GLCD_backBuffer;
 }
+void GLCD_getSize(uint32_t* w, uint32_t* h) {
+	*w = GLCD_width;
+	*h = GLCD_height;
+}
 
 void GLCD_flood_fill_util(int32_t x, int32_t y, uint8_t prevC, uint8_t newC);
 void GLCD_draw_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornername, uint8_t color);

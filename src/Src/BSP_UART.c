@@ -66,8 +66,22 @@ void UART_update() {
 				SCOPE_triggerLevel = t << ADC_oversampling;
 
 				break;
-			case 's': // screen capture
+			case 's': { // screen capture
 				
+				uint32_t displayBuffSize;
+				uint32_t displayW;
+				uint32_t displayH;
+				uint8_t* displayBuff = GLCD_getBuffer(&displayBuffSize);
+				GLCD_getSize(&displayW, &displayH);
+				// width, height, number of data, data size
+				sprintf(tmpBuff, "s %lu %lu %lu %u\n", displayW, displayH, displayBuffSize, sizeof(*displayBuff));
+				UART_writeString(tmpBuff);
+				
+				for (uint32_t i = 0; i < displayBuffSize; i ++) {
+					sprintf(tmpBuff, "%d\n", displayBuff[i]);
+					UART_writeString(tmpBuff);
+				}
+			}
 				break;
 			case 'b': // buffer capture
 				UART_writeString("\nclr\n");
