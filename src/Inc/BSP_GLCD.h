@@ -90,14 +90,14 @@ typedef enum {
 uint8_t GLCD_set_pixel(int32_t x, int32_t y, uint8_t v);
 uint8_t GLCD_get_pixel(int32_t x, int32_t y);
 void GLCD_flood_fill(int32_t x, int32_t y, uint8_t newC);
-void GLCD_draw_circle(int32_t x0, int32_t y0, uint32_t r, uint8_t color);
-void GLCD_fill_circle(int32_t x0, int32_t y0, uint32_t r, uint8_t color);
+void GLCD_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color);
+void GLCD_fill_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color);
 void GLCD_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color);
 void GLCD_draw_line_style(int32_t x0, int32_t y0, int32_t x1, int32_t y1, GLCD_LineStyle style, uint8_t color);
 void GLCD_draw_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint8_t color);
 void GLCD_fill_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint8_t color);
-void GLCD_draw_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint8_t color);
-void GLCD_fill_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint8_t color);
+void GLCD_draw_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t r, uint8_t color);
+void GLCD_fill_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t r, uint8_t color);
 void GLCD_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
 void GLCD_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
 

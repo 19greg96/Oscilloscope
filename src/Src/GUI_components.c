@@ -61,6 +61,18 @@ void formatEmpty(char* out, void* param) {
 	strcpy(out, "");
 }
 
+void GUI_drawPanelTriangle(int32_t x, int32_t y, uint8_t triangleFill) {
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 5, triangleFill);
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 5, triangleFill);
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 5, triangleFill); // bottom border of menu
+	
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 4, triangleFill); // center of triangle is white
+	
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 4, GLCD_COLOR_ON); // triangle
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 3, GLCD_COLOR_ON);
+	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 4, GLCD_COLOR_ON);
+}
+
 void GUI_component_select_render(GUI_Component* component) {
 	if (component->selected) {
 		// GLCD_draw_line(component->x, component->y, component->x, component->y + 4, GLCD_COLOR_ON); // GUI_LEFT_PADDING = 2
@@ -219,6 +231,8 @@ GUI_ScrollButton* GUI_scrollButton_create(char* text, uint32_t fontID, float min
 	scrollButton->smallStep = 1;
 	scrollButton->value = val;
 	scrollButton->labelIsValue = 0;
+	scrollButton->panelEnabled = 0;
+	scrollButton->lastScrollTime = 0;
 	
 	GUI_scrollButton_clamp_value(scrollButton);
 	
@@ -229,6 +243,20 @@ void GUI_scrollButton_render(GUI_ScrollButton* scrollButton, int32_t x, int32_t 
 		*((float*)scrollButton->button->label->value) = scrollButton->value;
 	}
 	GUI_button_render(scrollButton->button, x, y);
+	
+	if (scrollButton->panelEnabled && (HAL_GetTick() - scrollButton->lastScrollTime) < GUI_SCROLL_BUTTON_PANEL_SHOW_TIMEOUT && scrollButton->lastScrollTime) {
+		GLCD_fill_round_rect(x - 2, y - 11, GUI_ROW_WIDTH + 1, 7, 1, GLCD_COLOR_OFF);
+		GLCD_draw_round_rect(x - 2, y - 11, GUI_ROW_WIDTH + 1, 7, 1, GLCD_COLOR_ON);
+		GUI_drawPanelTriangle(x, y, GLCD_COLOR_OFF);
+		
+		uint32_t scrollWidth = GUI_ROW_WIDTH - 4;
+		float fullScale = (float)(scrollButton->max - scrollButton->min);
+		float dynamicValue = (float)(scrollButton->value - scrollButton->min);
+		uint32_t position = (dynamicValue / fullScale) * scrollWidth;
+		
+		GLCD_draw_line(x, y - 8, x + scrollWidth, y - 8, GLCD_COLOR_ON);
+		GLCD_draw_line(x + position, y - 9, x + position, y - 7, GLCD_COLOR_ON);
+	}
 }
 void GUI_scrollButton_clamp_value(GUI_ScrollButton* scrollButton) {
 	if (scrollButton->value > scrollButton->max) {
@@ -239,6 +267,7 @@ void GUI_scrollButton_clamp_value(GUI_ScrollButton* scrollButton) {
 	}
 }
 void GUI_scrollButton_scroll(GUI_ScrollButton* scrollButton, int16_t delta, uint8_t largeStep) {
+	scrollButton->lastScrollTime = HAL_GetTick();
 	scrollButton->value += (largeStep ? scrollButton->largeStep : scrollButton->smallStep) * delta;
 	GUI_scrollButton_clamp_value(scrollButton);
 	
@@ -478,6 +507,9 @@ void GUI_menu_add_column(GUI_Menu* menu, GUI_MenuColumn* col) {
 		col->rows[col->numRows - 1]->tabNext = menu->columns->rows[0];
 	}
 }
+
+
+
 void GUI_menu_render(GUI_Menu* menu, int32_t x, int32_t y) {
 	GUI_MenuColumn* tmp = menu->columns;
 	if (tmp == NULL) {
@@ -516,15 +548,7 @@ void GUI_menu_render(GUI_Menu* menu, int32_t x, int32_t y) {
 		}
 	}
 	
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 5, triangleFill);
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 5, triangleFill);
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 5, triangleFill); // bottom border of menu
-	
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 4, triangleFill); // center of triangle is white
-	
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 4, GLCD_COLOR_ON); // triangle
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 3, GLCD_COLOR_ON);
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 4, GLCD_COLOR_ON);
+	GUI_drawPanelTriangle(x, y, triangleFill);
 }
 uint32_t GUI_menu_get_num_columns(GUI_Menu* menu) {
 	GUI_MenuColumn* tmp = menu->columns;

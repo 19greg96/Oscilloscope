@@ -167,7 +167,8 @@ pDst[n] = sqrt(pSrc[(2*n)+0]^2 + pSrc[(2*n)+1]^2);
 	*out_phase_rad = maxBinPhase;
 }
 
-void BODE_startMeasurement() {
+void BODE_startMeasurement(uint32_t startIdx) {
+	// TODO: measure bode in frequency domain with FFT (using for example square wave input) for faster measurement
 	// TODO: save settings before BODE measurement
 	HAL_GPIO_WritePin(IN1_AC_GPIO_Port, IN1_AC_Pin, GPIO_PIN_SET); // Disable AC, AA for all channels, so they do not
 	HAL_GPIO_WritePin(IN1_AA_GPIO_Port, IN1_AA_Pin, GPIO_PIN_SET); // interfere with measurement
@@ -179,7 +180,7 @@ void BODE_startMeasurement() {
 	SCOPE_triggerSource = SCOPE_TRIGGER_SOURCE_DISABLED;
 	
 	// TODO: Disable GUI except for cancel button
-	BODE_status = 0;
+	BODE_status = startIdx * 2;
 	BODE_measurementStartTime = HAL_GetTick();
 }
 void BODE_endMeasurement() {
@@ -231,7 +232,7 @@ void BODE_processBuffer() {
 	char tmpBuff[32];
 	
 	uint32_t binIdx1, binIdx2;
-	float mag1, mag2; // power
+	float mag1, mag2; // magnitude squared
 	float phase_rad1, phase_rad2;
 	// TODO: in theory, full buffer can be used here to double the frequency resolution of the FFT
 	BODE_getMaxBinParams(g_graphBuffer1_V, &binIdx1, &mag1, &phase_rad1); // channel 1 is DAC output fed straight back to ADC (Uin)
@@ -278,4 +279,6 @@ void BODE_processBuffer() {
 	sprintf(tmpBuff, "Fout %ld\n", (int32_t)(f2_Hz * 100.0f));
 	UART_writeString(tmpBuff);
 }
+
+
 

@@ -88,8 +88,8 @@ void GLCD_getSize(uint32_t* w, uint32_t* h) {
 }
 
 void GLCD_flood_fill_util(int32_t x, int32_t y, uint8_t prevC, uint8_t newC);
-void GLCD_draw_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornername, uint8_t color);
-void GLCD_fill_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornername, int32_t delta, uint8_t color);
+void GLCD_draw_circle_util(int32_t x0, int32_t y0, int32_t r, uint8_t cornername, uint8_t color);
+void GLCD_fill_circle_util(int32_t x0, int32_t y0, int32_t r, uint8_t cornername, int32_t centerLength, uint8_t color);
 
 uint8_t GLCD_set_pixel(int32_t x, int32_t y, uint8_t v) {
 	if (x < 0 || x >= GLCD_width || y < 0 || y >= GLCD_height) {
@@ -133,7 +133,7 @@ void GLCD_flood_fill(int32_t x, int32_t y, uint8_t newC) {
 
 
 // Draw a circle outline
-void GLCD_draw_circle(int32_t x0, int32_t y0, uint32_t r, uint8_t color) {
+void GLCD_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color) {
 	GLCD_set_pixel(x0, y0+r, color);
 	GLCD_set_pixel(x0, y0-r, color);
 	GLCD_set_pixel(x0+r, y0, color);
@@ -142,7 +142,7 @@ void GLCD_draw_circle(int32_t x0, int32_t y0, uint32_t r, uint8_t color) {
 	GLCD_draw_circle_util(x0, y0, r, 15, color);
 }
 
-void GLCD_draw_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornername, uint8_t color) {
+void GLCD_draw_circle_util(int32_t x0, int32_t y0, int32_t r, uint8_t cornername, uint8_t color) {
 	int32_t f		 = 1 - r;
 	int32_t ddF_x = 1;
 	int32_t ddF_y = -2 * r;
@@ -177,36 +177,36 @@ void GLCD_draw_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornernam
 	}
 }
 
-void GLCD_fill_circle(int32_t x0, int32_t y0, uint32_t r, uint8_t color) {
+void GLCD_fill_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color) {
 	GLCD_draw_line(x0, y0-r, x0, 2*r, color);
 	GLCD_fill_circle_util(x0, y0, r, 3, 0, color);
 }
 
 // Used to draw circles and roundrects
-void GLCD_fill_circle_util(int32_t x0, int32_t y0, uint32_t r, uint8_t cornername, int32_t delta, uint8_t color) {
-	int32_t f		 = 1 - r;
-	int32_t ddF_x = 1;
-	int32_t ddF_y = -2 * r;
-	int32_t x		 = 0;
-	int32_t y		 = r;
+void GLCD_fill_circle_util(int32_t x0, int32_t y0, int32_t r, uint8_t cornername, int32_t centerLength, uint8_t color) {
+	int32_t f		= 1 - r;
+	int32_t ddF_x	= 1;
+	int32_t ddF_y	= -2 * r;
+	int32_t x		= 0;
+	int32_t y		= r;
 
-	while (x<y) {
+	while (x < y) {
 		if (f >= 0) {
 			y--;
-			ddF_y += 2;
-			f		 += ddF_y;
+			ddF_y	+= 2;
+			f		+= ddF_y;
 		}
 		x++;
-		ddF_x += 2;
-		f		 += ddF_x;
+		ddF_x	+= 2;
+		f		+= ddF_x;
 
-		if (cornername & 0x1) {
-			GLCD_draw_line(x0+x, y0-y, x0+x, 2*y+delta, color);
-			GLCD_draw_line(x0+y, y0-x, x0+y, 2*x+delta, color);
+		if (cornername & 0x1) { // right half
+			GLCD_draw_line(x0+x, y0-y, x0+x, y0 + y+centerLength, color);
+			GLCD_draw_line(x0+y, y0-x, x0+y, y0 + x+centerLength, color);
 		}
-		if (cornername & 0x2) {
-			GLCD_draw_line(x0-x, y0-y, x0-x, 2*y+delta, color);
-			GLCD_draw_line(x0-y, y0-x, x0-y, 2*x+delta, color);
+		if (cornername & 0x2) { // left half
+			GLCD_draw_line(x0-x, y0-y, x0-x, y0 + y+centerLength, color);
+			GLCD_draw_line(x0-y, y0-x, x0-y, y0 + x+centerLength, color);
 		}
 	}
 }
@@ -301,27 +301,27 @@ void GLCD_fill_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint8_t color)
 }
 
 // Draw a rounded rectangle
-void GLCD_draw_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint8_t color) {
+void GLCD_draw_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t r, uint8_t color) {
 	// smarter version
-	GLCD_draw_line(x + r, y, x + w - 2 * r, y, color); // top
-	GLCD_draw_line(x + r, y + h - 1, x + w - 2 * r, y + h - 1, color); // bottom
-	GLCD_draw_line(x, y + r, x, y + h - 2 * r, color); // left
-	GLCD_draw_line(x + w - 1, y + r, x + w - 1, y + h - 2 * r, color); // right
+	GLCD_draw_line(x + r,		y,			x + w - 2 * r,	y,				color); // top
+	GLCD_draw_line(x + r,		y + h - 1,	x + w - 2 * r,	y + h - 1,		color); // bottom
+	GLCD_draw_line(x,			y + r,		x,				y + h - 2 * r,	color); // left
+	GLCD_draw_line(x + w - 1,	y + r,		x + w - 1,		y + h - 2 * r,	color); // right
 	// draw four corners
-	GLCD_draw_circle_util(x+r, y+r, r, 1, color);
-	GLCD_draw_circle_util(x+w-r-1, y+r, r, 2, color);
-	GLCD_draw_circle_util(x+w-r-1, y+h-r-1, r, 4, color);
-	GLCD_draw_circle_util(x+r, y+h-r-1, r, 8, color);
+	GLCD_draw_circle_util(x+r,		y+r,		r, 1, color);
+	GLCD_draw_circle_util(x+w-r-1,	y+r,		r, 2, color);
+	GLCD_draw_circle_util(x+w-r-1,	y+h-r-1,	r, 4, color);
+	GLCD_draw_circle_util(x+r,		y+h-r-1,	r, 8, color);
 }
 
 // Fill a rounded rectangle
-void GLCD_fill_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t r, uint8_t color) {
+void GLCD_fill_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t r, uint8_t color) {
 	// smarter version
-	GLCD_fill_rect(x+r, y, w-2*r, h, color);
+	GLCD_fill_rect(x + r, y, w - 2 * r, h, color); // draw center horizontal fill of rectangle (from x+r to end-r)
 
-	// draw four corners
-	GLCD_fill_circle_util(x+w-r-1, y+r, r, 1, h-2*r-1, color);
-	GLCD_fill_circle_util(x+r, y+r, r, 2, h-2*r-1, color);
+	// draw two sides
+	GLCD_fill_circle_util(x + w - r - 1,	y + r, r, 1, h - 2 * r - 1, color); // right side
+	GLCD_fill_circle_util(x + r,			y + r, r, 2, h - 2 * r - 1, color); // left side
 }
 
 // Draw a triangle

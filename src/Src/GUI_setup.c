@@ -68,8 +68,10 @@ GUI_Component* outputBufferToggleButtonComponent;
 
 // Bode Screen
 GUI_Component* bs1_measureButton;
-GUI_Component* bs2_fminScrollButton;
-GUI_Component* bs3_fmaxScrollButton;
+GUI_ScrollButton* bs2_fminScrollButton;
+GUI_Component* bs2_fminScrollButtonComponent;
+GUI_ScrollButton* bs3_fmaxScrollButton;
+GUI_Component* bs3_fmaxScrollButtonComponent;
 GUI_Component* bs4_toggleButton;
 
 
@@ -128,7 +130,7 @@ void onDrawBottomMenuOutlineSprite(GUI_Sprite* sprite, int32_t x, int32_t y);
 
 uint32_t defaultFont;
 
-void mainScreenSetup(){ // main screen
+void mainScreenSetup() { // main screen
 	GUI_Screen* functionSelectScreen = GUI_screen_create();
 	GUI_screen_add_component(functionSelectScreen, bottomMenuOutlineSpriteComponent);
 	/*
@@ -139,6 +141,7 @@ void mainScreenSetup(){ // main screen
 	GUI_ScrollButton* sb = GUI_scrollButton_create("Light", defaultFont, 0.0f, 100.0f, 50.0f, onBrightnessScroll);
 	sb->smallStep = 1.0f;
 	sb->largeStep = 5.0f;
+	sb->panelEnabled = 1;
 	
 	ms1_scopeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		2,							GLCD_height - LINE_HEIGHT, GUI_button_create("Scope", defaultFont, onScopeBtnClick));
 	ms2_fnGenButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 + 2,			GLCD_height - LINE_HEIGHT, GUI_button_create("Fn gen", defaultFont, onFnGenBtnClick));
@@ -417,17 +420,21 @@ void bodeScreenSetup() { // Bode screen
 	GUI_screen_add_component(bodeScreen, bottomMenuOutlineSpriteComponent);
 	
 	bs1_measureButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		2,						GLCD_height - LINE_HEIGHT, GUI_button_create("Measure", defaultFont, onBodeMeasureClick));
-	bs2_fminScrollButton	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	GLCD_width / 4 + 2,		GLCD_height - LINE_HEIGHT, GUI_scrollButton_create("Fmin", defaultFont, 0, 10, 1, NULL));
-	bs3_fmaxScrollButton	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	GLCD_width / 4 * 2 + 2,	GLCD_height - LINE_HEIGHT, GUI_scrollButton_create("Fmax", defaultFont, 0, 10, 1, NULL));
+	bs2_fminScrollButton = GUI_scrollButton_create("Fmin", defaultFont, 0, BODE_NUM_CONFIGURATIONS, 0, NULL);
+	bs2_fminScrollButton->panelEnabled = 1;
+	bs2_fminScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	GLCD_width / 4 + 2,		GLCD_height - LINE_HEIGHT, bs2_fminScrollButton);
+	bs3_fmaxScrollButton = GUI_scrollButton_create("Fmax", defaultFont, 0, 10, 1, NULL);
+	bs3_fmaxScrollButton->panelEnabled = 1;
+	bs3_fmaxScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	GLCD_width / 4 * 2 + 2,	GLCD_height - LINE_HEIGHT, bs3_fmaxScrollButton);
 	bs4_toggleButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 * 3 + 2,	GLCD_height - LINE_HEIGHT, GUI_button_create("Toggle", defaultFont, NULL));
 	
 	GUI_Sprite* bsProgressSprite = GUI_sprite_create(onDrawBodeProgressSprite);
-	GUI_Component* bsProgressSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 32, 28, bsProgressSprite);
+	GUI_Component* bsProgressSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 32, 10, bsProgressSprite);
 	GUI_screen_add_component(bodeScreen, bsProgressSpriteComponent);
 	
 	GUI_screen_add_component(bodeScreen, bs1_measureButton);
-	GUI_screen_add_component(bodeScreen, bs2_fminScrollButton);
-	GUI_screen_add_component(bodeScreen, bs3_fmaxScrollButton);
+	GUI_screen_add_component(bodeScreen, bs2_fminScrollButtonComponent);
+	GUI_screen_add_component(bodeScreen, bs3_fmaxScrollButtonComponent);
 	GUI_screen_add_component(bodeScreen, bs4_toggleButton);
 	
 	// TODO: bode graph
@@ -478,7 +485,7 @@ void onSoftBtn2Click(UIIO_BtnTypedef* btn) {
 	} else if (GUI_curr_screen == SCREEN_FNGEN) {
 		GUI_click_component(fs2_prevButton);
 	} else if (GUI_curr_screen == SCREEN_BODE) {
-		GUI_click_component(bs2_fminScrollButton);
+		GUI_click_component(bs2_fminScrollButtonComponent);
 	}
 }
 void onSoftBtn3Click(UIIO_BtnTypedef* btn) {
@@ -489,7 +496,7 @@ void onSoftBtn3Click(UIIO_BtnTypedef* btn) {
 	} else if (GUI_curr_screen == SCREEN_FNGEN) {
 		GUI_click_component(fs3_nextButton);
 	} else if (GUI_curr_screen == SCREEN_BODE) {
-		GUI_click_component(bs3_fmaxScrollButton);
+		GUI_click_component(bs3_fmaxScrollButtonComponent);
 	}
 }
 void onSoftBtn4Click(UIIO_BtnTypedef* btn) {
@@ -922,7 +929,7 @@ void onPrevBtn(void* caller) {
 
 // bode screen
 void onBodeMeasureClick(void* caller) {
-	BODE_startMeasurement();
+	BODE_startMeasurement((uint32_t)bs2_fminScrollButton->value);
 }
 void onDrawBodeProgressSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 	float deltaX = 128 / BODE_NUM_CONFIGURATIONS;

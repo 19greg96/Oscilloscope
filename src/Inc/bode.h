@@ -40,6 +40,6 @@ uint32_t BODE_measurementStartTime; // ms
 
 void BODE_init();
 void BODE_processBuffer(); // called by BSP_ADC.c::ADC_update
-void BODE_startMeasurement();
+void BODE_startMeasurement(uint32_t startIdx);
 
 #endif /* BODE_H_ */

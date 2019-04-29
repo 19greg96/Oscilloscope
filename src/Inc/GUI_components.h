@@ -84,6 +84,7 @@ typedef struct GUI_Button {
 GUI_Button* GUI_button_create(char* text, uint32_t fontID, GUI_CallbackTypedef onClick);
 void GUI_button_render(GUI_Button* button, int32_t x, int32_t y);
 
+#define GUI_SCROLL_BUTTON_PANEL_SHOW_TIMEOUT	1500U	// time for panel to hide after scroll event in ms
 typedef struct GUI_ScrollButton {
 	GUI_Button* button;
 	
@@ -93,6 +94,8 @@ typedef struct GUI_ScrollButton {
 	float largeStep;
 	float value;
 	uint8_t labelIsValue;
+	uint8_t panelEnabled;
+	uint32_t lastScrollTime;
 	GUI_CallbackTypedef onScroll;
 } GUI_ScrollButton;
 GUI_ScrollButton* GUI_scrollButton_create(char* text, uint32_t fontID, float min, float max, float val, GUI_CallbackTypedef onScroll);
