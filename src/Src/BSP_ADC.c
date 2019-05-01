@@ -8,7 +8,7 @@
 #include "bode.h"
 
 // TODO: B channel triggering causes DMA abort to stall (possible fix: decrease DMA priority?)
-// TODO: When triggering on channel B, buffer offset is incorrect (possible fixes: calculate ADC_bufferDelta in a different manner,
+// TODO: When triggering on channel B, buffer horizontal offset is incorrect (possible fixes: calculate ADC_bufferDelta in a different manner,
 // or process buffers differently in ADC_update)
 
 static void MX_ADC1_Init(void);
@@ -30,9 +30,6 @@ static inline void processBufferNoTrigger(uint32_t buffStart, uint32_t *sourceBu
 		}
 	} else {
 		uint32_t avg_step = (1 << (ADC_oversampling)); // when to avarage.
-		
-		targetBuffer[*targetWritePos] = 0;
-		*nSamplesAtCurrPos = 0;
 		
 		for (uint32_t i = buffStart; i < (buffStart + ADC_INPUT_BUFFER_SIZE / 2); i ++) {
 			if ((*nSamplesAtCurrPos) == avg_step) {
@@ -80,9 +77,6 @@ static inline void processBuffer(uint32_t buffStart, uint32_t *sourceBuffer, uin
 		}
 	} else {
 		uint32_t avg_step = (1 << (ADC_oversampling)); // when to avarage.
-		
-		targetBuffer[*targetWritePos] = 0;
-		*nSamplesAtCurrPos = 0;
 		
 		if (ADC_bufferInitialized && SCOPE_triggerMode == SCOPE_TRIGGER_DISABLE && !ADC_triggered) { // this is here and not in loop for faster ISR
 			ADC_triggered = 1;
@@ -571,7 +565,7 @@ void ADC_setTriggerLevel(float level_V) {
 void ADC_update() {
 	if (ADC_conversionEnd) {
 		float rangeOffset;
-		float divisor = (1 << ADC_oversampling);
+		float divisor = (1 << ADC_oversampling); // needed because we only accumulated samples in ISR
 		
 		// TODO: investigate usage of full buffer to increase FFT frequency resolution
 		// Process Channel A
@@ -582,7 +576,7 @@ void ADC_update() {
 		}
 		for (uint32_t i = 0; i < ADC_INPUT_BUFFER_SIZE / 2; i ++) {
 			uint32_t val = g_ADCOversampledBuffer1[(i + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK];
-			g_graphBuffer1_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
+			g_graphBuffer1_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX; // TODO: we lose precision here (?)
 		}
 		// End process Channel A
 		
@@ -595,7 +589,7 @@ void ADC_update() {
 		int32_t bufferOffset = ((ADC_bufferDelta & (ADC_INPUT_BUFFER_SIZE / 2)) ? (-(((~(int32_t)ADC_bufferDelta) & ADC_INPUT_BUFFER_MASK) + 1)) : (int32_t)ADC_bufferDelta) / (int32_t)divisor; // convert from 10bit two's complement to hardware two's complement
 		for (uint32_t i = 0; i < ADC_INPUT_BUFFER_SIZE / 2; i ++) {
 			uint32_t val = g_ADCOversampledBuffer2[(i + (bufferOffset) + ADC_Oversampled_triggered_at - ADC_INPUT_BUFFER_SIZE / 4) & ADC_INPUT_BUFFER_MASK];
-			g_graphBuffer2_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX;
+			g_graphBuffer2_V[i] = ((float)val / divisor / (float)ADC_accuracy - rangeOffset) * ADC_VMAX; // TODO: we lose precision here (?)
 		}
 		// End process Channel B
 		
