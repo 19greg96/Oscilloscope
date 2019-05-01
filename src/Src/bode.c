@@ -93,6 +93,9 @@ BODE_MeasurementConfigurationTypedef BODE_configurations[] = {
 	{ .DAC_frequency_Hz = 158489.319246f,	.ADC_frequency_ID = 1,	.numMeasurements = 10},		// 52
 	{ .DAC_frequency_Hz = 199526.231497f,	.ADC_frequency_ID = 1,	.numMeasurements = 10},		// 53
 	{ .DAC_frequency_Hz = 251188.643151f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 54
+	// measurement fails here, because ADC enters 8bit mode, and B channel suppression is more than 40dB at this frequency, when AA filter is enabled so all samples will be 0
+	// 5V / 2^8 = 0.01953125V
+	// -40dB -> 1/100 -> 3.3V @ -40dB = 0.033V ... (10^-(48.17/20))*3.3 -> 0.01288290902
 	{ .DAC_frequency_Hz = 316227.766017f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 55
 	{ .DAC_frequency_Hz = 398107.170553f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 56
 	{ .DAC_frequency_Hz = 501187.233627f,	.ADC_frequency_ID = 0,	.numMeasurements = 10},		// 57
@@ -234,6 +237,14 @@ void BODE_processBuffer() {
 	uint32_t binIdx1, binIdx2;
 	float mag1, mag2; // magnitude squared
 	float phase_rad1, phase_rad2;
+	
+	float power2;
+	arm_power_f32(g_graphBuffer2_V, ADC_INPUT_BUFFER_SIZE / 2, &power2); // TODO: this doesn't include case where AC component is 0
+	if (power2 == 0) { // channel 2 disconnected, or suppressed signal too small to be detected
+		BODE_status++; // goto next configuration step
+		// TODO: notify user of measurement status
+	}
+	
 	// TODO: in theory, full buffer can be used here to double the frequency resolution of the FFT
 	BODE_getMaxBinParams(g_graphBuffer1_V, &binIdx1, &mag1, &phase_rad1); // channel 1 is DAC output fed straight back to ADC (Uin)
 	BODE_getMaxBinParams(g_graphBuffer2_V, &binIdx2, &mag2, &phase_rad2); // channel 2 goes through passive network (Uout)
