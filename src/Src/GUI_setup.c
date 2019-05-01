@@ -344,7 +344,7 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	GUI_screen_add_component(fnGenScreen, outputEnableToggleButtonComponent);
 	GUI_screen_add_component(fnGenScreen, outputBufferToggleButtonComponent);
 	
-	outputBufferToggleButton->checked = 1; // DEFAULT CONFIG: buffer enabled
+	// outputBufferToggleButton->checked = 1; // DEFAULT CONFIG: buffer enabled
 	
 	frequencyRange = GUI_range_create("1 Freq", defaultFont, 1.0f, 1000000.1f, 1000.0f, onFreqScroll, 38, formatFrequency);
 	frequencyRangeComponent = GUI_component_create(GUI_COMPONENT_RANGE, 1, 38, frequencyRange);
