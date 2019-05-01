@@ -119,7 +119,7 @@ void UIIO_update() {
 		}
 	}
 	if (UIIO_onScrollEvent != NULL) {
-		if (UIIO_lastScrollCounter != TIM3->CNT) { // TODO: di/ei
+		if ((uint16_t)UIIO_lastScrollCounter != TIM3->CNT) { // TODO: di/ei
 			UIIO_onScrollEvent(TIM3->CNT - UIIO_lastScrollCounter);
 			UIIO_lastScrollCounter = TIM3->CNT;
 		}
