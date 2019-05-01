@@ -86,20 +86,28 @@ void UART_update() {
 			case 'b': // buffer capture
 				UART_writeString("\nclr\n");
 				
+				float radix = 10000.0f; // at 12bit sampling, we would loose about two bits of precision if we only rounded to mV
+				
 				for (uint32_t i = 0; i < (ADC_INPUT_BUFFER_SIZE / 2); i ++) {
-					sprintf(tmpBuff, "%ld\n", (int32_t)(g_graphBuffer1_V[i] * 4096.0f));
+					sprintf(tmpBuff, "%ld\n", (int32_t)(g_graphBuffer1_V[i] * radix));
 					UART_writeString(tmpBuff);
 				}
 				UART_writeString("\nrst\n");
 				for (uint32_t i = 0; i < (ADC_INPUT_BUFFER_SIZE / 2); i ++) {
-					sprintf(tmpBuff, "%ld\n", (int32_t)(g_graphBuffer2_V[i] * 4096.0f));
+					sprintf(tmpBuff, "%ld\n", (int32_t)(g_graphBuffer2_V[i] * radix));
 					UART_writeString(tmpBuff);
 				}
 				
+				sprintf(tmpBuff, "fs %f\n", ADC_GetFrequencySettings()->frequency);
+				UART_writeString(tmpBuff);
+				sprintf(tmpBuff, "radix %ld\n", (int32_t)(radix));
+				UART_writeString(tmpBuff);
+				
 				sprintf(tmpBuff, "capat %d\n", (ADC_INPUT_BUFFER_SIZE / 4));
 				UART_writeString(tmpBuff);
-				sprintf(tmpBuff, "triglv %lu\n", SCOPE_triggerLevel >> ADC_oversampling);
+				sprintf(tmpBuff, "triglv %ld\n", (int32_t)(SCOPE_triggerLevel_V * radix));
 				UART_writeString(tmpBuff);
+				
 				
 				break;
 			default:

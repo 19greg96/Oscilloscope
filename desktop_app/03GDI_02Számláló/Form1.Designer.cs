@@ -28,140 +28,134 @@
         /// </summary>
         private void InitializeComponent()
         {
-			this.trackBar1 = new System.Windows.Forms.TrackBar();
-			this.label1 = new System.Windows.Forms.Label();
-			this.trackBar2 = new System.Windows.Forms.TrackBar();
-			this.label2 = new System.Windows.Forms.Label();
-			this.label3 = new System.Windows.Forms.Label();
-			this.label4 = new System.Windows.Forms.Label();
-			this.label5 = new System.Windows.Forms.Label();
-			this.captureBufferBtn = new System.Windows.Forms.Button();
-			this.captureScreenBtn = new System.Windows.Forms.Button();
-			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
+			this.captureBufferButton = new System.Windows.Forms.Button();
+			this.captureScreenButton = new System.Windows.Forms.Button();
+			this.hDivZoomInButton = new System.Windows.Forms.Button();
+			this.hDivZoomOutButton = new System.Windows.Forms.Button();
+			this.vDivZoomOutButton = new System.Windows.Forms.Button();
+			this.vDivZoomInButton = new System.Windows.Forms.Button();
+			this.copyScreenButton = new System.Windows.Forms.Button();
+			this.copyBufferButton = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
-			// trackBar1
+			// captureBufferButton
 			// 
-			this.trackBar1.LargeChange = 1;
-			this.trackBar1.Location = new System.Drawing.Point(12, 12);
-			this.trackBar1.Maximum = 100;
-			this.trackBar1.Name = "trackBar1";
-			this.trackBar1.Size = new System.Drawing.Size(992, 45);
-			this.trackBar1.TabIndex = 0;
-			this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+			this.captureBufferButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.captureBufferButton.Location = new System.Drawing.Point(916, 12);
+			this.captureBufferButton.Name = "captureBufferButton";
+			this.captureBufferButton.Size = new System.Drawing.Size(75, 40);
+			this.captureBufferButton.TabIndex = 7;
+			this.captureBufferButton.Text = "Capture Buffer";
+			this.captureBufferButton.UseVisualStyleBackColor = true;
+			this.captureBufferButton.Click += new System.EventHandler(this.captureBufferBtn_Click);
 			// 
-			// label1
+			// captureScreenButton
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(1010, 12);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(62, 13);
-			this.label1.TabIndex = 1;
-			this.label1.Text = "1000000Hz";
+			this.captureScreenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.captureScreenButton.Location = new System.Drawing.Point(916, 58);
+			this.captureScreenButton.Name = "captureScreenButton";
+			this.captureScreenButton.Size = new System.Drawing.Size(75, 40);
+			this.captureScreenButton.TabIndex = 8;
+			this.captureScreenButton.Text = "Capture Screen";
+			this.captureScreenButton.UseVisualStyleBackColor = true;
+			this.captureScreenButton.Click += new System.EventHandler(this.captureScreenBtn_Click);
 			// 
-			// trackBar2
+			// hDivZoomInButton
 			// 
-			this.trackBar2.Location = new System.Drawing.Point(1027, 263);
-			this.trackBar2.Maximum = 64;
-			this.trackBar2.Name = "trackBar2";
-			this.trackBar2.Orientation = System.Windows.Forms.Orientation.Vertical;
-			this.trackBar2.Size = new System.Drawing.Size(45, 198);
-			this.trackBar2.TabIndex = 2;
-			this.trackBar2.Value = 32;
-			this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
+			this.hDivZoomInButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.hDivZoomInButton.Location = new System.Drawing.Point(12, 438);
+			this.hDivZoomInButton.Name = "hDivZoomInButton";
+			this.hDivZoomInButton.Size = new System.Drawing.Size(23, 23);
+			this.hDivZoomInButton.TabIndex = 9;
+			this.hDivZoomInButton.Text = "+";
+			this.hDivZoomInButton.UseVisualStyleBackColor = true;
+			this.hDivZoomInButton.Click += new System.EventHandler(this.hDivZoomInButton_Click);
 			// 
-			// label2
+			// hDivZoomOutButton
 			// 
-			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(756, 161);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(35, 13);
-			this.label2.TabIndex = 3;
-			this.label2.Text = "label2";
+			this.hDivZoomOutButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.hDivZoomOutButton.Location = new System.Drawing.Point(41, 438);
+			this.hDivZoomOutButton.Name = "hDivZoomOutButton";
+			this.hDivZoomOutButton.Size = new System.Drawing.Size(23, 23);
+			this.hDivZoomOutButton.TabIndex = 10;
+			this.hDivZoomOutButton.Text = "-";
+			this.hDivZoomOutButton.UseVisualStyleBackColor = true;
+			this.hDivZoomOutButton.Click += new System.EventHandler(this.hDivZoomOutButton_Click);
 			// 
-			// label3
+			// vDivZoomOutButton
 			// 
-			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(756, 174);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(35, 13);
-			this.label3.TabIndex = 4;
-			this.label3.Text = "label3";
+			this.vDivZoomOutButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.vDivZoomOutButton.Location = new System.Drawing.Point(1049, 133);
+			this.vDivZoomOutButton.Name = "vDivZoomOutButton";
+			this.vDivZoomOutButton.Size = new System.Drawing.Size(23, 23);
+			this.vDivZoomOutButton.TabIndex = 12;
+			this.vDivZoomOutButton.Text = "-";
+			this.vDivZoomOutButton.UseVisualStyleBackColor = true;
+			this.vDivZoomOutButton.Click += new System.EventHandler(this.vDivZoomOutButton_Click);
 			// 
-			// label4
+			// vDivZoomInButton
 			// 
-			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(756, 187);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(35, 13);
-			this.label4.TabIndex = 5;
-			this.label4.Text = "label4";
+			this.vDivZoomInButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.vDivZoomInButton.Location = new System.Drawing.Point(1049, 104);
+			this.vDivZoomInButton.Name = "vDivZoomInButton";
+			this.vDivZoomInButton.Size = new System.Drawing.Size(23, 23);
+			this.vDivZoomInButton.TabIndex = 11;
+			this.vDivZoomInButton.Text = "+";
+			this.vDivZoomInButton.UseVisualStyleBackColor = true;
+			this.vDivZoomInButton.Click += new System.EventHandler(this.vDivZoomInButton_Click);
 			// 
-			// label5
+			// copyScreenButton
 			// 
-			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(756, 200);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(35, 13);
-			this.label5.TabIndex = 6;
-			this.label5.Text = "label5";
+			this.copyScreenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.copyScreenButton.Enabled = false;
+			this.copyScreenButton.Location = new System.Drawing.Point(997, 58);
+			this.copyScreenButton.Name = "copyScreenButton";
+			this.copyScreenButton.Size = new System.Drawing.Size(75, 40);
+			this.copyScreenButton.TabIndex = 14;
+			this.copyScreenButton.Text = "Copy Screen";
+			this.copyScreenButton.UseVisualStyleBackColor = true;
+			this.copyScreenButton.Click += new System.EventHandler(this.copyScreenButton_Click);
 			// 
-			// captureBufferBtn
+			// copyBufferButton
 			// 
-			this.captureBufferBtn.Location = new System.Drawing.Point(997, 63);
-			this.captureBufferBtn.Name = "captureBufferBtn";
-			this.captureBufferBtn.Size = new System.Drawing.Size(75, 40);
-			this.captureBufferBtn.TabIndex = 7;
-			this.captureBufferBtn.Text = "Capture Buffer";
-			this.captureBufferBtn.UseVisualStyleBackColor = true;
-			this.captureBufferBtn.Click += new System.EventHandler(this.captureBufferBtn_Click);
-			// 
-			// captureScreenBtn
-			// 
-			this.captureScreenBtn.Location = new System.Drawing.Point(997, 109);
-			this.captureScreenBtn.Name = "captureScreenBtn";
-			this.captureScreenBtn.Size = new System.Drawing.Size(75, 40);
-			this.captureScreenBtn.TabIndex = 8;
-			this.captureScreenBtn.Text = "Capture Screen";
-			this.captureScreenBtn.UseVisualStyleBackColor = true;
-			this.captureScreenBtn.Click += new System.EventHandler(this.captureScreenBtn_Click);
+			this.copyBufferButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.copyBufferButton.Enabled = false;
+			this.copyBufferButton.Location = new System.Drawing.Point(997, 12);
+			this.copyBufferButton.Name = "copyBufferButton";
+			this.copyBufferButton.Size = new System.Drawing.Size(75, 40);
+			this.copyBufferButton.TabIndex = 13;
+			this.copyBufferButton.Text = "Copy Buffer";
+			this.copyBufferButton.UseVisualStyleBackColor = true;
+			this.copyBufferButton.Click += new System.EventHandler(this.copyBufferButton_Click);
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1084, 473);
-			this.Controls.Add(this.captureScreenBtn);
-			this.Controls.Add(this.captureBufferBtn);
-			this.Controls.Add(this.label5);
-			this.Controls.Add(this.label4);
-			this.Controls.Add(this.label3);
-			this.Controls.Add(this.label2);
-			this.Controls.Add(this.trackBar2);
-			this.Controls.Add(this.label1);
-			this.Controls.Add(this.trackBar1);
+			this.Controls.Add(this.copyScreenButton);
+			this.Controls.Add(this.copyBufferButton);
+			this.Controls.Add(this.vDivZoomOutButton);
+			this.Controls.Add(this.vDivZoomInButton);
+			this.Controls.Add(this.hDivZoomOutButton);
+			this.Controls.Add(this.hDivZoomInButton);
+			this.Controls.Add(this.captureScreenButton);
+			this.Controls.Add(this.captureBufferButton);
 			this.Name = "Form1";
 			this.Text = "Form1";
-			this.Load += new System.EventHandler(this.Form1_Load);
-			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
         }
 
 		#endregion
-
-		private System.Windows.Forms.TrackBar trackBar1;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.TrackBar trackBar2;
-		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.Label label3;
-		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.Label label5;
-		private System.Windows.Forms.Button captureBufferBtn;
-		private System.Windows.Forms.Button captureScreenBtn;
+		private System.Windows.Forms.Button captureBufferButton;
+		private System.Windows.Forms.Button captureScreenButton;
+		private System.Windows.Forms.Button hDivZoomInButton;
+		private System.Windows.Forms.Button hDivZoomOutButton;
+		private System.Windows.Forms.Button vDivZoomOutButton;
+		private System.Windows.Forms.Button vDivZoomInButton;
+		private System.Windows.Forms.Button copyScreenButton;
+		private System.Windows.Forms.Button copyBufferButton;
 	}
 }
 

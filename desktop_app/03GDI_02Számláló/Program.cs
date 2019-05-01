@@ -24,15 +24,13 @@ namespace Demo2
 		static int capturedAt;
 		static List<int> verticalLinesCH1;
 		static List<int> verticalLinesCH2;
-		static float phase;
-		static float amplitude;
-		static float Fin;
-		static float Fout;
 		static int triggerLevel;
 		static Form1 mainForm;
 		private static int screenWidth;
 		private static int screenHeight;
 		private static int screenNumBytes;
+		private static float samplingFrequency;
+		private static float radix = 1.0f;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -79,6 +77,13 @@ namespace Demo2
 			_serialPort.Close();
 		}
 
+		public static float getRadix() {
+			return radix;
+		}
+		public static float getSamplingFrequency() {
+			return samplingFrequency;
+		}
+
 		public static int[] getBuffer1() {
 			return data1;
 		}
@@ -97,40 +102,18 @@ namespace Demo2
 		public static List<int> getVerticalLinesCH2() {
 			return verticalLinesCH2;
 		}
-		public static float getPhase() {
-			return phase;
-		}
-		public static float getAmplitude() {
-			return amplitude;
-		}
-		public static float getFin() {
-			return Fin;
-		}
-		public static float getFout() {
-			return Fout;
-		}
 		public static int getTriggerLevel() {
 			return triggerLevel;
 		}
-		public static void setDACPeriod(float freq) {
-			// _serialPort.Write();
-
-			var byteArray = new byte[4];
-			Buffer.BlockCopy(new float[]{freq}, 0, byteArray, 0, byteArray.Length);
-			_serialPort.Write(new byte[] { (byte)'f', byteArray[0], byteArray[1], byteArray[2], byteArray[3] }, 0, 5);
+		public static Bitmap getScreenCaptureBitmap() {
+			return scopeDisplay;
 		}
-
-		public static void copyScreenCapture() {
-			Clipboard.SetImage(scopeDisplay);
-		}
-
-		public delegate void copyScreenCaptureDelegate();
 
 		public static void Read() {
 			while (_continue) {
 				try {
 					string msg = _serialPort.ReadLine();
-					Console.WriteLine("Recv: " + msg);
+					// Console.WriteLine("Recv: " + msg);
 					if (msg.Equals("clr")) {
 						dataPtr1 = 0;
 						dataPtr2 = 0;
@@ -150,6 +133,10 @@ namespace Demo2
 						// dataSize = int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("capat")) {
 						capturedAt = int.Parse(msg.Split(' ')[1]);
+					} else if (msg.StartsWith("fs")) {
+						samplingFrequency = float.Parse(msg.Split(' ')[1]);
+					} else if (msg.StartsWith("radix")) { // 1000 means we receive values in mV
+						radix = (float)int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("triglv")) {
 						triggerLevel = int.Parse(msg.Split(' ')[1]);
 						mainForm.Invalidate();
@@ -157,14 +144,6 @@ namespace Demo2
 						verticalLinesCH1.Add(int.Parse(msg.Split(' ')[1]));
 					} else if (msg.StartsWith("v2")) { // vertical line channel 2
 						verticalLinesCH2.Add(int.Parse(msg.Split(' ')[1]));
-					} else if (msg.StartsWith("phase")) {
-						phase = int.Parse(msg.Split(' ')[1]) / 100.0f;
-					} else if (msg.StartsWith("amp")) {
-						amplitude = int.Parse(msg.Split(' ')[1]) / 100.0f;
-					} else if (msg.StartsWith("Fin")) {
-						Fin = int.Parse(msg.Split(' ')[1]) / 100.0f;
-					} else if (msg.StartsWith("Fout")) {
-						Fout = int.Parse(msg.Split(' ')[1]) / 100.0f;
 					} else if (msg.Equals("rst")) {
 						if (currBuff == 1) {
 							currBuff = 2;
@@ -177,20 +156,20 @@ namespace Demo2
 							int x = screenCurrByte % screenWidth;
 							int y = (screenCurrByte / screenWidth) * 8;
 
-							if ((vertical8Pixels & 0x80) != 0) { scopeDisplay.SetPixel(x, y + 7, Color.Black); }
-							if ((vertical8Pixels & 0x40) != 0) { scopeDisplay.SetPixel(x, y + 6, Color.Black); }
-							if ((vertical8Pixels & 0x20) != 0) { scopeDisplay.SetPixel(x, y + 5, Color.Black); }
-							if ((vertical8Pixels & 0x10) != 0) { scopeDisplay.SetPixel(x, y + 4, Color.Black); }
+							if ((vertical8Pixels & 0x80) != 0) { scopeDisplay.SetPixel(x, y + 7, Color.Black); } else { scopeDisplay.SetPixel(x, y + 7, Color.White); }
+							if ((vertical8Pixels & 0x40) != 0) { scopeDisplay.SetPixel(x, y + 6, Color.Black); } else { scopeDisplay.SetPixel(x, y + 6, Color.White); }
+							if ((vertical8Pixels & 0x20) != 0) { scopeDisplay.SetPixel(x, y + 5, Color.Black); } else { scopeDisplay.SetPixel(x, y + 5, Color.White); }
+							if ((vertical8Pixels & 0x10) != 0) { scopeDisplay.SetPixel(x, y + 4, Color.Black); } else { scopeDisplay.SetPixel(x, y + 4, Color.White); }
 
-							if ((vertical8Pixels & 0x08) != 0) { scopeDisplay.SetPixel(x, y + 3, Color.Black); }
-							if ((vertical8Pixels & 0x04) != 0) { scopeDisplay.SetPixel(x, y + 2, Color.Black); }
-							if ((vertical8Pixels & 0x02) != 0) { scopeDisplay.SetPixel(x, y + 1, Color.Black); }
-							if ((vertical8Pixels & 0x01) != 0) { scopeDisplay.SetPixel(x, y + 0, Color.Black); }
+							if ((vertical8Pixels & 0x08) != 0) { scopeDisplay.SetPixel(x, y + 3, Color.Black); } else { scopeDisplay.SetPixel(x, y + 3, Color.White); }
+							if ((vertical8Pixels & 0x04) != 0) { scopeDisplay.SetPixel(x, y + 2, Color.Black); } else { scopeDisplay.SetPixel(x, y + 2, Color.White); }
+							if ((vertical8Pixels & 0x02) != 0) { scopeDisplay.SetPixel(x, y + 1, Color.Black); } else { scopeDisplay.SetPixel(x, y + 1, Color.White); }
+							if ((vertical8Pixels & 0x01) != 0) { scopeDisplay.SetPixel(x, y + 0, Color.Black); } else { scopeDisplay.SetPixel(x, y + 0, Color.White); }
 
 							screenCurrByte++;
 							if (screenCurrByte == screenNumBytes) {
 								isScreenCapture = false;
-								Program.mainForm.Invoke(new copyScreenCaptureDelegate(Program.copyScreenCapture));
+								mainForm.Invalidate();
 							}
 						} else {
 							if (currBuff == 1) {

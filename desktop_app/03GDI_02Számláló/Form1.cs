@@ -11,7 +11,10 @@ namespace Demo2
 {
     public partial class Form1 : Form
     {
-        public Form1()
+		float vDiv = 400.0f; // data is received in Program.getRadix() (1000 corresponds to mV)
+		float hDiv = 1.0f;
+
+		public Form1()
         {
             InitializeComponent();
             // 01. Frissítés átméretezéskor
@@ -27,86 +30,65 @@ namespace Demo2
             format.Alignment = StringAlignment.Near;
             // Horizontális igazítás (Near – fent, Center, Far - lent)
             format.LineAlignment = StringAlignment.Center;
-
 			
-			int vDiv = 1;
-			int hJump = 1;
-			int maxValue = 4096;
-			int bottomOffset = 200;
-			int bot = this.ClientSize.Height - bottomOffset;
+			int bot = this.ClientSize.Height / 2;
 			int triggerLevel = Program.getTriggerLevel(); // rising
 			Pen dashed_pen = new Pen(Color.Red, 1);
 			dashed_pen.DashStyle = DashStyle.Dash;
 			e.Graphics.DrawLine(dashed_pen, 0, bot - triggerLevel / vDiv, this.ClientSize.Width, bot - triggerLevel / vDiv);
-			e.Graphics.DrawLine(Pens.Black, 0, bot, this.ClientSize.Width, bot);
-			e.Graphics.DrawLine(Pens.Black, 0, bot - maxValue / vDiv, this.ClientSize.Width, bot - maxValue / vDiv);
-			e.Graphics.DrawString("0", this.Font, Brushes.Black, 0, bot, format);
-			e.Graphics.DrawString("4096", this.Font, Brushes.Black, 0, bot - maxValue / vDiv, format);
 
-			/*
-			GraphicsPath myPath = new GraphicsPath();
-			int[] buff1 = Program.getBuffer1();
-			int[] buff2 = Program.getBuffer2();
-			for (int i = 0; i < (Program.getPtr() - 1) / 2; i++) {
-				int valX = bot - buff1[i];
-				int nextValX = bot - buff1[i + 1];
-				int valY = bot - buff2[i];
-				int nextValY = bot - buff2[i + 1];
-				myPath.AddLine(valX, valY, nextValX, nextValY);
+			float vDivInterval = 2.5f * Program.getRadix();
+			if (vDiv < 400.0f) {
+				vDivInterval = 0.5f * Program.getRadix();
 			}
-			e.Graphics.DrawPath(Pens.Cyan, myPath);
-			*/
-
+			for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
+				e.Graphics.DrawLine(Pens.Gray, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
+				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), this.Font, Brushes.Black, 0, bot + i / vDiv, format);
+			}
 			
+
 			GraphicsPath myPath = new GraphicsPath();
 			int[] buff = Program.getBuffer1();
 			for (int i = 0; i < Program.getPtr() - 1; i ++) {
-				int val = bot - (int)(buff[i] / 409.60f);
-				int nextVal = bot - (int)(buff[i + 1] / 409.60f);
-				myPath.AddLine(i / hJump, val, i / hJump + 1, nextVal);
+				int val = bot - (int)(buff[i] / vDiv);
+				int nextVal = bot - (int)(buff[i + 1] / vDiv);
+				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 			}
 			e.Graphics.DrawPath(Pens.Cyan, myPath);
 
 			myPath = new GraphicsPath();
 			buff = Program.getBuffer2();
 			for (int i = 0; i < Program.getPtr() - 1; i++) {
-				int val = bot - (int)(buff[i] / 409.60f);
-				int nextVal = bot - (int)(buff[i + 1] / 409.60f);
-				myPath.AddLine(i / hJump, val, i / hJump + 1, nextVal);
+				int val = bot - (int)(buff[i] / vDiv);
+				int nextVal = bot - (int)(buff[i + 1] / vDiv);
+				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 			}
 			e.Graphics.DrawPath(Pens.Black, myPath);
 
 
-			int capAt = Program.getCapturedAt() / hJump;
+			int capAt = (int)(Program.getCapturedAt() / hDiv);
 			e.Graphics.DrawLine(new Pen(Color.Blue, 1), capAt, 0, capAt, this.ClientSize.Height);
 
 			foreach (int pos in Program.getVerticalLinesCH1()) {
-				int tp1 = pos / hJump;
+				int tp1 = (int)(pos / hDiv);
 				e.Graphics.DrawLine(new Pen(Color.Red, 1), tp1, 0, tp1, this.ClientSize.Height);
 			}
 			foreach (int pos in Program.getVerticalLinesCH2()) {
-				int tp1 = pos / hJump;
+				int tp1 = (int)(pos / hDiv);
 				e.Graphics.DrawLine(new Pen(Color.Green, 1), tp1, 0, tp1, this.ClientSize.Height);
 			}
 
-			label2.Text = Program.getPhase().ToString() + "°";
-			label3.Text = Program.getAmplitude().ToString() + "dB";
-			label4.Text = Program.getFin().ToString() + "Hz";
-			label5.Text = Program.getFout().ToString() + "Hz";
-		}
-
-		private void Form1_Load(object sender, EventArgs e) {
-
-		}
-
-		private void trackBar1_Scroll(object sender, EventArgs e) {
-			float freq = (float)Math.Pow(10.0, (double)trackBar1.Value / 100.0 * 6.0);
-			Program.setDACPeriod(freq);
-			label1.Text = freq.ToString() + "Hz";
-		}
-
-		private void trackBar2_Scroll(object sender, EventArgs e) {
-			Program.setTriggerLevel(trackBar2.Value);
+			if (Program.getScreenCaptureBitmap() != null) {
+				e.Graphics.DrawImage(Program.getScreenCaptureBitmap(), 10, 10);
+				copyScreenButton.Enabled = true;
+			} else {
+				copyScreenButton.Enabled = false;
+			}
+			if (Program.getPtr() == 0) {
+				copyBufferButton.Enabled = false;
+			} else {
+				copyBufferButton.Enabled = true;
+			}
 		}
 
 		private void captureBufferBtn_Click(object sender, EventArgs e) {
@@ -115,6 +97,52 @@ namespace Demo2
 
 		private void captureScreenBtn_Click(object sender, EventArgs e) {
 			Program.captureScreen();
+		}
+
+		private void vDivZoomInButton_Click(object sender, EventArgs e) {
+			vDiv /= 2.0f;
+			Invalidate();
+		}
+
+		private void vDivZoomOutButton_Click(object sender, EventArgs e) {
+			vDiv *= 2.0f;
+			Invalidate();
+		}
+
+		private void hDivZoomInButton_Click(object sender, EventArgs e) {
+			hDiv /= 2.0f;
+			Invalidate();
+		}
+
+		private void hDivZoomOutButton_Click(object sender, EventArgs e) {
+			hDiv *= 2.0f;
+			Invalidate();
+		}
+
+		private void copyBufferButton_Click(object sender, EventArgs e) {
+			int[] buff = Program.getBuffer1();
+			string str = "ch1 = [";
+			for (int i = 0; i < Program.getPtr(); i++) {
+				str += (buff[i] / Program.getRadix()).ToString() + " ";
+			}
+			str += "];\nch2 = [";
+
+			buff = Program.getBuffer2();
+			for (int i = 0; i < Program.getPtr(); i++) {
+				str += (buff[i] / Program.getRadix()).ToString() + " ";
+			}
+			str += "];\n";
+			str += String.Format("Fs = {0};\n", Program.getSamplingFrequency());
+			str += String.Format("N = {0};\n", Program.getPtr()); // number of samples
+			/*
+			Y = fft(ch1); f = Fs/2*linspace(0,1,N/2+1); plot(f, 20*log10(abs(Y(1:N/2+1))))
+			*/
+
+			Clipboard.SetText(str);
+		}
+
+		private void copyScreenButton_Click(object sender, EventArgs e) {
+			Clipboard.SetImage(Program.getScreenCaptureBitmap());
 		}
 	}
 
