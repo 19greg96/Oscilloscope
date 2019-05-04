@@ -41,8 +41,10 @@ namespace Demo2
 			if (vDiv < 400.0f) {
 				vDivInterval = 0.5f * Program.getRadix();
 			}
+			Pen hLinePen = new Pen(Color.Gray, 1);
+			hLinePen.DashStyle = DashStyle.Dash;
 			for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
-				e.Graphics.DrawLine(Pens.Gray, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
+				e.Graphics.DrawLine(hLinePen, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
 				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), this.Font, Brushes.Black, 0, bot + i / vDiv, format);
 			}
 			
@@ -50,8 +52,8 @@ namespace Demo2
 			GraphicsPath myPath = new GraphicsPath();
 			int[] buff = Program.getBuffer1();
 			for (int i = 0; i < Program.getPtr() - 1; i ++) {
-				int val = bot - (int)(buff[i] / vDiv);
-				int nextVal = bot - (int)(buff[i + 1] / vDiv);
+				int val = bot - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
+				int nextVal = bot - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
 				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 			}
 			e.Graphics.DrawPath(Pens.Cyan, myPath);
@@ -59,22 +61,22 @@ namespace Demo2
 			myPath = new GraphicsPath();
 			buff = Program.getBuffer2();
 			for (int i = 0; i < Program.getPtr() - 1; i++) {
-				int val = bot - (int)(buff[i] / vDiv);
-				int nextVal = bot - (int)(buff[i + 1] / vDiv);
+				int val = bot - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
+				int nextVal = bot - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
 				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 			}
 			e.Graphics.DrawPath(Pens.Black, myPath);
 
 
-			int capAt = (int)(Program.getCapturedAt() / hDiv);
+			int capAt = (int)(Program.getCapturedAt() / hDiv - hScroll.Value);
 			e.Graphics.DrawLine(new Pen(Color.Blue, 1), capAt, 0, capAt, this.ClientSize.Height);
 
 			foreach (int pos in Program.getVerticalLinesCH1()) {
-				int tp1 = (int)(pos / hDiv);
+				int tp1 = (int)(pos / hDiv - hScroll.Value);
 				e.Graphics.DrawLine(new Pen(Color.Red, 1), tp1, 0, tp1, this.ClientSize.Height);
 			}
 			foreach (int pos in Program.getVerticalLinesCH2()) {
-				int tp1 = (int)(pos / hDiv);
+				int tp1 = (int)(pos / hDiv - hScroll.Value);
 				e.Graphics.DrawLine(new Pen(Color.Green, 1), tp1, 0, tp1, this.ClientSize.Height);
 			}
 
@@ -86,8 +88,19 @@ namespace Demo2
 			}
 			if (Program.getPtr() == 0) {
 				copyBufferButton.Enabled = false;
+				hScroll.Enabled = false;
 			} else {
 				copyBufferButton.Enabled = true;
+				
+				int invisibleTicks = (int)(Program.getPtr() / hDiv) - this.ClientSize.Width;
+				if (invisibleTicks > 0) {
+					hScroll.Maximum = invisibleTicks + 511; // Microsoft please..
+					hScroll.LargeChange = 512;
+					hScroll.Enabled = true;
+				} else {
+					hScroll.Enabled = false;
+				}
+				hScroll.Minimum = 0;
 			}
 		}
 
@@ -143,6 +156,10 @@ namespace Demo2
 
 		private void copyScreenButton_Click(object sender, EventArgs e) {
 			Clipboard.SetImage(Program.getScreenCaptureBitmap());
+		}
+
+		private void hScroll_Scroll(object sender, ScrollEventArgs e) {
+			Invalidate();
 		}
 	}
 

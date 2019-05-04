@@ -36,6 +36,7 @@
 			this.vDivZoomInButton = new System.Windows.Forms.Button();
 			this.copyScreenButton = new System.Windows.Forms.Button();
 			this.copyBufferButton = new System.Windows.Forms.Button();
+			this.hScroll = new System.Windows.Forms.HScrollBar();
 			this.SuspendLayout();
 			// 
 			// captureBufferButton
@@ -63,7 +64,7 @@
 			// hDivZoomInButton
 			// 
 			this.hDivZoomInButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.hDivZoomInButton.Location = new System.Drawing.Point(12, 438);
+			this.hDivZoomInButton.Location = new System.Drawing.Point(12, 430);
 			this.hDivZoomInButton.Name = "hDivZoomInButton";
 			this.hDivZoomInButton.Size = new System.Drawing.Size(23, 23);
 			this.hDivZoomInButton.TabIndex = 9;
@@ -74,7 +75,7 @@
 			// hDivZoomOutButton
 			// 
 			this.hDivZoomOutButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.hDivZoomOutButton.Location = new System.Drawing.Point(41, 438);
+			this.hDivZoomOutButton.Location = new System.Drawing.Point(41, 430);
 			this.hDivZoomOutButton.Name = "hDivZoomOutButton";
 			this.hDivZoomOutButton.Size = new System.Drawing.Size(23, 23);
 			this.hDivZoomOutButton.TabIndex = 10;
@@ -128,11 +129,22 @@
 			this.copyBufferButton.UseVisualStyleBackColor = true;
 			this.copyBufferButton.Click += new System.EventHandler(this.copyBufferButton_Click);
 			// 
+			// hScroll
+			// 
+			this.hScroll.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.hScroll.LargeChange = 50;
+			this.hScroll.Location = new System.Drawing.Point(0, 456);
+			this.hScroll.Name = "hScroll";
+			this.hScroll.Size = new System.Drawing.Size(1084, 17);
+			this.hScroll.TabIndex = 15;
+			this.hScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScroll_Scroll);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1084, 473);
+			this.Controls.Add(this.hScroll);
 			this.Controls.Add(this.copyScreenButton);
 			this.Controls.Add(this.copyBufferButton);
 			this.Controls.Add(this.vDivZoomOutButton);
@@ -156,6 +168,7 @@
 		private System.Windows.Forms.Button vDivZoomInButton;
 		private System.Windows.Forms.Button copyScreenButton;
 		private System.Windows.Forms.Button copyBufferButton;
+		private System.Windows.Forms.HScrollBar hScroll;
 	}
 }
 
