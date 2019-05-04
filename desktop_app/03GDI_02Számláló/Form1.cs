@@ -18,8 +18,9 @@ namespace Demo2
         {
             InitializeComponent();
             // 01. Frissítés átméretezéskor
-            this.SetStyle(ControlStyles.ResizeRedraw, true);
-			this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            SetStyle(ControlStyles.ResizeRedraw, true);
+			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			UpdateStyles();
         }
 
@@ -30,7 +31,7 @@ namespace Demo2
             format.Alignment = StringAlignment.Near;
             // Horizontális igazítás (Near – fent, Center, Far - lent)
             format.LineAlignment = StringAlignment.Center;
-			
+
 			int bot = this.ClientSize.Height / 2;
 			int triggerLevel = Program.getTriggerLevel(); // rising
 			Pen dashed_pen = new Pen(Color.Red, 1);

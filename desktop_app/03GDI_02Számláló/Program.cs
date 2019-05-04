@@ -63,7 +63,7 @@ namespace Demo2
 			_serialPort.StopBits = StopBits.One;
 			_serialPort.Handshake = Handshake.None;
 
-			_serialPort.ReadTimeout = 10000;
+			_serialPort.ReadTimeout = 1000;
 			_serialPort.WriteTimeout = 500;
 
 			_serialPort.Open();
