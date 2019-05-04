@@ -42,13 +42,23 @@ namespace Demo2
 			if (vDiv < 400.0f) {
 				vDivInterval = 0.5f * Program.getRadix();
 			}
-			Pen hLinePen = new Pen(Color.Gray, 1);
-			hLinePen.DashStyle = DashStyle.Dash;
+			Pen divLinePen = new Pen(Color.Gray, 1);
+			divLinePen.DashStyle = DashStyle.Dash;
 			for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
-				e.Graphics.DrawLine(hLinePen, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
+				e.Graphics.DrawLine(divLinePen, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
 				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), this.Font, Brushes.Black, 0, bot + i / vDiv, format);
 			}
-			
+			if (Program.getSamplingFrequency() > 0) {
+				float sampleTime_s = 1.0f / Program.getSamplingFrequency();
+				float hDivNum = 10.0f;
+				float hDivInterval = this.ClientSize.Width / hDivNum;
+				float hDivTime_s = hDivInterval * sampleTime_s * hDiv;
+				for (int i = 0; i < hDivNum; i++) {
+					e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, this.ClientSize.Height);
+					e.Graphics.DrawString(String.Format("{0}s", hDivTime_s * i), this.Font, Brushes.Black, i * hDivInterval, this.ClientSize.Height - 50, format);
+				}
+			}
+
 
 			GraphicsPath myPath = new GraphicsPath();
 			int[] buff = Program.getBuffer1();
@@ -95,7 +105,7 @@ namespace Demo2
 				
 				int invisibleTicks = (int)(Program.getPtr() / hDiv) - this.ClientSize.Width;
 				if (invisibleTicks > 0) {
-					hScroll.Maximum = invisibleTicks + 511; // Microsoft please..
+					hScroll.Maximum = invisibleTicks + 511; // +hScroll.LargeChange-1;  Microsoft please..
 					hScroll.LargeChange = 512;
 					hScroll.Enabled = true;
 				} else {
@@ -146,10 +156,14 @@ namespace Demo2
 				str += (buff[i] / Program.getRadix()).ToString() + " ";
 			}
 			str += "];\n";
-			str += String.Format("Fs = {0};\n", Program.getSamplingFrequency());
-			str += String.Format("N = {0};\n", Program.getPtr()); // number of samples
+			if (Program.getSamplingFrequency() > 0) {
+				str += String.Format("Fs = {0};\n", Program.getSamplingFrequency());
+			}
+			if (Program.getPtr() > 0) {
+				str += String.Format("N = {0};\n", Program.getPtr()); // number of samples
+			}
 			/*
-			Y = fft(ch1); f = Fs/2*linspace(0,1,N/2+1); plot(f, 20*log10(abs(Y(1:N/2+1))))
+			Y = fft(ch1); f = Fs/2*linspace(0,1,N/2+1); plot(f, 20*log10(abs(Y(1:N/2+1)))); xlabel('f (Hz)');
 			*/
 
 			Clipboard.SetText(str);

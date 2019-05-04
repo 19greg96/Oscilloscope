@@ -29,7 +29,7 @@ namespace Demo2
 		private static int screenWidth;
 		private static int screenHeight;
 		private static int screenNumBytes;
-		private static float samplingFrequency;
+		private static float samplingFrequency = -1.0f;
 		private static float radix = 1.0f;
 
 		/// <summary>

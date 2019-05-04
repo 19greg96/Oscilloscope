@@ -10,6 +10,7 @@
 // TODO: B channel triggering causes DMA abort to stall (possible fix: decrease DMA priority?)
 // TODO: When triggering on channel B, buffer horizontal offset is incorrect (possible fixes: calculate ADC_bufferDelta in a different manner,
 // or process buffers differently in ADC_update)
+// TODO: bug: B channel end is malformed at low Fs values (when oversampling > 5)
 
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
