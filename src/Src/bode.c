@@ -172,7 +172,14 @@ pDst[n] = sqrt(pSrc[(2*n)+0]^2 + pSrc[(2*n)+1]^2);
 
 void BODE_startMeasurement(uint32_t startIdx) {
 	// TODO: measure bode in frequency domain with FFT (using for example square wave input) for faster measurement
-	//       this can be done by running the calculation (amplitude division, phase subtraction) on every sample of the FFT
+	//       - this can be done by running the calculation (amplitude division, phase subtraction) on every sample of the FFT
+	//       - example setting: DAC: 500Hz square, 99.9% duty, Scope: (14us is even better) 28us can measure with 5dB up to 375kHz (best case) avarage case: 200kHz
+	//		 - for settings, lower DAC frequency is better (only up to 1kHz), as long as only one pulse is recorded, as it gives a shorter pulse
+	//       - for scope, faster setting is better because frequency range is wider (is frequency resolution is priority, slower ADC might be better)
+	//		 - slower ADC sampling gives flatter FFT curve overall as long as only one pulse is recorded. This however is offset by the fact that
+	//		   it reduces the frequency range width and lower settings yield higher magnitudes at lower frequencies. Also we are only interested in relative
+	//		   magnitude compared to the input signal.
+	//		 - for low frequencies: DAC: 1Hz square, 99.9% duty, ADC: 7ms gives 1.46Hz frequency resolution with 13dB at 500Hz
 	// TODO: save settings before BODE measurement
 	HAL_GPIO_WritePin(IN1_AC_GPIO_Port, IN1_AC_Pin, GPIO_PIN_SET); // Disable AC, AA for all channels, so they do not
 	HAL_GPIO_WritePin(IN1_AA_GPIO_Port, IN1_AA_Pin, GPIO_PIN_SET); // interfere with measurement

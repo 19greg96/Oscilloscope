@@ -139,6 +139,8 @@ DAC_FrequencySettingsTypedef DAC_FrequencyTable[] = {
 	{ .frequency = 500000.0f,	.prescaler = 0, .period = 17,	.buffSize = 10,		.interpolate = DAC_FIP_BUFFER_SIZE },	// 500kHz	17
 	{ .frequency = 1000000.0f,	.prescaler = 0, .period = 17,	.buffSize = 5,		.interpolate = DAC_FIP_BUFFER_SIZE }	// 1MHz		18
 };
+// TODO: pulse setting for frequency domain bode measurement:
+// { .frequency = nan,	.prescaler = 0, .period = 17,	.buffSize = manual triggering (wait for one whole ADC buffer to fill),		.interpolate = N/A }
 
 void DAC_disable(uint32_t channel) {
 	if (channel == DAC_CHANNEL_1) {

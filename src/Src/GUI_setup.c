@@ -369,7 +369,7 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	// Square
 	// TODO: update step sizes based on DAC buffer size (minimum resolution)
 	dutyRange = GUI_range_create("4 Duty", defaultFont, 0.0f, 100.0f, 50.0f, onDutyScroll, 54, formatPercentage);
-	dutyRange->scrollButton->smallStep = 1.0f;
+	dutyRange->scrollButton->smallStep = 0.1f;
 	dutyRange->scrollButton->largeStep = 10.0f;
 	dutyRange->valueLabel->align = GUI_TEXT_ALIGN_RIGHT;
 	dutyRangeComponent = GUI_component_create(GUI_COMPONENT_RANGE, 44, 33, dutyRange);

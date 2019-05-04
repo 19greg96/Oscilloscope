@@ -11,7 +11,7 @@
 #define GUI_LEFT_PADDING	0
 
 void formatPercentage(char* out, void* param) {
-	sprintf(out, "%0.0f%%", *((float*)param));
+	sprintf(out, "%0.1f%%", *((float*)param));
 }
 void formatVoltage(char* out, void* param) {
 	float voltage = *((float*)param);
