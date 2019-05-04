@@ -811,6 +811,8 @@ void calculateLabelPosition(GUI_Graph* graph, GUI_Component* tmp, int32_t x, int
 	}
 }
 void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
+	// TODO: math support (add, subtract, multiply, [...] channels)
+	// TODO: cursors support in graph
 	uint32_t numVDots = 4;
 	uint32_t numHDots = 6;
 	float pixelsPerVDiv1 = ((float)graph->h / (float)numVDots) / ((GUI_ScrollButton*)graph->vDiv1ScrollButtonComponent->component)->value;
@@ -965,10 +967,10 @@ for (n = 0; n < numSamples; n++) {
 				}
 			} break;
 			case GUI_GRAPH_MODE_AMPLITUDE: {
-				
+				// TODO: bode graph
 			} break;
 			case GUI_GRAPH_MODE_PHASE: {
-				
+				// TODO: bode graph
 			} break;
 		}
 	}

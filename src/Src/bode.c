@@ -172,6 +172,7 @@ pDst[n] = sqrt(pSrc[(2*n)+0]^2 + pSrc[(2*n)+1]^2);
 
 void BODE_startMeasurement(uint32_t startIdx) {
 	// TODO: measure bode in frequency domain with FFT (using for example square wave input) for faster measurement
+	//       this can be done by running the calculation (amplitude division, phase subtraction) on every sample of the FFT
 	// TODO: save settings before BODE measurement
 	HAL_GPIO_WritePin(IN1_AC_GPIO_Port, IN1_AC_Pin, GPIO_PIN_SET); // Disable AC, AA for all channels, so they do not
 	HAL_GPIO_WritePin(IN1_AA_GPIO_Port, IN1_AA_Pin, GPIO_PIN_SET); // interfere with measurement
