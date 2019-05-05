@@ -64,7 +64,7 @@ namespace Oscilloscope
 				Program.autoConnectSerialPort();
 				doAutoConnect = false;
 			}
-			if (Program.BufferSize == 0) {
+			if (Program.BufferSize == 0) { // TODO: this should be "if (buffer is not full)"
 				copyBufferButton.Enabled = false;
 				vDivZoomInButton.Enabled = false;
 				vDivZoomOutButton.Enabled = false;
