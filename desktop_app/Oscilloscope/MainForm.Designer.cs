@@ -195,7 +195,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MinimumSize = new System.Drawing.Size(316, 163);
 			this.Name = "MainForm";
-			this.Text = "Form1";
+			this.Text = "Oscilloscope";
 			this.ResumeLayout(false);
 
         }

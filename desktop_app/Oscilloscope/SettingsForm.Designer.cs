@@ -83,7 +83,7 @@
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "SettingsForm";
-			this.Text = "SettingsForm";
+			this.Text = "Settings";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
