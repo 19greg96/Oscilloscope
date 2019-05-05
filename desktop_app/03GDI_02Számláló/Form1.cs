@@ -14,6 +14,9 @@ namespace Demo2
 		float vDiv = 400.0f; // data is received in Program.getRadix() (1000 corresponds to mV)
 		float hDiv = 1.0f;
 
+		private Pen triggerLevelPen;
+		private Pen divLinePen;
+
 		public Form1()
         {
             InitializeComponent();
@@ -22,9 +25,14 @@ namespace Demo2
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			UpdateStyles();
-        }
 
-        protected override void OnPaint(PaintEventArgs e)
+			triggerLevelPen = new Pen(Color.Red, 1);
+			triggerLevelPen.DashStyle = DashStyle.Dash;
+			divLinePen = new Pen(Color.Gray, 1);
+			divLinePen.DashStyle = DashStyle.Dash;
+		}
+
+		protected override void OnPaint(PaintEventArgs e)
         {
             StringFormat format = new StringFormat();
             // Igazítás (Near – balra, Center, Far - jobbra)
@@ -33,17 +41,16 @@ namespace Demo2
             format.LineAlignment = StringAlignment.Center;
 
 			int bot = this.ClientSize.Height / 2;
-			int triggerLevel = Program.getTriggerLevel(); // rising
-			Pen dashed_pen = new Pen(Color.Red, 1);
-			dashed_pen.DashStyle = DashStyle.Dash;
-			e.Graphics.DrawLine(dashed_pen, 0, bot - triggerLevel / vDiv, this.ClientSize.Width, bot - triggerLevel / vDiv);
+			int triggerLevel = Program.getTriggerLevel();
+			if (triggerLevel > Int32.MinValue) {
+				e.Graphics.DrawLine(triggerLevelPen, 0, bot - triggerLevel / vDiv, this.ClientSize.Width, bot - triggerLevel / vDiv);
+			}
 
 			float vDivInterval = 2.5f * Program.getRadix();
 			if (vDiv < 400.0f) {
 				vDivInterval = 0.5f * Program.getRadix();
 			}
-			Pen divLinePen = new Pen(Color.Gray, 1);
-			divLinePen.DashStyle = DashStyle.Dash;
+			
 			for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
 				e.Graphics.DrawLine(divLinePen, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
 				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), this.Font, Brushes.Black, 0, bot + i / vDiv, format);
@@ -55,7 +62,7 @@ namespace Demo2
 				float hDivTime_s = hDivInterval * sampleTime_s * hDiv;
 				for (int i = 0; i < hDivNum; i++) {
 					e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, this.ClientSize.Height);
-					e.Graphics.DrawString(String.Format("{0}s", hDivTime_s * i), this.Font, Brushes.Black, i * hDivInterval, this.ClientSize.Height - 50, format);
+					e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), this.Font, Brushes.Black, i * hDivInterval, this.ClientSize.Height - 50, format);
 				}
 			}
 

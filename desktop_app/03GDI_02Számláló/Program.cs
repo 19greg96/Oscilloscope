@@ -24,7 +24,7 @@ namespace Demo2
 		static int capturedAt;
 		static List<int> verticalLinesCH1;
 		static List<int> verticalLinesCH2;
-		static int triggerLevel;
+		static int triggerLevel = Int32.MinValue;
 		static Form1 mainForm;
 		private static int screenWidth;
 		private static int screenHeight;
@@ -56,7 +56,7 @@ namespace Demo2
 
 			_serialPort = new SerialPort();
 			// _serialPort.PortName = "COM5";
-			_serialPort.PortName = "COM11";
+			_serialPort.PortName = "COM11"; // TODO: select for this
 			_serialPort.BaudRate = 115200;
 			_serialPort.Parity = Parity.None;
 			_serialPort.DataBits = 8;
@@ -66,7 +66,7 @@ namespace Demo2
 			_serialPort.ReadTimeout = 1000;
 			_serialPort.WriteTimeout = 500;
 
-			_serialPort.Open();
+			_serialPort.Open(); // An unhandled exception of type 'System.IO.IOException' occurred in System.dll Additional information: The port 'COM11' does not exist.
 			readThread.Start();
 
 			mainForm = new Form1();
