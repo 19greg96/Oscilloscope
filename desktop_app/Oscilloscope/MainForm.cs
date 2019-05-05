@@ -22,6 +22,8 @@ namespace Oscilloscope
 		private Pen ch1VlinesPen;
 		private Pen ch2VlinesPen;
 
+		public bool doAutoConnect { get; private set; }
+
 		public MainForm()
         {
             InitializeComponent();
@@ -56,6 +58,7 @@ namespace Oscilloscope
 						break;
 					case SerialPortEnumerator.DbtDevicearrival: // device added
 						Program.serialPortsListUpdateNeeded = true;
+						doAutoConnect = true;
 						Invalidate();
 						break;
 				}
@@ -64,6 +67,10 @@ namespace Oscilloscope
 
 		protected override void OnPaint(PaintEventArgs e)
         {
+			if (doAutoConnect) {
+				Program.autoConnectSerialPort();
+				doAutoConnect = false;
+			}
 			if (Program.getBufferSize() == 0) {
 				copyBufferButton.Enabled = false;
 				vDivZoomInButton.Enabled = false;

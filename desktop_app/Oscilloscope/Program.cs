@@ -11,7 +11,7 @@ namespace Oscilloscope
     static class Program
     {
 		static SerialPort _serialPort;
-		public static bool serialPortConnected;
+		public static bool serialPortConnected = false;
 		static int dataPtr1;
 		static int dataPtr2;
 		static int bufferSize;
@@ -56,20 +56,25 @@ namespace Oscilloscope
 			verticalLinesCH1 = new List<int>();
 			verticalLinesCH2 = new List<int>();
 
-			selectedSerialPort = "";
-			foreach (SerialPortEnumerator.PortInfo pi in Program.getPortList()) {
-				if (pi.Description.Contains("STLink")) {
-					selectedSerialPort = pi.Name;
-				}
-			}
-			if (selectedSerialPort != "") {
-				startSerialPortReadThread(selectedSerialPort);
-			}
+			autoConnectSerialPort();
 
 			mainForm = new MainForm();
 			settingsForm = new SettingsForm();
 			Application.Run(mainForm);
 			endSerialPortReadThread();
+		}
+		public static void autoConnectSerialPort() {
+			if (serialPortConnected == false) {
+				selectedSerialPort = "";
+				foreach (SerialPortEnumerator.PortInfo pi in Program.getPortList()) {
+					if (pi.Description.Contains("STLink")) {
+						selectedSerialPort = pi.Name;
+					}
+				}
+				if (selectedSerialPort != "") {
+					startSerialPortReadThread(selectedSerialPort);
+				}
+			}
 		}
 
 		public static void startSerialPortReadThread(string portName) {
@@ -101,6 +106,7 @@ namespace Oscilloscope
 
 			serialPortConnected = true;
 			readThread.Start();
+			mainForm.Invalidate();
 		}
 		private static void endSerialPortReadThread() {
 			tryCloseSerialPort();
@@ -111,6 +117,7 @@ namespace Oscilloscope
 					readThread.Join();
 				}
 			}
+			mainForm.Invalidate();
 		}
 		public static List<SerialPortEnumerator.PortInfo> getPortList() {
 			if (serialPortsListUpdateNeeded) {
