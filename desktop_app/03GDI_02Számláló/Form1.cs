@@ -7,7 +7,7 @@ using System.Drawing.Drawing2D;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Demo2
+namespace Oscilloscope
 {
     public partial class Form1 : Form
     {
@@ -15,7 +15,12 @@ namespace Demo2
 		float hDiv = 1.0f;
 
 		private Pen triggerLevelPen;
+		private Pen triggerPointPen;
 		private Pen divLinePen;
+		private Pen ch1Pen;
+		private Pen ch2Pen;
+		private Pen ch1VlinesPen;
+		private Pen ch2VlinesPen;
 
 		public Form1()
         {
@@ -26,24 +31,48 @@ namespace Demo2
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			UpdateStyles();
 
-			triggerLevelPen = new Pen(Color.Red, 1);
+			triggerLevelPen = new Pen(Color.RoyalBlue, 1);
 			triggerLevelPen.DashStyle = DashStyle.Dash;
+			triggerPointPen = new Pen(Color.DodgerBlue, 1);
+
 			divLinePen = new Pen(Color.Gray, 1);
 			divLinePen.DashStyle = DashStyle.Dash;
+
+			ch1Pen = Pens.Red;
+			ch2Pen = Pens.Green;
+
+			ch1VlinesPen = Pens.Orange;
+			ch2VlinesPen = Pens.GreenYellow;
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
         {
-            StringFormat format = new StringFormat();
-            // Igazítás (Near – balra, Center, Far - jobbra)
-            format.Alignment = StringAlignment.Near;
-            // Horizontális igazítás (Near – fent, Center, Far - lent)
-            format.LineAlignment = StringAlignment.Center;
+			if (Program.getBufferSize() == 0) {
+				copyBufferButton.Enabled = false;
+				hScroll.Enabled = false;
+			} else {
+				copyBufferButton.Enabled = true;
 
-			int bot = this.ClientSize.Height / 2;
+				hScroll.Minimum = 0;
+				int invisibleTicks = (int)(Program.getBufferSize() / hDiv) - ClientSize.Width;
+				if (invisibleTicks > 0) {
+					hScroll.Maximum = invisibleTicks + 511; // +hScroll.LargeChange-1;  Microsoft please..
+					hScroll.LargeChange = 512;
+					hScroll.Enabled = true;
+				} else {
+					hScroll.Value = 0;
+					hScroll.Enabled = false;
+				}
+			}
+
+			StringFormat format = new StringFormat(); 
+            format.Alignment = StringAlignment.Near; // horizontal align (Near – left, Center, Far - right)
+			format.LineAlignment = StringAlignment.Center; // vertical align (Near – top, Center, Far - bottom)
+
+			int signalCenter = ClientSize.Height / 2;
 			int triggerLevel = Program.getTriggerLevel();
 			if (triggerLevel > Int32.MinValue) {
-				e.Graphics.DrawLine(triggerLevelPen, 0, bot - triggerLevel / vDiv, this.ClientSize.Width, bot - triggerLevel / vDiv);
+				e.Graphics.DrawLine(triggerLevelPen, 0, signalCenter - triggerLevel / vDiv, ClientSize.Width, signalCenter - triggerLevel / vDiv);
 			}
 
 			float vDivInterval = 2.5f * Program.getRadix();
@@ -52,73 +81,57 @@ namespace Demo2
 			}
 			
 			for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
-				e.Graphics.DrawLine(divLinePen, 0, bot + i / vDiv, this.ClientSize.Width, bot + i / vDiv);
-				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), this.Font, Brushes.Black, 0, bot + i / vDiv, format);
+				e.Graphics.DrawLine(divLinePen, 0, signalCenter + i / vDiv, ClientSize.Width, signalCenter + i / vDiv);
+				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), Font, Brushes.Black, 0, signalCenter + i / vDiv, format);
 			}
 			if (Program.getSamplingFrequency() > 0) {
 				float sampleTime_s = 1.0f / Program.getSamplingFrequency();
 				float hDivNum = 10.0f;
-				float hDivInterval = this.ClientSize.Width / hDivNum;
+				float hDivInterval = ClientSize.Width / hDivNum;
 				float hDivTime_s = hDivInterval * sampleTime_s * hDiv;
 				for (int i = 0; i < hDivNum; i++) {
-					e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, this.ClientSize.Height);
-					e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), this.Font, Brushes.Black, i * hDivInterval, this.ClientSize.Height - 50, format);
+					e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, ClientSize.Height);
+					e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), Font, Brushes.Black, i * hDivInterval, ClientSize.Height - 50, format);
 				}
 			}
 
 
 			GraphicsPath myPath = new GraphicsPath();
 			int[] buff = Program.getBuffer1();
-			for (int i = 0; i < Program.getPtr() - 1; i ++) {
-				int val = bot - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
-				int nextVal = bot - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
+			for (int i = 0; i < Program.getBufferSize() - 1; i ++) {
+				int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
+				int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
 				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 			}
-			e.Graphics.DrawPath(Pens.Cyan, myPath);
+			e.Graphics.DrawPath(ch1Pen, myPath);
 
 			myPath = new GraphicsPath();
 			buff = Program.getBuffer2();
-			for (int i = 0; i < Program.getPtr() - 1; i++) {
-				int val = bot - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
-				int nextVal = bot - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
+			for (int i = 0; i < Program.getBufferSize() - 1; i++) {
+				int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
+				int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
 				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 			}
-			e.Graphics.DrawPath(Pens.Black, myPath);
+			e.Graphics.DrawPath(ch2Pen, myPath);
 
 
 			int capAt = (int)(Program.getCapturedAt() / hDiv - hScroll.Value);
-			e.Graphics.DrawLine(new Pen(Color.Blue, 1), capAt, 0, capAt, this.ClientSize.Height);
+			e.Graphics.DrawLine(triggerPointPen, capAt, 0, capAt, ClientSize.Height);
 
 			foreach (int pos in Program.getVerticalLinesCH1()) {
 				int tp1 = (int)(pos / hDiv - hScroll.Value);
-				e.Graphics.DrawLine(new Pen(Color.Red, 1), tp1, 0, tp1, this.ClientSize.Height);
+				e.Graphics.DrawLine(ch1VlinesPen, tp1, 0, tp1, ClientSize.Height);
 			}
 			foreach (int pos in Program.getVerticalLinesCH2()) {
 				int tp1 = (int)(pos / hDiv - hScroll.Value);
-				e.Graphics.DrawLine(new Pen(Color.Green, 1), tp1, 0, tp1, this.ClientSize.Height);
+				e.Graphics.DrawLine(ch2VlinesPen, tp1, 0, tp1, ClientSize.Height);
 			}
 
 			if (Program.getScreenCaptureBitmap() != null) {
-				e.Graphics.DrawImage(Program.getScreenCaptureBitmap(), 10, 10);
+				e.Graphics.DrawImage(Program.getScreenCaptureBitmap(), ClientSize.Width - Program.getScreenCaptureBitmap().Width - 50, 10);
 				copyScreenButton.Enabled = true;
 			} else {
 				copyScreenButton.Enabled = false;
-			}
-			if (Program.getPtr() == 0) {
-				copyBufferButton.Enabled = false;
-				hScroll.Enabled = false;
-			} else {
-				copyBufferButton.Enabled = true;
-				
-				int invisibleTicks = (int)(Program.getPtr() / hDiv) - this.ClientSize.Width;
-				if (invisibleTicks > 0) {
-					hScroll.Maximum = invisibleTicks + 511; // +hScroll.LargeChange-1;  Microsoft please..
-					hScroll.LargeChange = 512;
-					hScroll.Enabled = true;
-				} else {
-					hScroll.Enabled = false;
-				}
-				hScroll.Minimum = 0;
 			}
 		}
 
@@ -151,29 +164,7 @@ namespace Demo2
 		}
 
 		private void copyBufferButton_Click(object sender, EventArgs e) {
-			int[] buff = Program.getBuffer1();
-			string str = "ch1 = [";
-			for (int i = 0; i < Program.getPtr(); i++) {
-				str += (buff[i] / Program.getRadix()).ToString() + " ";
-			}
-			str += "];\nch2 = [";
-
-			buff = Program.getBuffer2();
-			for (int i = 0; i < Program.getPtr(); i++) {
-				str += (buff[i] / Program.getRadix()).ToString() + " ";
-			}
-			str += "];\n";
-			if (Program.getSamplingFrequency() > 0) {
-				str += String.Format("Fs = {0};\n", Program.getSamplingFrequency());
-			}
-			if (Program.getPtr() > 0) {
-				str += String.Format("N = {0};\n", Program.getPtr()); // number of samples
-			}
-			/*
-			Y = fft(ch1); f = Fs/2*linspace(0,1,N/2+1); plot(f, 20*log10(abs(Y(1:N/2+1)))); xlabel('f (Hz)');
-			*/
-
-			Clipboard.SetText(str);
+			Program.copyBuffer();
 		}
 
 		private void copyScreenButton_Click(object sender, EventArgs e) {
@@ -182,6 +173,10 @@ namespace Demo2
 
 		private void hScroll_Scroll(object sender, ScrollEventArgs e) {
 			Invalidate();
+		}
+
+		private void infoButton_Click(object sender, EventArgs e) {
+			MessageBox.Show("Simple two channel oscilloscope, function generator and bode plotter for STM32 NUCLEO-F446RE board.\n\nIcons by Mark James. http://famfamfam.com", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 	}
 

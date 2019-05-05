@@ -8,8 +8,8 @@
     <ProjectGuid>{6D9B10C5-9874-439F-BE69-03C840A40BD2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Demo2</RootNamespace>
-    <AssemblyName>Demo2</AssemblyName>
+    <RootNamespace>Oscilloscope</RootNamespace>
+    <AssemblyName>Oscilloscope</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -33,6 +33,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>chart_curve.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -58,23 +61,47 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\magnifier_zoom_in.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\magifier_zoom_out.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\page_copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\picture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\pictures.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\page.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\information.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="chart_curve.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

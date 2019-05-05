@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Demo2.Properties {
+namespace Oscilloscope.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Demo2 {
+namespace Oscilloscope {
 	public static class FormatExtensions { // stack overflow
 		public static string ToEngineeringNotation(double d, int decimalPlaces = 2) {
 			double exponent = Math.Log10(Math.Abs(d));

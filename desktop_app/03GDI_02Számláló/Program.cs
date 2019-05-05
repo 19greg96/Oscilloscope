@@ -5,7 +5,7 @@ using System.IO.Ports;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace Demo2
+namespace Oscilloscope
 {
     static class Program
     {
@@ -31,6 +31,7 @@ namespace Demo2
 		private static int screenNumBytes;
 		private static float samplingFrequency = -1.0f;
 		private static float radix = 1.0f;
+		private static int numberOfBufferCopies = 0;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -90,7 +91,7 @@ namespace Demo2
 		public static int[] getBuffer2() {
 			return data2;
 		}
-		public static int getPtr() {
+		public static int getBufferSize() {
 			return bufferSize;
 		}
 		public static int getCapturedAt() {
@@ -107,6 +108,32 @@ namespace Demo2
 		}
 		public static Bitmap getScreenCaptureBitmap() {
 			return scopeDisplay;
+		}
+
+		public static void copyBuffer() {
+			numberOfBufferCopies++;
+
+			int[] buff = getBuffer1();
+			string str = String.Format("ch1_{0} = [", numberOfBufferCopies);
+			for (int i = 0; i < getBufferSize(); i++) {
+				str += (buff[i] / getRadix()).ToString() + " ";
+			}
+			str += String.Format("];\nch2_{0} = [", numberOfBufferCopies);
+
+			buff = getBuffer2();
+			for (int i = 0; i < getBufferSize(); i++) {
+				str += (buff[i] / getRadix()).ToString() + " ";
+			}
+			str += "];\n";
+			if (getSamplingFrequency() > 0) {
+				str += String.Format("Fs = {0};\n", getSamplingFrequency());
+			}
+			if (getBufferSize() > 0) {
+				str += String.Format("N = {0};\n", getBufferSize()); // number of samples
+			}
+			str += String.Format("Y = fft(ch1_{0}); f = Fs / 2 * linspace(0, 1, N / 2 + 1); plot(f, 20 * log10(abs(Y(1:N / 2 + 1)))); xlabel('f (Hz)');", numberOfBufferCopies);
+
+			Clipboard.SetText(str);
 		}
 
 		public static void Read() {
