@@ -11,9 +11,10 @@ namespace Oscilloscope
 {
     public partial class MainForm : Form
     {
-		float vDiv = 400.0f; // data is received in Program.getRadix() (1000 corresponds to mV)
-		float hDiv = 1.0f;
+		private float vDiv = 400.0f; // data is received in Program.getRadix() (1000 corresponds to mV)
+		private float hDiv = 1.0f;
 
+		private StringFormat labelFormat;
 		private Pen triggerLevelPen;
 		private Pen triggerPointPen;
 		private Pen divLinePen;
@@ -22,7 +23,7 @@ namespace Oscilloscope
 		private Pen ch1VlinesPen;
 		private Pen ch2VlinesPen;
 
-		public bool doAutoConnect { get; private set; }
+		public bool doAutoConnect { get; set; }
 
 		public MainForm()
         {
@@ -33,6 +34,10 @@ namespace Oscilloscope
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			UpdateStyles();
+
+			labelFormat = new StringFormat();
+			labelFormat.Alignment = StringAlignment.Near; // horizontal align (Near – left, Center, Far - right)
+			labelFormat.LineAlignment = StringAlignment.Center; // vertical align (Near – top, Center, Far - bottom)
 
 			triggerLevelPen = new Pen(Color.RoyalBlue, 1);
 			triggerLevelPen.DashStyle = DashStyle.Dash;
@@ -50,19 +55,7 @@ namespace Oscilloscope
 
 		protected override void WndProc(ref Message m) {
 			base.WndProc(ref m);
-			if (m.Msg == SerialPortEnumerator.WmDevicechange) {
-				switch ((int)m.WParam) {
-					case SerialPortEnumerator.DbtDeviceremovecomplete: // device removed
-						Program.serialPortsListUpdateNeeded = true;
-						Invalidate();
-						break;
-					case SerialPortEnumerator.DbtDevicearrival: // device added
-						Program.serialPortsListUpdateNeeded = true;
-						doAutoConnect = true;
-						Invalidate();
-						break;
-				}
-			}
+			Program.MainFormWndProc(ref m);
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -71,7 +64,7 @@ namespace Oscilloscope
 				Program.autoConnectSerialPort();
 				doAutoConnect = false;
 			}
-			if (Program.getBufferSize() == 0) {
+			if (Program.BufferSize == 0) {
 				copyBufferButton.Enabled = false;
 				vDivZoomInButton.Enabled = false;
 				vDivZoomOutButton.Enabled = false;
@@ -86,65 +79,58 @@ namespace Oscilloscope
 				hDivZoomInButton.Enabled = true;
 				hDivZoomOutButton.Enabled = true;
 
-
-				StringFormat format = new StringFormat();
-				format.Alignment = StringAlignment.Near; // horizontal align (Near – left, Center, Far - right)
-				format.LineAlignment = StringAlignment.Center; // vertical align (Near – top, Center, Far - bottom)
-
 				int signalCenter = ClientSize.Height / 2;
-				int triggerLevel = Program.getTriggerLevel();
+				int triggerLevel = Program.TriggerLevel;
 				if (triggerLevel > Int32.MinValue) {
 					e.Graphics.DrawLine(triggerLevelPen, 0, signalCenter - triggerLevel / vDiv, ClientSize.Width, signalCenter - triggerLevel / vDiv);
 				}
 
-				float vDivInterval = 2.5f * Program.getRadix();
+				float vDivInterval = 2.5f * Program.Radix;
 				if (vDiv < 400.0f) {
-					vDivInterval = 0.5f * Program.getRadix();
+					vDivInterval = 0.5f * Program.Radix;
 				}
 
-				for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
+				for (float i = -5.0f * Program.Radix; i < 5.0f * Program.Radix + 1; i += vDivInterval) {
 					e.Graphics.DrawLine(divLinePen, 0, signalCenter + i / vDiv, ClientSize.Width, signalCenter + i / vDiv);
-					e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), Font, Brushes.Black, 0, signalCenter + i / vDiv, format);
+					e.Graphics.DrawString(String.Format("{0}V", -i / Program.Radix), Font, Brushes.Black, 0, signalCenter + i / vDiv, labelFormat);
 				}
-				if (Program.getSamplingFrequency() > 0) {
-					float sampleTime_s = 1.0f / Program.getSamplingFrequency();
+				if (Program.SamplingFrequency > 0) {
+					float sampleTime_s = 1.0f / Program.SamplingFrequency;
 					float hDivNum = 10.0f;
 					float hDivInterval = ClientSize.Width / hDivNum;
 					float hDivTime_s = hDivInterval * sampleTime_s * hDiv;
 					for (int i = 0; i < hDivNum; i++) {
 						e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, ClientSize.Height);
-						e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), Font, Brushes.Black, i * hDivInterval, ClientSize.Height - 50, format);
+						e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), Font, Brushes.Black, i * hDivInterval, ClientSize.Height - 50, labelFormat);
 					}
 				}
 
 
 				GraphicsPath myPath = new GraphicsPath();
-				int[] buff = Program.getBuffer1();
-				for (int i = 0; i < Program.getBufferSize() - 1; i++) {
-					int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
-					int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
+				for (int i = 0; i < Program.BufferSize - 1; i++) {
+					int val = signalCenter - (int)(Program.Buffer1[i + (int)(hScroll.Value * hDiv)] / vDiv);
+					int nextVal = signalCenter - (int)(Program.Buffer1[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
 					myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 				}
 				e.Graphics.DrawPath(ch1Pen, myPath);
 
 				myPath = new GraphicsPath();
-				buff = Program.getBuffer2();
-				for (int i = 0; i < Program.getBufferSize() - 1; i++) {
-					int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
-					int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
+				for (int i = 0; i < Program.BufferSize - 1; i++) {
+					int val = signalCenter - (int)(Program.Buffer2[i + (int)(hScroll.Value * hDiv)] / vDiv);
+					int nextVal = signalCenter - (int)(Program.Buffer2[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
 					myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
 				}
 				e.Graphics.DrawPath(ch2Pen, myPath);
 
 
-				int capAt = (int)(Program.getCapturedAt() / hDiv - hScroll.Value);
+				int capAt = (int)(Program.CapturedAt / hDiv - hScroll.Value);
 				e.Graphics.DrawLine(triggerPointPen, capAt, 0, capAt, ClientSize.Height);
 
-				foreach (int pos in Program.getVerticalLinesCH1()) {
+				foreach (int pos in Program.VerticalLines1) {
 					int tp1 = (int)(pos / hDiv - hScroll.Value);
 					e.Graphics.DrawLine(ch1VlinesPen, tp1, 0, tp1, ClientSize.Height);
 				}
-				foreach (int pos in Program.getVerticalLinesCH2()) {
+				foreach (int pos in Program.VerticalLines2) {
 					int tp1 = (int)(pos / hDiv - hScroll.Value);
 					e.Graphics.DrawLine(ch2VlinesPen, tp1, 0, tp1, ClientSize.Height);
 				}
@@ -152,7 +138,7 @@ namespace Oscilloscope
 
 
 				hScroll.Minimum = 0;
-				int invisibleTicks = (int)(Program.getBufferSize() / hDiv) - ClientSize.Width;
+				int invisibleTicks = (int)(Program.BufferSize / hDiv) - ClientSize.Width;
 				if (invisibleTicks > 0) {
 					hScroll.Maximum = invisibleTicks + 511; // +hScroll.LargeChange-1;  Microsoft please..
 					hScroll.LargeChange = 512;
@@ -165,14 +151,14 @@ namespace Oscilloscope
 
 			
 
-			if (Program.getScreenCaptureBitmap() != null) {
-				e.Graphics.DrawImage(Program.getScreenCaptureBitmap(), ClientSize.Width - Program.getScreenCaptureBitmap().Width - 50, 10);
+			if (Program.ScopeDisplay != null) {
+				e.Graphics.DrawImage(Program.ScopeDisplay, ClientSize.Width - Program.ScopeDisplay.Width - 50, 10);
 				copyScreenButton.Enabled = true;
 			} else {
 				copyScreenButton.Enabled = false;
 			}
 
-			if (Program.serialPortConnected == false) {
+			if (Program.IsSerialPortConnected == false) {
 				captureBufferButton.Enabled = false;
 				captureScreenButton.Enabled = false;
 			} else {
@@ -214,7 +200,7 @@ namespace Oscilloscope
 		}
 
 		private void copyScreenButton_Click(object sender, EventArgs e) {
-			Clipboard.SetImage(Program.getScreenCaptureBitmap());
+			Clipboard.SetImage(Program.ScopeDisplay);
 		}
 
 		private void hScroll_Scroll(object sender, ScrollEventArgs e) {
@@ -222,7 +208,7 @@ namespace Oscilloscope
 		}
 
 		private void infoButton_Click(object sender, EventArgs e) {
-			MessageBox.Show("Simple two channel oscilloscope, function generator and bode plotter for STM32 NUCLEO-F446RE board.\n\nIcons by Mark James. http://famfamfam.com", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			Program.openInfo();
 		}
 
 		private void settingsButton_Click(object sender, EventArgs e) {

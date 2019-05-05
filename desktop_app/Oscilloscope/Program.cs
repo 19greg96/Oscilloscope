@@ -10,33 +10,51 @@ namespace Oscilloscope
 {
     static class Program
     {
-		static SerialPort _serialPort;
-		public static bool serialPortConnected = false;
-		static int dataPtr1;
-		static int dataPtr2;
-		static int bufferSize;
-		static int[] data1;
-		static int[] data2;
-		static Bitmap scopeDisplay;
-		static bool isScreenCapture;
+		public static int BufferSize { get; private set; }
+		private static int dataPtr1;
+		private static int dataPtr2;
+		public static int[] Buffer1 { get; private set; }
+		public static int[] Buffer2 { get; private set; }
+		private static int currBuff;
+
+		public static Bitmap ScopeDisplay { get; private set; }
+		private static int ScreenWidth { get; set; }
+		private static int ScreenHeight { get; set; }
+		private static int ScreenNumBytes { get; set; }
 		private static int screenCurrByte;
-		static int currBuff;
-		static int capturedAt;
-		static List<int> verticalLinesCH1;
-		static List<int> verticalLinesCH2;
-		static int triggerLevel = Int32.MinValue;
-		static MainForm mainForm;
-		static SettingsForm settingsForm;
-		private static int screenWidth;
-		private static int screenHeight;
-		private static int screenNumBytes;
-		private static float samplingFrequency = -1.0f;
-		private static float radix = 1.0f;
-		private static int numberOfBufferCopies = 0;
-		public static bool serialPortsListUpdateNeeded = true;
+		private static bool isScreenCapture; // screen capture vs buffer data
+		
+		
+		public static int CapturedAt { get; private set; }
+		public static List<int> VerticalLines1 { get; private set; }
+		public static List<int> VerticalLines2 { get; private set; }
+		public static int TriggerLevel { get; private set; } = Int32.MinValue;
+		public static float SamplingFrequency { get; private set; } = -1.0f;
+		public static float Radix { get; private set; } = 1.0f;
+		
+		private static SerialPort serialPort;
+		public static bool IsSerialPortConnected { get; private set; } = false;
+		private static bool SerialPortsListUpdateNeeded { get; set; } = true;
+		public static string SelectedSerialPort { get; private set; }
 		private static List<SerialPortEnumerator.PortInfo> serialPortsList;
 		private static Thread readThread;
-		public static string selectedSerialPort;
+
+		private static int NumberOfBufferCopies { get; set; } = 0; // to postfix copied buffer variable names
+		private static MainForm mainForm;
+		private static SettingsForm settingsForm;
+
+
+		public static List<SerialPortEnumerator.PortInfo> PortList {
+			get {
+				if (SerialPortsListUpdateNeeded) {
+					serialPortsList = SerialPortEnumerator.FindComPorts();
+					SerialPortsListUpdateNeeded = false; // TODO: not thread safe
+				}
+				return serialPortsList;
+			}
+		}
+
+
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -49,30 +67,48 @@ namespace Oscilloscope
 
 			currBuff = 1;
 			dataPtr1 = 0;
-			data1 = new int[16384];
+			Buffer1 = new int[16384]; // bad form, this should come from slave device
 			dataPtr2 = 0;
-			data2 = new int[16384];
+			Buffer2 = new int[16384];
 
-			verticalLinesCH1 = new List<int>();
-			verticalLinesCH2 = new List<int>();
-
-			autoConnectSerialPort();
+			VerticalLines1 = new List<int>();
+			VerticalLines2 = new List<int>();
 
 			mainForm = new MainForm();
 			settingsForm = new SettingsForm();
+
+			autoConnectSerialPort();
+
 			Application.Run(mainForm);
 			endSerialPortReadThread();
 		}
+
+		internal static void MainFormWndProc(ref Message m) {
+			if (m.Msg == SerialPortEnumerator.WmDevicechange) {
+				switch ((int)m.WParam) {
+					case SerialPortEnumerator.DbtDeviceremovecomplete: // device removed
+						SerialPortsListUpdateNeeded = true;
+						mainForm.Invalidate();
+						break;
+					case SerialPortEnumerator.DbtDevicearrival: // device added
+						SerialPortsListUpdateNeeded = true;
+						mainForm.doAutoConnect = true;
+						mainForm.Invalidate();
+						break;
+				}
+			}
+		}
+
 		public static void autoConnectSerialPort() {
-			if (serialPortConnected == false) {
-				selectedSerialPort = "";
-				foreach (SerialPortEnumerator.PortInfo pi in Program.getPortList()) {
+			if (IsSerialPortConnected == false) {
+				SelectedSerialPort = "";
+				foreach (SerialPortEnumerator.PortInfo pi in Program.PortList) {
 					if (pi.Description.Contains("STLink")) {
-						selectedSerialPort = pi.Name;
+						SelectedSerialPort = pi.Name;
 					}
 				}
-				if (selectedSerialPort != "") {
-					startSerialPortReadThread(selectedSerialPort);
+				if (SelectedSerialPort != "") {
+					startSerialPortReadThread(SelectedSerialPort);
 				}
 			}
 		}
@@ -82,20 +118,20 @@ namespace Oscilloscope
 
 			readThread = new Thread(Read);
 			isScreenCapture = false;
-			_serialPort = new SerialPort();
+			serialPort = new SerialPort();
 
-			_serialPort.PortName = portName; // "COM11"
-			_serialPort.BaudRate = 115200;
-			_serialPort.Parity = Parity.None;
-			_serialPort.DataBits = 8;
-			_serialPort.StopBits = StopBits.One;
-			_serialPort.Handshake = Handshake.None;
+			serialPort.PortName = portName; // "COM11"
+			serialPort.BaudRate = 115200;
+			serialPort.Parity = Parity.None;
+			serialPort.DataBits = 8;
+			serialPort.StopBits = StopBits.One;
+			serialPort.Handshake = Handshake.None;
 
-			_serialPort.ReadTimeout = 1000;
-			_serialPort.WriteTimeout = 500;
+			serialPort.ReadTimeout = 1000;
+			serialPort.WriteTimeout = 500;
 
 			try {
-				_serialPort.Open();
+				serialPort.Open();
 			} catch (System.IO.IOException) {
 				// com port does not exist
 				return;
@@ -104,7 +140,7 @@ namespace Oscilloscope
 				return;
 			}
 
-			serialPortConnected = true;
+			IsSerialPortConnected = true;
 			readThread.Start();
 			mainForm.Invalidate();
 		}
@@ -113,82 +149,41 @@ namespace Oscilloscope
 
 			if (readThread != null) {
 				if (readThread.ThreadState != ThreadState.Unstarted) {
-					serialPortConnected = false;
+					IsSerialPortConnected = false;
 					readThread.Join();
 				}
 			}
 			mainForm.Invalidate();
 		}
-		public static List<SerialPortEnumerator.PortInfo> getPortList() {
-			if (serialPortsListUpdateNeeded) {
-				serialPortsList = SerialPortEnumerator.FindComPorts();
-				serialPortsListUpdateNeeded = false; // TODO: not thread safe
-			}
-			return serialPortsList;
-		}
-
-		public static float getRadix() {
-			return radix;
-		}
-		public static float getSamplingFrequency() {
-			return samplingFrequency;
-		}
-
-		public static int[] getBuffer1() {
-			return data1;
-		}
-		public static int[] getBuffer2() {
-			return data2;
-		}
-		public static int getBufferSize() {
-			return bufferSize;
-		}
-		public static int getCapturedAt() {
-			return capturedAt;
-		}
-		public static List<int> getVerticalLinesCH1() {
-			return verticalLinesCH1;
-		}
-		public static List<int> getVerticalLinesCH2() {
-			return verticalLinesCH2;
-		}
-		public static int getTriggerLevel() {
-			return triggerLevel;
-		}
-		public static Bitmap getScreenCaptureBitmap() {
-			return scopeDisplay;
-		}
 
 		public static void copyBuffer() {
-			numberOfBufferCopies++;
+			NumberOfBufferCopies++;
 
-			int[] buff = getBuffer1();
-			string str = String.Format("ch1_{0} = [", numberOfBufferCopies);
-			for (int i = 0; i < getBufferSize(); i++) {
-				str += (buff[i] / getRadix()).ToString() + " ";
+			string str = String.Format("ch1_{0} = [", NumberOfBufferCopies);
+			for (int i = 0; i < BufferSize; i++) {
+				str += (Buffer1[i] / Radix).ToString() + " ";
 			}
-			str += String.Format("];\nch2_{0} = [", numberOfBufferCopies);
+			str += String.Format("];\nch2_{0} = [", NumberOfBufferCopies);
 
-			buff = getBuffer2();
-			for (int i = 0; i < getBufferSize(); i++) {
-				str += (buff[i] / getRadix()).ToString() + " ";
+			for (int i = 0; i < BufferSize; i++) {
+				str += (Buffer2[i] / Radix).ToString() + " ";
 			}
 			str += "];\n";
-			if (getSamplingFrequency() > 0) {
-				str += String.Format("Fs = {0};\n", getSamplingFrequency());
+			if (SamplingFrequency > 0) {
+				str += String.Format("Fs = {0};\n", SamplingFrequency);
 			}
-			if (getBufferSize() > 0) {
-				str += String.Format("N = {0};\n", getBufferSize()); // number of samples
+			if (BufferSize > 0) {
+				str += String.Format("N = {0};\n", BufferSize); // number of samples
 			}
-			str += String.Format("Y = fft(ch1_{0}); f = Fs / 2 * linspace(0, 1, N / 2 + 1); plot(f, 20 * log10(abs(Y(1:N / 2 + 1)))); xlabel('f (Hz)');", numberOfBufferCopies);
+			str += String.Format("Y = fft(ch1_{0}); f = Fs / 2 * linspace(0, 1, N / 2 + 1); plot(f, 20 * log10(abs(Y(1:N / 2 + 1)))); xlabel('f (Hz)');", NumberOfBufferCopies);
 
 			Clipboard.SetText(str);
 		}
 
 		public static void Read() {
-			while (serialPortConnected) {
-				try {
-					string msg = _serialPort.ReadLine();
+			while (IsSerialPortConnected) {
+				try { // TODO: communication protocol is lacking
+					string msg = serialPort.ReadLine();
 					// Console.WriteLine("Recv: " + msg);
 					if (msg.Equals("clr")) {
 						dataPtr1 = 0;
@@ -196,30 +191,30 @@ namespace Oscilloscope
 
 						currBuff = 1;
 
-						verticalLinesCH1.Clear();
-						verticalLinesCH2.Clear();
+						VerticalLines1.Clear();
+						VerticalLines2.Clear();
 					} else if (msg.StartsWith("s")) {
-						screenWidth = int.Parse(msg.Split(' ')[1]);
-						screenHeight = int.Parse(msg.Split(' ')[2]);
-						screenNumBytes = int.Parse(msg.Split(' ')[3]);
+						ScreenWidth = int.Parse(msg.Split(' ')[1]);
+						ScreenHeight = int.Parse(msg.Split(' ')[2]);
+						ScreenNumBytes = int.Parse(msg.Split(' ')[3]);
 						isScreenCapture = true;
 						screenCurrByte = 0;
 
-						scopeDisplay = new Bitmap(screenWidth, screenHeight);
+						ScopeDisplay = new Bitmap(ScreenWidth, ScreenHeight);
 						// dataSize = int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("capat")) {
-						capturedAt = int.Parse(msg.Split(' ')[1]);
+						CapturedAt = int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("fs")) {
-						samplingFrequency = float.Parse(msg.Split(' ')[1]);
+						SamplingFrequency = float.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("radix")) { // 1000 means we receive values in mV
-						radix = (float)int.Parse(msg.Split(' ')[1]);
+						Radix = (float)int.Parse(msg.Split(' ')[1]);
 					} else if (msg.StartsWith("triglv")) {
-						triggerLevel = int.Parse(msg.Split(' ')[1]);
+						TriggerLevel = int.Parse(msg.Split(' ')[1]);
 						mainForm.Invalidate();
 					} else if (msg.StartsWith("v1")) { // vertical line channel 1
-						verticalLinesCH1.Add(int.Parse(msg.Split(' ')[1]));
+						VerticalLines1.Add(int.Parse(msg.Split(' ')[1]));
 					} else if (msg.StartsWith("v2")) { // vertical line channel 2
-						verticalLinesCH2.Add(int.Parse(msg.Split(' ')[1]));
+						VerticalLines2.Add(int.Parse(msg.Split(' ')[1]));
 					} else if (msg.Equals("rst")) {
 						if (currBuff == 1) {
 							currBuff = 2;
@@ -229,70 +224,76 @@ namespace Oscilloscope
 					} else {
 						if (isScreenCapture) {
 							int vertical8Pixels = int.Parse(msg);
-							int x = screenCurrByte % screenWidth;
-							int y = (screenCurrByte / screenWidth) * 8;
+							int x = screenCurrByte % ScreenWidth;
+							int y = (screenCurrByte / ScreenWidth) * 8;
 
-							if ((vertical8Pixels & 0x80) != 0) { scopeDisplay.SetPixel(x, y + 7, Color.Black); } else { scopeDisplay.SetPixel(x, y + 7, Color.White); }
-							if ((vertical8Pixels & 0x40) != 0) { scopeDisplay.SetPixel(x, y + 6, Color.Black); } else { scopeDisplay.SetPixel(x, y + 6, Color.White); }
-							if ((vertical8Pixels & 0x20) != 0) { scopeDisplay.SetPixel(x, y + 5, Color.Black); } else { scopeDisplay.SetPixel(x, y + 5, Color.White); }
-							if ((vertical8Pixels & 0x10) != 0) { scopeDisplay.SetPixel(x, y + 4, Color.Black); } else { scopeDisplay.SetPixel(x, y + 4, Color.White); }
+							if ((vertical8Pixels & 0x80) != 0) { ScopeDisplay.SetPixel(x, y + 7, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 7, Color.White); }
+							if ((vertical8Pixels & 0x40) != 0) { ScopeDisplay.SetPixel(x, y + 6, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 6, Color.White); }
+							if ((vertical8Pixels & 0x20) != 0) { ScopeDisplay.SetPixel(x, y + 5, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 5, Color.White); }
+							if ((vertical8Pixels & 0x10) != 0) { ScopeDisplay.SetPixel(x, y + 4, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 4, Color.White); }
 
-							if ((vertical8Pixels & 0x08) != 0) { scopeDisplay.SetPixel(x, y + 3, Color.Black); } else { scopeDisplay.SetPixel(x, y + 3, Color.White); }
-							if ((vertical8Pixels & 0x04) != 0) { scopeDisplay.SetPixel(x, y + 2, Color.Black); } else { scopeDisplay.SetPixel(x, y + 2, Color.White); }
-							if ((vertical8Pixels & 0x02) != 0) { scopeDisplay.SetPixel(x, y + 1, Color.Black); } else { scopeDisplay.SetPixel(x, y + 1, Color.White); }
-							if ((vertical8Pixels & 0x01) != 0) { scopeDisplay.SetPixel(x, y + 0, Color.Black); } else { scopeDisplay.SetPixel(x, y + 0, Color.White); }
+							if ((vertical8Pixels & 0x08) != 0) { ScopeDisplay.SetPixel(x, y + 3, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 3, Color.White); }
+							if ((vertical8Pixels & 0x04) != 0) { ScopeDisplay.SetPixel(x, y + 2, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 2, Color.White); }
+							if ((vertical8Pixels & 0x02) != 0) { ScopeDisplay.SetPixel(x, y + 1, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 1, Color.White); }
+							if ((vertical8Pixels & 0x01) != 0) { ScopeDisplay.SetPixel(x, y + 0, Color.Black); } else { ScopeDisplay.SetPixel(x, y + 0, Color.White); }
 
 							screenCurrByte++;
-							if (screenCurrByte == screenNumBytes) {
+							if (screenCurrByte == ScreenNumBytes) {
 								isScreenCapture = false;
 								mainForm.Invalidate();
 							}
 						} else {
 							if (currBuff == 1) {
-								data1[dataPtr1] = int.Parse(msg);
+								Buffer1[dataPtr1] = int.Parse(msg);
 								dataPtr1++;
-								if (dataPtr1 > bufferSize) {
-									bufferSize = dataPtr1;
+								if (dataPtr1 > BufferSize) {
+									BufferSize = dataPtr1;
 								}
 							} else {
-								data2[dataPtr2] = int.Parse(msg);
+								Buffer2[dataPtr2] = int.Parse(msg);
 								dataPtr2++;
 							}
 						}
 					}
 				} catch (System.IO.IOException) {
-					serialPortConnected = false;
+					IsSerialPortConnected = false;
 				} catch (Exception) {}
 			}
 			tryCloseSerialPort();
 		}
 
+		
+
 		private static void tryCloseSerialPort() {
 			try {
-				_serialPort.Close();
+				serialPort.Close();
 			} catch (Exception) { }
 		}
-		
+
+
+		internal static void openInfo() {
+			MessageBox.Show("Simple two channel oscilloscope, function generator and bode plotter for STM32 NUCLEO-F446RE board.\n\nIcons by Mark James. http://famfamfam.com", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
 
 		internal static void openSettings() {
 			settingsForm.populateFields();
 			if (settingsForm.ShowDialog() != DialogResult.Cancel) {
-				selectedSerialPort = settingsForm.SelectedCOMPort;
+				SelectedSerialPort = settingsForm.SelectedCOMPort;
 				startSerialPortReadThread(settingsForm.SelectedCOMPort);
 			}
 		}
 
 		internal static void captureScreen() {
-			_serialPort.Write("s");
+			serialPort.Write("s");
 		}
 
 		internal static void captureBuffer() {
-			_serialPort.Write("b");
+			serialPort.Write("b");
 		}
 
 		internal static void setTriggerLevel(int value) {
 			byte val = (byte)value;
-			_serialPort.Write(new byte[] { (byte)'t', val}, 0, 2);
+			serialPort.Write(new byte[] { (byte)'t', val}, 0, 2);
 		}
 	}
 }

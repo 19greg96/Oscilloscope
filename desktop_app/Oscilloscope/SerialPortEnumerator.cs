@@ -63,6 +63,7 @@ namespace Oscilloscope {
 		}
 
 
+		// https://stackoverflow.com/a/43074030/1018376
 		public const int DbtDevicearrival = 0x8000; // system detected a new device        
 		public const int DbtDeviceremovecomplete = 0x8004; // device is gone      
 		public const int WmDevicechange = 0x0219; // device change event      

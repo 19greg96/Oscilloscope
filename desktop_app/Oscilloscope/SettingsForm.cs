@@ -30,15 +30,17 @@ namespace Oscilloscope {
 
 			comPortComboBox.ValueMember = "Name";
 			comPortComboBox.DisplayMember = "DisplayName";
+			// TODO: settings to configure buffer copy (Format: Matlab / JavaScript, in case of Matlab: include plot script?, include both channels, variable name)
 		}
 
-		internal void populateFields() { // TODO: this is only called on form open, if device is added when settings is open, it doesn't update the list
+		internal void populateFields() {
+			// TODO: this is only called on form open, if device is added when settings is open, it doesn't update the list
 			comPortComboBox.Items.Clear();
 			int selectedIndex = -1;
-			for (int i = 0; i < Program.getPortList().Count; i ++) {
-				SerialPortEnumerator.PortInfo pi = Program.getPortList()[i];
+			for (int i = 0; i < Program.PortList.Count; i ++) {
+				SerialPortEnumerator.PortInfo pi = Program.PortList[i];
 				comPortComboBox.Items.Add(new SerialPortComboboxItem(pi.Name, pi.Description));
-				if (pi.Name.Equals(Program.selectedSerialPort)) {
+				if (pi.Name.Equals(Program.SelectedSerialPort)) {
 					selectedIndex = i;
 				}
 			}
