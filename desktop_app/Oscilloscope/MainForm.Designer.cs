@@ -106,8 +106,8 @@
 			// 
 			// vDivZoomOutButton
 			// 
-			this.vDivZoomOutButton.BackgroundImage = global::Oscilloscope.Properties.Resources.magifier_zoom_out;
 			this.vDivZoomOutButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			this.vDivZoomOutButton.Image = global::Oscilloscope.Properties.Resources.magifier_zoom_out;
 			this.vDivZoomOutButton.Location = new System.Drawing.Point(12, 44);
 			this.vDivZoomOutButton.Name = "vDivZoomOutButton";
 			this.vDivZoomOutButton.Size = new System.Drawing.Size(26, 26);
@@ -117,8 +117,8 @@
 			// 
 			// vDivZoomInButton
 			// 
-			this.vDivZoomInButton.BackgroundImage = global::Oscilloscope.Properties.Resources.magnifier_zoom_in;
 			this.vDivZoomInButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			this.vDivZoomInButton.Image = ((System.Drawing.Image)(resources.GetObject("vDivZoomInButton.Image")));
 			this.vDivZoomInButton.Location = new System.Drawing.Point(12, 12);
 			this.vDivZoomInButton.Name = "vDivZoomInButton";
 			this.vDivZoomInButton.Size = new System.Drawing.Size(26, 26);
@@ -129,8 +129,8 @@
 			// hDivZoomOutButton
 			// 
 			this.hDivZoomOutButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.hDivZoomOutButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("hDivZoomOutButton.BackgroundImage")));
 			this.hDivZoomOutButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			this.hDivZoomOutButton.Image = global::Oscilloscope.Properties.Resources.magifier_zoom_out;
 			this.hDivZoomOutButton.Location = new System.Drawing.Point(44, 427);
 			this.hDivZoomOutButton.Name = "hDivZoomOutButton";
 			this.hDivZoomOutButton.Size = new System.Drawing.Size(26, 26);
@@ -141,8 +141,8 @@
 			// hDivZoomInButton
 			// 
 			this.hDivZoomInButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.hDivZoomInButton.BackgroundImage = global::Oscilloscope.Properties.Resources.magnifier_zoom_in;
 			this.hDivZoomInButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			this.hDivZoomInButton.Image = ((System.Drawing.Image)(resources.GetObject("hDivZoomInButton.Image")));
 			this.hDivZoomInButton.Location = new System.Drawing.Point(12, 427);
 			this.hDivZoomInButton.Name = "hDivZoomInButton";
 			this.hDivZoomInButton.Size = new System.Drawing.Size(26, 26);
