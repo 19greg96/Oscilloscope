@@ -11,7 +11,7 @@ namespace Oscilloscope
     static class Program
     {
 		static SerialPort _serialPort;
-		static bool _continue;
+		public static bool serialPortConnected;
 		static int dataPtr1;
 		static int dataPtr2;
 		static int bufferSize;
@@ -76,14 +76,10 @@ namespace Oscilloscope
 			endSerialPortReadThread();
 
 			readThread = new Thread(Read);
-
-			_continue = true;
 			isScreenCapture = false;
-
 			_serialPort = new SerialPort();
 
-			// _serialPort.PortName = "COM5";
-			_serialPort.PortName = portName;
+			_serialPort.PortName = portName; // "COM11"
 			_serialPort.BaudRate = 115200;
 			_serialPort.Parity = Parity.None;
 			_serialPort.DataBits = 8;
@@ -93,8 +89,17 @@ namespace Oscilloscope
 			_serialPort.ReadTimeout = 1000;
 			_serialPort.WriteTimeout = 500;
 
-			_serialPort.Open(); // An unhandled exception of type 'System.IO.IOException' occurred in System.dll Additional information: The port 'COM11' does not exist.
-								// System.UnauthorizedAccessException when other application is using port
+			try {
+				_serialPort.Open();
+			} catch (System.IO.IOException) {
+				// com port does not exist
+				return;
+			} catch (System.UnauthorizedAccessException) {
+				// com port is in use
+				return;
+			}
+
+			serialPortConnected = true;
 			readThread.Start();
 		}
 		private static void endSerialPortReadThread() {
@@ -102,7 +107,7 @@ namespace Oscilloscope
 
 			if (readThread != null) {
 				if (readThread.ThreadState != ThreadState.Unstarted) {
-					_continue = false;
+					serialPortConnected = false;
 					readThread.Join();
 				}
 			}
@@ -174,7 +179,7 @@ namespace Oscilloscope
 		}
 
 		public static void Read() {
-			while (_continue) {
+			while (serialPortConnected) {
 				try {
 					string msg = _serialPort.ReadLine();
 					// Console.WriteLine("Recv: " + msg);
@@ -249,10 +254,8 @@ namespace Oscilloscope
 						}
 					}
 				} catch (System.IO.IOException) {
-					_continue = false;
-				} catch (Exception) {
-					// Console.WriteLine("Timeout");
-				}
+					serialPortConnected = false;
+				} catch (Exception) {}
 			}
 			tryCloseSerialPort();
 		}
@@ -267,7 +270,7 @@ namespace Oscilloscope
 		internal static void openSettings() {
 			settingsForm.populateFields();
 			if (settingsForm.ShowDialog() != DialogResult.Cancel) {
-				Console.WriteLine("New selected port: " + settingsForm.SelectedCOMPort);
+				selectedSerialPort = settingsForm.SelectedCOMPort;
 				startSerialPortReadThread(settingsForm.SelectedCOMPort);
 			}
 		}

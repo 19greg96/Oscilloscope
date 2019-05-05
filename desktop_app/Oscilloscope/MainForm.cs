@@ -66,9 +66,83 @@ namespace Oscilloscope
         {
 			if (Program.getBufferSize() == 0) {
 				copyBufferButton.Enabled = false;
+				vDivZoomInButton.Enabled = false;
+				vDivZoomOutButton.Enabled = false;
+				hDivZoomInButton.Enabled = false;
+				hDivZoomOutButton.Enabled = false;
+
 				hScroll.Enabled = false;
 			} else {
 				copyBufferButton.Enabled = true;
+				vDivZoomInButton.Enabled = true;
+				vDivZoomOutButton.Enabled = true;
+				hDivZoomInButton.Enabled = true;
+				hDivZoomOutButton.Enabled = true;
+
+
+				StringFormat format = new StringFormat();
+				format.Alignment = StringAlignment.Near; // horizontal align (Near – left, Center, Far - right)
+				format.LineAlignment = StringAlignment.Center; // vertical align (Near – top, Center, Far - bottom)
+
+				int signalCenter = ClientSize.Height / 2;
+				int triggerLevel = Program.getTriggerLevel();
+				if (triggerLevel > Int32.MinValue) {
+					e.Graphics.DrawLine(triggerLevelPen, 0, signalCenter - triggerLevel / vDiv, ClientSize.Width, signalCenter - triggerLevel / vDiv);
+				}
+
+				float vDivInterval = 2.5f * Program.getRadix();
+				if (vDiv < 400.0f) {
+					vDivInterval = 0.5f * Program.getRadix();
+				}
+
+				for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
+					e.Graphics.DrawLine(divLinePen, 0, signalCenter + i / vDiv, ClientSize.Width, signalCenter + i / vDiv);
+					e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), Font, Brushes.Black, 0, signalCenter + i / vDiv, format);
+				}
+				if (Program.getSamplingFrequency() > 0) {
+					float sampleTime_s = 1.0f / Program.getSamplingFrequency();
+					float hDivNum = 10.0f;
+					float hDivInterval = ClientSize.Width / hDivNum;
+					float hDivTime_s = hDivInterval * sampleTime_s * hDiv;
+					for (int i = 0; i < hDivNum; i++) {
+						e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, ClientSize.Height);
+						e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), Font, Brushes.Black, i * hDivInterval, ClientSize.Height - 50, format);
+					}
+				}
+
+
+				GraphicsPath myPath = new GraphicsPath();
+				int[] buff = Program.getBuffer1();
+				for (int i = 0; i < Program.getBufferSize() - 1; i++) {
+					int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
+					int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
+					myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
+				}
+				e.Graphics.DrawPath(ch1Pen, myPath);
+
+				myPath = new GraphicsPath();
+				buff = Program.getBuffer2();
+				for (int i = 0; i < Program.getBufferSize() - 1; i++) {
+					int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
+					int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
+					myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
+				}
+				e.Graphics.DrawPath(ch2Pen, myPath);
+
+
+				int capAt = (int)(Program.getCapturedAt() / hDiv - hScroll.Value);
+				e.Graphics.DrawLine(triggerPointPen, capAt, 0, capAt, ClientSize.Height);
+
+				foreach (int pos in Program.getVerticalLinesCH1()) {
+					int tp1 = (int)(pos / hDiv - hScroll.Value);
+					e.Graphics.DrawLine(ch1VlinesPen, tp1, 0, tp1, ClientSize.Height);
+				}
+				foreach (int pos in Program.getVerticalLinesCH2()) {
+					int tp1 = (int)(pos / hDiv - hScroll.Value);
+					e.Graphics.DrawLine(ch2VlinesPen, tp1, 0, tp1, ClientSize.Height);
+				}
+
+
 
 				hScroll.Minimum = 0;
 				int invisibleTicks = (int)(Program.getBufferSize() / hDiv) - ClientSize.Width;
@@ -82,73 +156,21 @@ namespace Oscilloscope
 				}
 			}
 
-			StringFormat format = new StringFormat(); 
-            format.Alignment = StringAlignment.Near; // horizontal align (Near – left, Center, Far - right)
-			format.LineAlignment = StringAlignment.Center; // vertical align (Near – top, Center, Far - bottom)
-
-			int signalCenter = ClientSize.Height / 2;
-			int triggerLevel = Program.getTriggerLevel();
-			if (triggerLevel > Int32.MinValue) {
-				e.Graphics.DrawLine(triggerLevelPen, 0, signalCenter - triggerLevel / vDiv, ClientSize.Width, signalCenter - triggerLevel / vDiv);
-			}
-
-			float vDivInterval = 2.5f * Program.getRadix();
-			if (vDiv < 400.0f) {
-				vDivInterval = 0.5f * Program.getRadix();
-			}
 			
-			for (float i = -5.0f * Program.getRadix(); i < 5.0f * Program.getRadix() + 1; i += vDivInterval) {
-				e.Graphics.DrawLine(divLinePen, 0, signalCenter + i / vDiv, ClientSize.Width, signalCenter + i / vDiv);
-				e.Graphics.DrawString(String.Format("{0}V", -i / Program.getRadix()), Font, Brushes.Black, 0, signalCenter + i / vDiv, format);
-			}
-			if (Program.getSamplingFrequency() > 0) {
-				float sampleTime_s = 1.0f / Program.getSamplingFrequency();
-				float hDivNum = 10.0f;
-				float hDivInterval = ClientSize.Width / hDivNum;
-				float hDivTime_s = hDivInterval * sampleTime_s * hDiv;
-				for (int i = 0; i < hDivNum; i++) {
-					e.Graphics.DrawLine(divLinePen, i * hDivInterval, 0, i * hDivInterval, ClientSize.Height);
-					e.Graphics.DrawString(String.Format("{0}s", FormatExtensions.ToEngineeringNotation(hDivTime_s * i)), Font, Brushes.Black, i * hDivInterval, ClientSize.Height - 50, format);
-				}
-			}
-
-
-			GraphicsPath myPath = new GraphicsPath();
-			int[] buff = Program.getBuffer1();
-			for (int i = 0; i < Program.getBufferSize() - 1; i ++) {
-				int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
-				int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
-				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
-			}
-			e.Graphics.DrawPath(ch1Pen, myPath);
-
-			myPath = new GraphicsPath();
-			buff = Program.getBuffer2();
-			for (int i = 0; i < Program.getBufferSize() - 1; i++) {
-				int val = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv)] / vDiv);
-				int nextVal = signalCenter - (int)(buff[i + (int)(hScroll.Value * hDiv) + 1] / vDiv);
-				myPath.AddLine(i / hDiv, val, i / hDiv + 1, nextVal);
-			}
-			e.Graphics.DrawPath(ch2Pen, myPath);
-
-
-			int capAt = (int)(Program.getCapturedAt() / hDiv - hScroll.Value);
-			e.Graphics.DrawLine(triggerPointPen, capAt, 0, capAt, ClientSize.Height);
-
-			foreach (int pos in Program.getVerticalLinesCH1()) {
-				int tp1 = (int)(pos / hDiv - hScroll.Value);
-				e.Graphics.DrawLine(ch1VlinesPen, tp1, 0, tp1, ClientSize.Height);
-			}
-			foreach (int pos in Program.getVerticalLinesCH2()) {
-				int tp1 = (int)(pos / hDiv - hScroll.Value);
-				e.Graphics.DrawLine(ch2VlinesPen, tp1, 0, tp1, ClientSize.Height);
-			}
 
 			if (Program.getScreenCaptureBitmap() != null) {
 				e.Graphics.DrawImage(Program.getScreenCaptureBitmap(), ClientSize.Width - Program.getScreenCaptureBitmap().Width - 50, 10);
 				copyScreenButton.Enabled = true;
 			} else {
 				copyScreenButton.Enabled = false;
+			}
+
+			if (Program.serialPortConnected == false) {
+				captureBufferButton.Enabled = false;
+				captureScreenButton.Enabled = false;
+			} else {
+				captureBufferButton.Enabled = true;
+				captureScreenButton.Enabled = true;
 			}
 		}
 
