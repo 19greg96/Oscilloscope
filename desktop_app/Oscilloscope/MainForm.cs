@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Oscilloscope
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
 		float vDiv = 400.0f; // data is received in Program.getRadix() (1000 corresponds to mV)
 		float hDiv = 1.0f;
@@ -22,11 +22,12 @@ namespace Oscilloscope
 		private Pen ch1VlinesPen;
 		private Pen ch2VlinesPen;
 
-		public Form1()
+		public MainForm()
         {
             InitializeComponent();
-            // 01. Frissítés átméretezéskor
-            SetStyle(ControlStyles.ResizeRedraw, true);
+			SerialPortEnumerator.RegisterUsbDeviceNotification(this.Handle);
+
+			SetStyle(ControlStyles.ResizeRedraw, true);
 			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
 			UpdateStyles();
@@ -43,6 +44,22 @@ namespace Oscilloscope
 
 			ch1VlinesPen = Pens.Orange;
 			ch2VlinesPen = Pens.GreenYellow;
+		}
+
+		protected override void WndProc(ref Message m) {
+			base.WndProc(ref m);
+			if (m.Msg == SerialPortEnumerator.WmDevicechange) {
+				switch ((int)m.WParam) {
+					case SerialPortEnumerator.DbtDeviceremovecomplete: // device removed
+						Program.serialPortsListUpdateNeeded = true;
+						Invalidate();
+						break;
+					case SerialPortEnumerator.DbtDevicearrival: // device added
+						Program.serialPortsListUpdateNeeded = true;
+						Invalidate();
+						break;
+				}
+			}
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -177,6 +194,10 @@ namespace Oscilloscope
 
 		private void infoButton_Click(object sender, EventArgs e) {
 			MessageBox.Show("Simple two channel oscilloscope, function generator and bode plotter for STM32 NUCLEO-F446RE board.\n\nIcons by Mark James. http://famfamfam.com", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+
+		private void settingsButton_Click(object sender, EventArgs e) {
+			Program.openSettings();
 		}
 	}
 

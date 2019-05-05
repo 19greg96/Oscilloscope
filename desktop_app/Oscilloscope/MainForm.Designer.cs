@@ -1,6 +1,6 @@
 ﻿namespace Oscilloscope
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,8 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.hScroll = new System.Windows.Forms.HScrollBar();
+			this.settingsButton = new System.Windows.Forms.Button();
 			this.infoButton = new System.Windows.Forms.Button();
 			this.copyScreenButton = new System.Windows.Forms.Button();
 			this.copyBufferButton = new System.Windows.Forms.Button();
@@ -51,14 +52,26 @@
 			this.hScroll.TabIndex = 15;
 			this.hScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScroll_Scroll);
 			// 
+			// settingsButton
+			// 
+			this.settingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.settingsButton.BackgroundImage = global::Oscilloscope.Properties.Resources.wrench;
+			this.settingsButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+			this.settingsButton.Location = new System.Drawing.Point(1046, 44);
+			this.settingsButton.Name = "settingsButton";
+			this.settingsButton.Size = new System.Drawing.Size(26, 26);
+			this.settingsButton.TabIndex = 17;
+			this.settingsButton.UseVisualStyleBackColor = true;
+			this.settingsButton.Click += new System.EventHandler(this.settingsButton_Click);
+			// 
 			// infoButton
 			// 
 			this.infoButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.infoButton.BackgroundImage = global::Oscilloscope.Properties.Resources.information;
 			this.infoButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-			this.infoButton.Location = new System.Drawing.Point(1050, 12);
+			this.infoButton.Location = new System.Drawing.Point(1046, 12);
 			this.infoButton.Name = "infoButton";
-			this.infoButton.Size = new System.Drawing.Size(22, 22);
+			this.infoButton.Size = new System.Drawing.Size(26, 26);
 			this.infoButton.TabIndex = 16;
 			this.infoButton.UseVisualStyleBackColor = true;
 			this.infoButton.Click += new System.EventHandler(this.infoButton_Click);
@@ -163,11 +176,12 @@
 			this.captureBufferButton.UseVisualStyleBackColor = true;
 			this.captureBufferButton.Click += new System.EventHandler(this.captureBufferBtn_Click);
 			// 
-			// Form1
+			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1084, 473);
+			this.Controls.Add(this.settingsButton);
 			this.Controls.Add(this.infoButton);
 			this.Controls.Add(this.hScroll);
 			this.Controls.Add(this.copyScreenButton);
@@ -180,7 +194,7 @@
 			this.Controls.Add(this.captureBufferButton);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MinimumSize = new System.Drawing.Size(316, 163);
-			this.Name = "Form1";
+			this.Name = "MainForm";
 			this.Text = "Form1";
 			this.ResumeLayout(false);
 
@@ -197,6 +211,7 @@
 		private System.Windows.Forms.Button copyBufferButton;
 		private System.Windows.Forms.HScrollBar hScroll;
 		private System.Windows.Forms.Button infoButton;
+		private System.Windows.Forms.Button settingsButton;
 	}
 }
 

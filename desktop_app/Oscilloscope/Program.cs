@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO.Ports;
+using System.Management;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -9,7 +10,6 @@ namespace Oscilloscope
 {
     static class Program
     {
-
 		static SerialPort _serialPort;
 		static bool _continue;
 		static int dataPtr1;
@@ -25,13 +25,18 @@ namespace Oscilloscope
 		static List<int> verticalLinesCH1;
 		static List<int> verticalLinesCH2;
 		static int triggerLevel = Int32.MinValue;
-		static Form1 mainForm;
+		static MainForm mainForm;
+		static SettingsForm settingsForm;
 		private static int screenWidth;
 		private static int screenHeight;
 		private static int screenNumBytes;
 		private static float samplingFrequency = -1.0f;
 		private static float radix = 1.0f;
 		private static int numberOfBufferCopies = 0;
+		public static bool serialPortsListUpdateNeeded = true;
+		private static List<SerialPortEnumerator.PortInfo> serialPortsList;
+		private static Thread readThread;
+		public static string selectedSerialPort;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -51,13 +56,34 @@ namespace Oscilloscope
 			verticalLinesCH1 = new List<int>();
 			verticalLinesCH2 = new List<int>();
 
-			Thread readThread = new Thread(Read);
+			selectedSerialPort = "";
+			foreach (SerialPortEnumerator.PortInfo pi in Program.getPortList()) {
+				if (pi.Description.Contains("STLink")) {
+					selectedSerialPort = pi.Name;
+				}
+			}
+			if (selectedSerialPort != "") {
+				startSerialPortReadThread(selectedSerialPort);
+			}
+
+			mainForm = new MainForm();
+			settingsForm = new SettingsForm();
+			Application.Run(mainForm);
+			endSerialPortReadThread();
+		}
+
+		public static void startSerialPortReadThread(string portName) {
+			endSerialPortReadThread();
+
+			readThread = new Thread(Read);
+
 			_continue = true;
 			isScreenCapture = false;
 
 			_serialPort = new SerialPort();
+
 			// _serialPort.PortName = "COM5";
-			_serialPort.PortName = "COM11"; // TODO: select for this
+			_serialPort.PortName = portName;
 			_serialPort.BaudRate = 115200;
 			_serialPort.Parity = Parity.None;
 			_serialPort.DataBits = 8;
@@ -68,14 +94,25 @@ namespace Oscilloscope
 			_serialPort.WriteTimeout = 500;
 
 			_serialPort.Open(); // An unhandled exception of type 'System.IO.IOException' occurred in System.dll Additional information: The port 'COM11' does not exist.
+								// System.UnauthorizedAccessException when other application is using port
 			readThread.Start();
+		}
+		private static void endSerialPortReadThread() {
+			tryCloseSerialPort();
 
-			mainForm = new Form1();
-			Application.Run(mainForm);
-			_continue = false;
-
-			readThread.Join();
-			_serialPort.Close();
+			if (readThread != null) {
+				if (readThread.ThreadState != ThreadState.Unstarted) {
+					_continue = false;
+					readThread.Join();
+				}
+			}
+		}
+		public static List<SerialPortEnumerator.PortInfo> getPortList() {
+			if (serialPortsListUpdateNeeded) {
+				serialPortsList = SerialPortEnumerator.FindComPorts();
+				serialPortsListUpdateNeeded = false; // TODO: not thread safe
+			}
+			return serialPortsList;
 		}
 
 		public static float getRadix() {
@@ -211,11 +248,27 @@ namespace Oscilloscope
 							}
 						}
 					}
-					
+				} catch (System.IO.IOException) {
+					_continue = false;
 				} catch (Exception) {
 					// Console.WriteLine("Timeout");
 				}
-				
+			}
+			tryCloseSerialPort();
+		}
+
+		private static void tryCloseSerialPort() {
+			try {
+				_serialPort.Close();
+			} catch (Exception) { }
+		}
+		
+
+		internal static void openSettings() {
+			settingsForm.populateFields();
+			if (settingsForm.ShowDialog() != DialogResult.Cancel) {
+				Console.WriteLine("New selected port: " + settingsForm.SelectedCOMPort);
+				startSerialPortReadThread(settingsForm.SelectedCOMPort);
 			}
 		}
 
