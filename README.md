@@ -12,7 +12,7 @@ Simple two channel oscilloscope, function generator and bode plotter for STM32 N
  - There is an offset voltage on channel A for some reason (this could be fixed in software, but hardware explanation would be better).
  - DAC output amp Rout = 150Ohm when new op-amp (TLV3544IDR) supports 50Ohm or even less.
  - DAC output can't be connected to ADC input before current limiting resistor, for bode measurement (best case would be hardware support).
- - Max DAC output voltage is little less than Vcc.
+ - Max DAC output voltage is little less than Vref.
  - No support of negative DAC output.
  - GLCD backlight and relay driver FET gates are not pulled down.
  - Components are spaced sparsely thus wasting PCB space.
