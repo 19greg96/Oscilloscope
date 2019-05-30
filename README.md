@@ -1,6 +1,9 @@
 # Oscilloscope
 Simple two channel oscilloscope, function generator and bode plotter for STM32 NUCLEO-F446RE board.
 
+![Picture of oscilloscope measuring effect of LED on DAC channel 2, when internal DAC buffer is disabled](https://raw.githubusercontent.com/19greg96/Oscilloscope/master/photo.jpg)
+
+
 ## Issues with the hardware design:
  - No hardware gain control (op-amp reference should be at Vcc/2).
  - Input voltage range is bad (5Vpp). This can be extended by switchable voltage divider on input.
