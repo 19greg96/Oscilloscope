@@ -195,66 +195,46 @@ DocumentPath=Project Outputs for Oscilloscope\Design Rule Check - Oscilloscope.h
 DItemRevisionGUID=
 
 [GeneratedDocument2]
-DocumentPath=.\Gerbers\Oscilloscope-RoundHoles.TXT
+DocumentPath=Gerbers\Oscilloscope-RoundHoles.TXT
 DItemRevisionGUID=
 
 [GeneratedDocument3]
-DocumentPath=.\Gerbers\Oscilloscope-SlotHoles.TXT
+DocumentPath=Gerbers\Oscilloscope-SlotHoles.TXT
 DItemRevisionGUID=
 
 [GeneratedDocument4]
-DocumentPath=.\Gerbers\Oscilloscope.DRR
-DItemRevisionGUID=
-
-[GeneratedDocument5]
 DocumentPath=Gerbers\Oscilloscope.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument6]
-DocumentPath=.\Gerbers\Oscilloscope.EXTREP
-DItemRevisionGUID=
-
-[GeneratedDocument7]
+[GeneratedDocument5]
 DocumentPath=Gerbers\Oscilloscope.EXTREP
 DItemRevisionGUID=
 
+[GeneratedDocument6]
+DocumentPath=Gerbers\Oscilloscope.GBL
+DItemRevisionGUID=
+
+[GeneratedDocument7]
+DocumentPath=Gerbers\Oscilloscope.GBS
+DItemRevisionGUID=
+
 [GeneratedDocument8]
-DocumentPath=.\Gerbers\Oscilloscope.GBL
+DocumentPath=Gerbers\Oscilloscope.GTL
 DItemRevisionGUID=
 
 [GeneratedDocument9]
-DocumentPath=.\Gerbers\Oscilloscope.GBS
+DocumentPath=Gerbers\Oscilloscope.GTS
 DItemRevisionGUID=
 
 [GeneratedDocument10]
-DocumentPath=.\Gerbers\Oscilloscope.GTL
-DItemRevisionGUID=
-
-[GeneratedDocument11]
-DocumentPath=.\Gerbers\Oscilloscope.GTS
-DItemRevisionGUID=
-
-[GeneratedDocument12]
-DocumentPath=.\Gerbers\Oscilloscope.LDP
-DItemRevisionGUID=
-
-[GeneratedDocument13]
 DocumentPath=Gerbers\Oscilloscope.LDP
 DItemRevisionGUID=
 
-[GeneratedDocument14]
-DocumentPath=.\Gerbers\Oscilloscope.REP
-DItemRevisionGUID=
-
-[GeneratedDocument15]
+[GeneratedDocument11]
 DocumentPath=Gerbers\Oscilloscope.REP
 DItemRevisionGUID=
 
-[GeneratedDocument16]
-DocumentPath=.\Gerbers\Oscilloscope.RUL
-DItemRevisionGUID=
-
-[GeneratedDocument17]
+[GeneratedDocument12]
 DocumentPath=Gerbers\Oscilloscope.RUL
 DItemRevisionGUID=
 
@@ -1300,7 +1280,7 @@ ComponentLibIdentifierKind10=Library Name And Type
 ComponentLibraryIdentifier10=hallglib.SchLib
 ComponentDesignItemID10=JUMPER
 ComponentSymbolReference10=JUMPER
-ComponentUpdate10=1
+ComponentUpdate10=0
 ComponentIsDeviceSheet10=0
 ComponentLibIdentifierKind11=Library Name And Type
 ComponentLibraryIdentifier11=hallglib.SchLib

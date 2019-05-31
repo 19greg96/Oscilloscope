@@ -1,10 +1,12 @@
 Protel Design System Design Rule Check
-PCB File : D:\google_drive\shared\BME\8. félév\mikro_lab\hf\oscilloscope\oscilloscope\Oscilloscope.PcbDoc
-Date     : 2019. 03. 11.
-Time     : 18:20:18
+PCB File : D:\google_drive\shared\BME\8. félév\mikro_lab\oscilloscope\oscilloscope\oscilloscope\Oscilloscope.PcbDoc
+Date     : 2019. 05. 31.
+Time     : 21:42:03
 
 Processing Rule : Clearance Constraint (Gap=20mil) (All),(All)
-Rule Violations :0
+   Violation between Clearance Constraint: (10.759mil < 20mil) Between Pad ENC1-(3170mil,2752.165mil) on Multi-Layer And Polygon Region (26 hole(s)) Top Layer 
+   Violation between Clearance Constraint: (15.005mil < 20mil) Between Pad ENC1-(3170mil,2752.165mil) on Multi-Layer And Polygon Region (83 hole(s)) Bottom Layer 
+Rule Violations :2
 
 Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
 Rule Violations :0
@@ -40,6 +42,6 @@ Processing Rule : Height Constraint (Min=0mil) (Max=1000mil) (Prefered=500mil) (
 Rule Violations :0
 
 
-Violations Detected : 0
+Violations Detected : 2
 Waived Violations : 0
-Time Elapsed        : 00:00:00
+Time Elapsed        : 00:00:01
