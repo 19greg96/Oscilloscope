@@ -6,6 +6,7 @@ Simple two channel oscilloscope, function generator and bode plotter for STM32 N
 
 ## Issues with the hardware design:
  - Input voltage range is bad (5Vpp). This can be extended by switchable voltage divider on input.
+ - No separate analog / digital ground plane
  - No control of anti-alias filter cut-off frequency.
  - Anti-alias filter cut-off frequency is too low.
  - No hardware gain control (op-amp reference should be at Vcc/2).
