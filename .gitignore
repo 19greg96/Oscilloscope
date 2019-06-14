@@ -1,3 +1,7 @@
+# Logs
+*.log
+*.LOG
+
 # Backup files
 *.zip
 
