@@ -16,7 +16,7 @@ void GUI_render() {
 	if (GUI_curr_screen == -1) {
 		return;
 	}
-	GLCD_clear();
+	MonoGFX_clear();
 	for (uint32_t i = 0; i < GUI_screens[GUI_curr_screen]->numComponents; i ++) {
 		GUI_component_render(GUI_screens[GUI_curr_screen]->components[i]);
 	}
@@ -283,9 +283,9 @@ uint32_t GUI_write_string(uint32_t x, uint32_t y, char * str, uint32_t fontID, G
 				}
 				
 				if (by & mask) {
-					GLCD_set_pixel(x + i + allwidth, y + j / NrBytes + allheight, color);
+					MonoGFX_set_pixel(x + i + allwidth, y + j / NrBytes + allheight, color);
 				} else if (color != 2) {
-					GLCD_set_pixel(x + i + allwidth, y + j / NrBytes + allheight, !color);
+					MonoGFX_set_pixel(x + i + allwidth, y + j / NrBytes + allheight, !color);
 				}
 				
 	 			mask >>= 1;

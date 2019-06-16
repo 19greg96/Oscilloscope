@@ -62,20 +62,20 @@ void formatEmpty(char* out, void* param) {
 }
 
 void GUI_drawPanelTriangle(int32_t x, int32_t y, uint8_t triangleFill) {
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 5, triangleFill);
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 5, triangleFill);
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 5, triangleFill); // bottom border of menu
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 5, triangleFill);
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 5, triangleFill);
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 5, triangleFill); // bottom border of menu
 	
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 4, triangleFill); // center of triangle is white
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 4, triangleFill); // center of triangle is white
 	
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 4, GLCD_COLOR_ON); // triangle
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 3, GLCD_COLOR_ON);
-	GLCD_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 4, GLCD_COLOR_ON);
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 2, y - 4, MonoGFX_COLOR_ON); // triangle
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 3, y - 3, MonoGFX_COLOR_ON);
+	MonoGFX_set_pixel(x + GUI_ROW_WIDTH / 3 + 4, y - 4, MonoGFX_COLOR_ON);
 }
 
 void GUI_component_select_render(GUI_Component* component) {
 	if (component->selected) {
-		// GLCD_draw_line(component->x, component->y, component->x, component->y + 4, GLCD_COLOR_ON); // GUI_LEFT_PADDING = 2
+		// MonoGFX_draw_line(component->x, component->y, component->x, component->y + 4, MonoGFX_COLOR_ON); // GUI_LEFT_PADDING = 2
 		
 		switch (component->type) {
 			case GUI_COMPONENT_BUTTON:
@@ -83,7 +83,7 @@ void GUI_component_select_render(GUI_Component* component) {
 			case GUI_COMPONENT_TOGGLE_BUTTON:
 			case GUI_COMPONENT_RADIO_BUTTON:
 			case GUI_COMPONENT_MENU_BUTTON: 
-				GLCD_fill_rect(component->x - 1, component->y - 1, component->width - 1, component->height - 1, GLCD_COLOR_INVERT); // GUI_LEFT_PADDING = 0
+				MonoGFX_fill_rect(component->x - 1, component->y - 1, component->width - 1, component->height - 1, MonoGFX_COLOR_INVERT); // GUI_LEFT_PADDING = 0
 				break;
 			case GUI_COMPONENT_GRAPH_LABEL:
 				GUI_graphLabel_select_render((GUI_GraphLabel*)component->component, component->x, component->y);
@@ -196,7 +196,7 @@ void GUI_label_render(GUI_Label* label, int32_t x, int32_t y) {
 	
 	GUI_label_getText(label, tmp);
 	
-	GUI_write_string(x, y, tmp, label->font, label->align, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+	GUI_write_string(x, y, tmp, label->font, label->align, GUI_TEXT_DIRECTION_HORIZONTAL, MonoGFX_COLOR_ON);
 }
 void GUI_label_getText(GUI_Label* label, char* out) {
 	label->formatter(out, (void*)label->value);
@@ -245,17 +245,17 @@ void GUI_scrollButton_render(GUI_ScrollButton* scrollButton, int32_t x, int32_t 
 	GUI_button_render(scrollButton->button, x, y);
 	
 	if (scrollButton->panelEnabled && (HAL_GetTick() - scrollButton->lastScrollTime) < GUI_SCROLL_BUTTON_PANEL_SHOW_TIMEOUT && scrollButton->lastScrollTime) {
-		GLCD_fill_round_rect(x - 2, y - 11, GUI_ROW_WIDTH + 1, 7, 1, GLCD_COLOR_OFF);
-		GLCD_draw_round_rect(x - 2, y - 11, GUI_ROW_WIDTH + 1, 7, 1, GLCD_COLOR_ON);
-		GUI_drawPanelTriangle(x, y, GLCD_COLOR_OFF);
+		MonoGFX_fill_round_rect(x - 2, y - 11, GUI_ROW_WIDTH + 1, 7, 1, MonoGFX_COLOR_OFF);
+		MonoGFX_draw_round_rect(x - 2, y - 11, GUI_ROW_WIDTH + 1, 7, 1, MonoGFX_COLOR_ON);
+		GUI_drawPanelTriangle(x, y, MonoGFX_COLOR_OFF);
 		
 		uint32_t scrollWidth = GUI_ROW_WIDTH - 4;
 		float fullScale = (float)(scrollButton->max - scrollButton->min);
 		float dynamicValue = (float)(scrollButton->value - scrollButton->min);
 		uint32_t position = (dynamicValue / fullScale) * scrollWidth;
 		
-		GLCD_draw_line(x, y - 8, x + scrollWidth, y - 8, GLCD_COLOR_ON);
-		GLCD_draw_line(x + position, y - 9, x + position, y - 7, GLCD_COLOR_ON);
+		MonoGFX_draw_line(x, y - 8, x + scrollWidth, y - 8, MonoGFX_COLOR_ON);
+		MonoGFX_draw_line(x + position, y - 9, x + position, y - 7, MonoGFX_COLOR_ON);
 	}
 }
 void GUI_scrollButton_clamp_value(GUI_ScrollButton* scrollButton) {
@@ -303,8 +303,8 @@ void GUI_range_render(GUI_Range* range, int32_t x, int32_t y) {
 			GUI_label_render(range->valueLabel, x - 2, y + GUI_ROW_HEIGHT * 2); // TODO: SIZE MANAGER y should be center aligned
 			GUI_scrollButton_render(range->scrollButton, x - 2, y + GUI_ROW_HEIGHT); // TODO: y should be center aligned
 		}
-		GLCD_draw_line(x, y, x, y + range->size, GLCD_COLOR_ON);
-		GLCD_draw_line(x - 1, y + range->size - position, x + 1, y + range->size - position, GLCD_COLOR_ON);
+		MonoGFX_draw_line(x, y, x, y + range->size, MonoGFX_COLOR_ON);
+		MonoGFX_draw_line(x - 1, y + range->size - position, x + 1, y + range->size - position, MonoGFX_COLOR_ON);
 	} else {
 		if (range->valueLabel->align == GUI_TEXT_ALIGN_LEFT) {
 			GUI_label_render(range->valueLabel, x + 2, y - GUI_ROW_HEIGHT + 1); // TODO: SIZE MANAGER x should be center aligned
@@ -313,20 +313,20 @@ void GUI_range_render(GUI_Range* range, int32_t x, int32_t y) {
 		}
 		GUI_scrollButton_render(range->scrollButton, x + 2, y + 4); // TODO: x should be center aligned
 		
-		GLCD_draw_line(x, y, x + range->size, y, GLCD_COLOR_ON);
-		GLCD_draw_line(x + position, y - 1, x + position, y + 1, GLCD_COLOR_ON);
+		MonoGFX_draw_line(x, y, x + range->size, y, MonoGFX_COLOR_ON);
+		MonoGFX_draw_line(x + position, y - 1, x + position, y + 1, MonoGFX_COLOR_ON);
 	}
 }
 
 void GUI_range_select_render(GUI_Range* range, int32_t x, int32_t y) {
 	if (range->vertical) {
 		if (range->valueLabel->align == GUI_TEXT_ALIGN_LEFT) {
-			GLCD_fill_rect(x + 3, y + GUI_ROW_HEIGHT - 1, GUI_ROW_WIDTH - 1, GUI_ROW_HEIGHT - 1, GLCD_COLOR_INVERT);
+			MonoGFX_fill_rect(x + 3, y + GUI_ROW_HEIGHT - 1, GUI_ROW_WIDTH - 1, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_INVERT);
 		} else if (range->valueLabel->align == GUI_TEXT_ALIGN_RIGHT) {
-			GLCD_fill_rect(x - GUI_ROW_WIDTH - 1, y + GUI_ROW_HEIGHT - 1, GUI_ROW_WIDTH - 1, GUI_ROW_HEIGHT - 1, GLCD_COLOR_INVERT);
+			MonoGFX_fill_rect(x - GUI_ROW_WIDTH - 1, y + GUI_ROW_HEIGHT - 1, GUI_ROW_WIDTH - 1, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_INVERT);
 		}
 	} else {
-		GLCD_fill_rect(x + 1, y + 3, GUI_ROW_WIDTH - 1, GUI_ROW_HEIGHT - 1, GLCD_COLOR_INVERT);
+		MonoGFX_fill_rect(x + 1, y + 3, GUI_ROW_WIDTH - 1, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_INVERT);
 	}
 }
 
@@ -354,14 +354,14 @@ void GUI_toggleButton_render(GUI_ToggleButton* toggleButton, int32_t x, int32_t 
 	}
 	if (toggleButton->showCheckbox) {
 		if (toggleButton->checked) {
-			// GLCD_fill_rect(x + GUI_LEFT_PADDING, y, 5, 5, GLCD_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
-			GLCD_set_pixel(x + GUI_LEFT_PADDING + 1, y + 1, GLCD_COLOR_ON); // top two pixels
-			GLCD_set_pixel(x + GUI_LEFT_PADDING + 3, y + 1, GLCD_COLOR_ON); // top two pixels
-			GLCD_set_pixel(x + GUI_LEFT_PADDING + 2, y + 2, GLCD_COLOR_ON); // center pixel
-			GLCD_set_pixel(x + GUI_LEFT_PADDING + 1, y + 3, GLCD_COLOR_ON); // bottom two pixels
-			GLCD_set_pixel(x + GUI_LEFT_PADDING + 3, y + 3, GLCD_COLOR_ON); // bottom two pixels
+			// MonoGFX_fill_rect(x + GUI_LEFT_PADDING, y, 5, 5, MonoGFX_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
+			MonoGFX_set_pixel(x + GUI_LEFT_PADDING + 1, y + 1, MonoGFX_COLOR_ON); // top two pixels
+			MonoGFX_set_pixel(x + GUI_LEFT_PADDING + 3, y + 1, MonoGFX_COLOR_ON); // top two pixels
+			MonoGFX_set_pixel(x + GUI_LEFT_PADDING + 2, y + 2, MonoGFX_COLOR_ON); // center pixel
+			MonoGFX_set_pixel(x + GUI_LEFT_PADDING + 1, y + 3, MonoGFX_COLOR_ON); // bottom two pixels
+			MonoGFX_set_pixel(x + GUI_LEFT_PADDING + 3, y + 3, MonoGFX_COLOR_ON); // bottom two pixels
 		}
-		GLCD_draw_rect(x + GUI_LEFT_PADDING, y, 5, 5, GLCD_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
+		MonoGFX_draw_rect(x + GUI_LEFT_PADDING, y, 5, 5, MonoGFX_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
 		GUI_button_render(toggleButton->button, x + 6, y);
 	} else {
 		GUI_button_render(toggleButton->button, x + 2, y);
@@ -386,10 +386,10 @@ GUI_RadioButton* GUI_radioButton_create(char* defaultText, uint32_t fontID, GUI_
 }
 void GUI_radioButton_render(GUI_RadioButton* radioButton, int32_t x, int32_t y) {
 	GUI_toggleButton_render(radioButton->toggleButton, x + 4, y);
-	GLCD_draw_round_rect(x + GUI_LEFT_PADDING, y, 5, 5, 1, GLCD_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
+	MonoGFX_draw_round_rect(x + GUI_LEFT_PADDING, y, 5, 5, 1, MonoGFX_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
 	if (radioButton->toggleButton->checked) {
-		GLCD_draw_line(x + GUI_LEFT_PADDING, y + 2, x + 3 + GUI_LEFT_PADDING, y + 2, GLCD_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
-		GLCD_draw_line(x + 2 + GUI_LEFT_PADDING, y, x + 2 + GUI_LEFT_PADDING, y + 4, GLCD_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
+		MonoGFX_draw_line(x + GUI_LEFT_PADDING, y + 2, x + 3 + GUI_LEFT_PADDING, y + 2, MonoGFX_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
+		MonoGFX_draw_line(x + 2 + GUI_LEFT_PADDING, y, x + 2 + GUI_LEFT_PADDING, y + 4, MonoGFX_COLOR_ON); // TODO: SIZE MANAGER x should be right aligned
 	}
 }
 void GUI_radioButton_click(GUI_RadioButton* radioButton) {
@@ -469,13 +469,13 @@ GUI_MenuColumn* GUI_menuColumn_get_previous_col(GUI_MenuColumn* menuColumn) {
 }
 
 void GUI_menuColumn_render(GUI_MenuColumn* menuColumn, int32_t x, int32_t y) {
-	GLCD_fill_round_rect(x - 2, y - 2, GUI_ROW_WIDTH + 1, menuColumn->numRows * GUI_ROW_HEIGHT + 1, 1, GLCD_COLOR_OFF);
-	GLCD_draw_round_rect(x - 2, y - 2, GUI_ROW_WIDTH + 1, menuColumn->numRows * GUI_ROW_HEIGHT + 1, 1, GLCD_COLOR_ON);
+	MonoGFX_fill_round_rect(x - 2, y - 2, GUI_ROW_WIDTH + 1, menuColumn->numRows * GUI_ROW_HEIGHT + 1, 1, MonoGFX_COLOR_OFF);
+	MonoGFX_draw_round_rect(x - 2, y - 2, GUI_ROW_WIDTH + 1, menuColumn->numRows * GUI_ROW_HEIGHT + 1, 1, MonoGFX_COLOR_ON);
 	for (uint32_t i = 0; i < menuColumn->numRows; i ++) {
 		menuColumn->rows[i]->x = x; // TODO: SIZE MANAGER
 		menuColumn->rows[i]->y = y + i * GUI_ROW_HEIGHT; // TODO: SIZE MANAGER
 		GUI_component_render(menuColumn->rows[i]);
-		GLCD_draw_line(x - 1, y + (i + 1) * GUI_ROW_HEIGHT - 2, x + GUI_ROW_WIDTH - 3, y + (i + 1) * GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // row divider
+		MonoGFX_draw_line(x - 1, y + (i + 1) * GUI_ROW_HEIGHT - 2, x + GUI_ROW_WIDTH - 3, y + (i + 1) * GUI_ROW_HEIGHT - 2, MonoGFX_COLOR_ON); // row divider
 	}
 }
 
@@ -533,18 +533,18 @@ void GUI_menu_render(GUI_Menu* menu, int32_t x, int32_t y) {
 		cx = x - (numCols - 1) * GUI_ROW_WIDTH + i * GUI_ROW_WIDTH;
 		cy = y - GUI_ROW_HEIGHT * maxNumRows - 3;
 		if (i > 0) {
-			GLCD_set_pixel(cx - 2, cy - 2, GLCD_COLOR_ON); // makes top of menu straight line, hiding round rect roundness of columns
+			MonoGFX_set_pixel(cx - 2, cy - 2, MonoGFX_COLOR_ON); // makes top of menu straight line, hiding round rect roundness of columns
 		}
 		GUI_menuColumn_render(tmp, cx, cy);
 		i ++;
 		tmp = tmp->nextCol;
 	} while(tmp != menu->columns);
 	
-	uint8_t triangleFill = GLCD_COLOR_OFF; // menu triangle should be filled, when last element is selected
+	uint8_t triangleFill = MonoGFX_COLOR_OFF; // menu triangle should be filled, when last element is selected
 	tmp = GUI_menuColumn_get_previous_col(menu->columns); // last column
 	if (tmp->numRows) {
 		if (tmp->rows[tmp->numRows - 1]->selected) {
-			triangleFill = GLCD_COLOR_ON;
+			triangleFill = MonoGFX_COLOR_ON;
 		}
 	}
 	
@@ -603,7 +603,7 @@ void GUI_menuButton_click(GUI_MenuButton* menuButton) {
 	}
 }
 
-GUI_GraphLabel* GUI_graphLabel_create(char* text, GLCD_LineStyle lineStyle, uint8_t floatRight, uint8_t vertical, uint32_t fontID, GUI_CallbackTypedef onScroll) {
+GUI_GraphLabel* GUI_graphLabel_create(char* text, MonoGFX_LineStyle lineStyle, uint8_t floatRight, uint8_t vertical, uint32_t fontID, GUI_CallbackTypedef onScroll) {
 	GUI_GraphLabel* graphLabel = (GUI_GraphLabel*)malloc(sizeof(GUI_GraphLabel));
 	
 	graphLabel->scrollButton = GUI_scrollButton_create(text, fontID, -1000000.0f, 1000000.0f, 0.0f, onScroll);
@@ -625,65 +625,65 @@ void GUI_graphLabel_render(GUI_GraphLabel* graphLabel, int32_t x, int32_t y) {
 	if (graphLabel->vertical) {
 		y -= labelHeightOffset;
 		
-		GLCD_draw_line_style(x, y + 2, x + graphLabel->ownerGraph->w, y + 2, graphLabel->lineStyle, GLCD_COLOR_ON); // horizontal line
+		MonoGFX_draw_line_style(x, y + 2, x + graphLabel->ownerGraph->w, y + 2, graphLabel->lineStyle, MonoGFX_COLOR_ON); // horizontal line
 		
 		if (graphLabel->rightChannel) {
 			x += graphLabel->ownerGraph->w - strw - 1;
 		}
 		
-		GLCD_fill_rect(x, y - 1, strw + 1, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // background
-		GLCD_draw_line(x, y - 2, x + strw, y - 2, GLCD_COLOR_ON); // top line
-		GLCD_draw_line(x, y + GUI_ROW_HEIGHT - 2, x + strw, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // bottom line
+		MonoGFX_fill_rect(x, y - 1, strw + 1, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_OFF); // background
+		MonoGFX_draw_line(x, y - 2, x + strw, y - 2, MonoGFX_COLOR_ON); // top line
+		MonoGFX_draw_line(x, y + GUI_ROW_HEIGHT - 2, x + strw, y + GUI_ROW_HEIGHT - 2, MonoGFX_COLOR_ON); // bottom line
 		if (graphLabel->rightChannel) {
-			GLCD_set_pixel(x - 1, y - 1, GLCD_COLOR_ON); // left top pixel
-			GLCD_set_pixel(x - 1, y, GLCD_COLOR_ON); // left top pixel
+			MonoGFX_set_pixel(x - 1, y - 1, MonoGFX_COLOR_ON); // left top pixel
+			MonoGFX_set_pixel(x - 1, y, MonoGFX_COLOR_ON); // left top pixel
 			
-			GLCD_set_pixel(x - 1, y + 1, GLCD_COLOR_OFF); // left center pixels clear
-			GLCD_set_pixel(x - 1, y + 2, GLCD_COLOR_OFF); // left center pixels clear
-			GLCD_set_pixel(x - 1, y + 3, GLCD_COLOR_OFF); // left center pixels clear
-			GLCD_set_pixel(x - 2, y + 2, GLCD_COLOR_OFF); // left center center pixel clear
+			MonoGFX_set_pixel(x - 1, y + 1, MonoGFX_COLOR_OFF); // left center pixels clear
+			MonoGFX_set_pixel(x - 1, y + 2, MonoGFX_COLOR_OFF); // left center pixels clear
+			MonoGFX_set_pixel(x - 1, y + 3, MonoGFX_COLOR_OFF); // left center pixels clear
+			MonoGFX_set_pixel(x - 2, y + 2, MonoGFX_COLOR_OFF); // left center center pixel clear
 			
-			GLCD_set_pixel(x - 2, y + 1, GLCD_COLOR_ON); // left center top pixel
-			GLCD_set_pixel(x - 3, y + 2, GLCD_COLOR_ON); // left center center pixel
-			GLCD_set_pixel(x - 2, y + 3, GLCD_COLOR_ON); // left center bottom pixel
+			MonoGFX_set_pixel(x - 2, y + 1, MonoGFX_COLOR_ON); // left center top pixel
+			MonoGFX_set_pixel(x - 3, y + 2, MonoGFX_COLOR_ON); // left center center pixel
+			MonoGFX_set_pixel(x - 2, y + 3, MonoGFX_COLOR_ON); // left center bottom pixel
 			
-			GLCD_set_pixel(x - 1, y + 4, GLCD_COLOR_ON); // left bottom pixel
-			GLCD_set_pixel(x - 1, y + 5, GLCD_COLOR_ON); // left bottom pixel
+			MonoGFX_set_pixel(x - 1, y + 4, MonoGFX_COLOR_ON); // left bottom pixel
+			MonoGFX_set_pixel(x - 1, y + 5, MonoGFX_COLOR_ON); // left bottom pixel
 		} else {
-			GLCD_set_pixel(x + strw + 1, y - 1, GLCD_COLOR_ON); // right top pixel
-			GLCD_set_pixel(x + strw + 1, y, GLCD_COLOR_ON); // right top pixel
+			MonoGFX_set_pixel(x + strw + 1, y - 1, MonoGFX_COLOR_ON); // right top pixel
+			MonoGFX_set_pixel(x + strw + 1, y, MonoGFX_COLOR_ON); // right top pixel
 			
-			GLCD_set_pixel(x + strw + 1, y + 1, GLCD_COLOR_OFF); // right center pixels clear
-			GLCD_set_pixel(x + strw + 1, y + 2, GLCD_COLOR_OFF); // right center pixels clear
-			GLCD_set_pixel(x + strw + 1, y + 3, GLCD_COLOR_OFF); // right center pixels clear
-			GLCD_set_pixel(x + strw + 2, y + 2, GLCD_COLOR_OFF); // right center center pixel clear
+			MonoGFX_set_pixel(x + strw + 1, y + 1, MonoGFX_COLOR_OFF); // right center pixels clear
+			MonoGFX_set_pixel(x + strw + 1, y + 2, MonoGFX_COLOR_OFF); // right center pixels clear
+			MonoGFX_set_pixel(x + strw + 1, y + 3, MonoGFX_COLOR_OFF); // right center pixels clear
+			MonoGFX_set_pixel(x + strw + 2, y + 2, MonoGFX_COLOR_OFF); // right center center pixel clear
 			
-			GLCD_set_pixel(x + strw + 2, y + 1, GLCD_COLOR_ON); // right center top pixel
-			GLCD_set_pixel(x + strw + 3, y + 2, GLCD_COLOR_ON); // right center center pixel
-			GLCD_set_pixel(x + strw + 2, y + 3, GLCD_COLOR_ON); // right center bottom pixel
+			MonoGFX_set_pixel(x + strw + 2, y + 1, MonoGFX_COLOR_ON); // right center top pixel
+			MonoGFX_set_pixel(x + strw + 3, y + 2, MonoGFX_COLOR_ON); // right center center pixel
+			MonoGFX_set_pixel(x + strw + 2, y + 3, MonoGFX_COLOR_ON); // right center bottom pixel
 			
-			GLCD_set_pixel(x + strw + 1, y + 4, GLCD_COLOR_ON); // right bottom pixel
-			GLCD_set_pixel(x + strw + 1, y + 5, GLCD_COLOR_ON); // right bottom pixel
+			MonoGFX_set_pixel(x + strw + 1, y + 4, MonoGFX_COLOR_ON); // right bottom pixel
+			MonoGFX_set_pixel(x + strw + 1, y + 5, MonoGFX_COLOR_ON); // right bottom pixel
 		}
 	} else {
 		uint32_t lineHeight = GUI_ROW_HEIGHT;
-		GLCD_draw_line_style(x, y + lineHeight, x, y + graphLabel->ownerGraph->h, graphLabel->lineStyle, GLCD_COLOR_ON); // vertical line
+		MonoGFX_draw_line_style(x, y + lineHeight, x, y + graphLabel->ownerGraph->h, graphLabel->lineStyle, MonoGFX_COLOR_ON); // vertical line
 		
 		x -= (labelWidthOffset < 2 ? 2 : labelWidthOffset); // minimum width offset is 2 because we have to draw triangle, even if there is no text
 		
-		GLCD_fill_rect(x, y, strw + 1, lineHeight - 1, GLCD_COLOR_OFF); // background
-		GLCD_draw_line(x + strw + 1, y, x + strw + 1, y + lineHeight - 2, GLCD_COLOR_ON); // right line
-		GLCD_draw_line(x - 1, y, x - 1, y + lineHeight - 2, GLCD_COLOR_ON); // left line
-		GLCD_draw_line(x, y + lineHeight - 1, x + strw, y + lineHeight - 1, GLCD_COLOR_ON); // bottom line
+		MonoGFX_fill_rect(x, y, strw + 1, lineHeight - 1, MonoGFX_COLOR_OFF); // background
+		MonoGFX_draw_line(x + strw + 1, y, x + strw + 1, y + lineHeight - 2, MonoGFX_COLOR_ON); // right line
+		MonoGFX_draw_line(x - 1, y, x - 1, y + lineHeight - 2, MonoGFX_COLOR_ON); // left line
+		MonoGFX_draw_line(x, y + lineHeight - 1, x + strw, y + lineHeight - 1, MonoGFX_COLOR_ON); // bottom line
 		
-		GLCD_set_pixel(x + strw / 2 - 1, y + lineHeight - 1, GLCD_COLOR_OFF); // triangle clear
-		GLCD_set_pixel(x + strw / 2, y + lineHeight - 1, GLCD_COLOR_OFF); // triangle clear
-		GLCD_set_pixel(x + strw / 2 + 1, y + lineHeight - 1, GLCD_COLOR_OFF); // triangle clear
+		MonoGFX_set_pixel(x + strw / 2 - 1, y + lineHeight - 1, MonoGFX_COLOR_OFF); // triangle clear
+		MonoGFX_set_pixel(x + strw / 2, y + lineHeight - 1, MonoGFX_COLOR_OFF); // triangle clear
+		MonoGFX_set_pixel(x + strw / 2 + 1, y + lineHeight - 1, MonoGFX_COLOR_OFF); // triangle clear
 		
-		GLCD_set_pixel(x + strw / 2 - 1, y + lineHeight, GLCD_COLOR_ON); // center left pixel
-		GLCD_set_pixel(x + strw / 2, y + lineHeight, GLCD_COLOR_OFF); // triangle center clear
-		GLCD_set_pixel(x + strw / 2, y + lineHeight + 1, GLCD_COLOR_ON); // center pixel
-		GLCD_set_pixel(x + strw / 2 + 1, y + lineHeight, GLCD_COLOR_ON); // center right pixel
+		MonoGFX_set_pixel(x + strw / 2 - 1, y + lineHeight, MonoGFX_COLOR_ON); // center left pixel
+		MonoGFX_set_pixel(x + strw / 2, y + lineHeight, MonoGFX_COLOR_OFF); // triangle center clear
+		MonoGFX_set_pixel(x + strw / 2, y + lineHeight + 1, MonoGFX_COLOR_ON); // center pixel
+		MonoGFX_set_pixel(x + strw / 2 + 1, y + lineHeight, MonoGFX_COLOR_ON); // center right pixel
 		
 		y++;
 	}
@@ -705,32 +705,32 @@ void GUI_graphLabel_select_render(GUI_GraphLabel* graphLabel, int32_t x, int32_t
 			x += graphLabel->ownerGraph->w - strw - 1;
 		}
 		
-		GLCD_fill_rect(x, y - 1, strw + 1, GUI_ROW_HEIGHT - 1, GLCD_COLOR_INVERT); // background
+		MonoGFX_fill_rect(x, y - 1, strw + 1, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_INVERT); // background
 		
 		if (graphLabel->rightChannel) {
-			GLCD_set_pixel(x - 1, y + 1, GLCD_COLOR_INVERT); // left center pixels clear
-			GLCD_set_pixel(x - 1, y + 2, GLCD_COLOR_INVERT); // left center pixels clear
-			GLCD_set_pixel(x - 1, y + 3, GLCD_COLOR_INVERT); // left center pixels clear
-			GLCD_set_pixel(x - 2, y + 2, GLCD_COLOR_INVERT); // left center center pixel clear
+			MonoGFX_set_pixel(x - 1, y + 1, MonoGFX_COLOR_INVERT); // left center pixels clear
+			MonoGFX_set_pixel(x - 1, y + 2, MonoGFX_COLOR_INVERT); // left center pixels clear
+			MonoGFX_set_pixel(x - 1, y + 3, MonoGFX_COLOR_INVERT); // left center pixels clear
+			MonoGFX_set_pixel(x - 2, y + 2, MonoGFX_COLOR_INVERT); // left center center pixel clear
 		} else {
-			GLCD_set_pixel(x + strw + 1, y + 1, GLCD_COLOR_INVERT); // right center pixels clear
-			GLCD_set_pixel(x + strw + 1, y + 2, GLCD_COLOR_INVERT); // right center pixels clear
-			GLCD_set_pixel(x + strw + 1, y + 3, GLCD_COLOR_INVERT); // right center pixels clear
-			GLCD_set_pixel(x + strw + 2, y + 2, GLCD_COLOR_INVERT); // right center center pixel clear
+			MonoGFX_set_pixel(x + strw + 1, y + 1, MonoGFX_COLOR_INVERT); // right center pixels clear
+			MonoGFX_set_pixel(x + strw + 1, y + 2, MonoGFX_COLOR_INVERT); // right center pixels clear
+			MonoGFX_set_pixel(x + strw + 1, y + 3, MonoGFX_COLOR_INVERT); // right center pixels clear
+			MonoGFX_set_pixel(x + strw + 2, y + 2, MonoGFX_COLOR_INVERT); // right center center pixel clear
 		}
 	} else {
 		uint32_t lineHeight = GUI_ROW_HEIGHT;
-		GLCD_draw_line_style(x, y + lineHeight, x, y + graphLabel->ownerGraph->h, graphLabel->lineStyle, GLCD_COLOR_ON); // vertical line
+		MonoGFX_draw_line_style(x, y + lineHeight, x, y + graphLabel->ownerGraph->h, graphLabel->lineStyle, MonoGFX_COLOR_ON); // vertical line
 		
 		x -= (labelWidthOffset < 2 ? 2 : labelWidthOffset); // minimum width offset is 2 because we have to draw triangle, even if there is no text
 		
-		GLCD_fill_rect(x, y, strw + 1, lineHeight - 1, GLCD_COLOR_INVERT); // background
+		MonoGFX_fill_rect(x, y, strw + 1, lineHeight - 1, MonoGFX_COLOR_INVERT); // background
 		
-		GLCD_set_pixel(x + strw / 2 - 1, y + lineHeight - 1, GLCD_COLOR_INVERT); // triangle clear
-		GLCD_set_pixel(x + strw / 2, y + lineHeight - 1, GLCD_COLOR_INVERT); // triangle clear
-		GLCD_set_pixel(x + strw / 2 + 1, y + lineHeight - 1, GLCD_COLOR_INVERT); // triangle clear
+		MonoGFX_set_pixel(x + strw / 2 - 1, y + lineHeight - 1, MonoGFX_COLOR_INVERT); // triangle clear
+		MonoGFX_set_pixel(x + strw / 2, y + lineHeight - 1, MonoGFX_COLOR_INVERT); // triangle clear
+		MonoGFX_set_pixel(x + strw / 2 + 1, y + lineHeight - 1, MonoGFX_COLOR_INVERT); // triangle clear
 		
-		GLCD_set_pixel(x + strw / 2, y + lineHeight, GLCD_COLOR_INVERT); // triangle center clear
+		MonoGFX_set_pixel(x + strw / 2, y + lineHeight, MonoGFX_COLOR_INVERT); // triangle center clear
 		
 		y++;
 	}
@@ -844,12 +844,12 @@ void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
 	}
 	
 	if (graph->dataBufferSize == 0) {
-		GUI_write_string(x + graph->w / 2, y + graph->h / 2, "NO DATA", 0, GUI_TEXT_ALIGN_CENTER, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+		GUI_write_string(x + graph->w / 2, y + graph->h / 2, "NO DATA", 0, GUI_TEXT_ALIGN_CENTER, GUI_TEXT_DIRECTION_HORIZONTAL, MonoGFX_COLOR_ON);
 	} else {
 		
 		for (uint32_t vDots = 0; vDots <= numVDots; vDots ++) {
 			for (uint32_t hDots = 0; hDots <= numHDots; hDots ++) {
-				GLCD_set_pixel(x + hDots * ((graph->w - 1) / (float)numHDots), y + vDots * ((graph->h) / (float)numVDots), GLCD_COLOR_ON);
+				MonoGFX_set_pixel(x + hDots * ((graph->w - 1) / (float)numHDots), y + vDots * ((graph->h) / (float)numVDots), MonoGFX_COLOR_ON);
 			}
 		}
 		switch (graph->mode) {
@@ -869,7 +869,7 @@ void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
 						currVal = (graph->data_1[idx] + vOffset1) * pixelsPerVDiv1;
 						nextVal = (graph->data_1[idx + 1] + vOffset1) * pixelsPerVDiv1; // 1V / vDiv
 						
-						GLCD_draw_line(currX, y + graph->h - currVal, currX + 1, y + graph->h - nextVal, GLCD_COLOR_ON);
+						MonoGFX_draw_line(currX, y + graph->h - currVal, currX + 1, y + graph->h - nextVal, MonoGFX_COLOR_ON);
 					}
 				}
 				
@@ -880,7 +880,7 @@ void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
 						currVal = (graph->data_2[idx] + vOffset2) * pixelsPerVDiv2;
 						nextVal = (graph->data_2[idx + 1] + vOffset2) * pixelsPerVDiv2; // 1V / vDiv
 						
-						GLCD_draw_line(currX, y + graph->h - currVal, currX + 1, y + graph->h - nextVal, GLCD_COLOR_ON);
+						MonoGFX_draw_line(currX, y + graph->h - currVal, currX + 1, y + graph->h - nextVal, MonoGFX_COLOR_ON);
 					}
 				}
 			} break;
@@ -896,7 +896,7 @@ void GUI_graph_render(GUI_Graph* graph, int32_t x, int32_t y) {
 					currY = (graph->data_2[i] + vOffset2) * pixelsPerVDiv2;
 					nextY = (graph->data_2[i + 1] + vOffset2) * pixelsPerVDiv2; // 1V / vDiv
 					
-					GLCD_draw_line(x + currX, y + graph->h - currY, x + nextX, y + graph->h - nextY, GLCD_COLOR_ON);
+					MonoGFX_draw_line(x + currX, y + graph->h - currY, x + nextX, y + graph->h - nextY, MonoGFX_COLOR_ON);
 				}
 			} break;
 			case GUI_GRAPH_MODE_1CH_FFT:
@@ -963,7 +963,7 @@ for (n = 0; n < numSamples; n++) {
 						currVal = -100;
 					}
 					
-					GLCD_draw_line(currX, y + graph->h, currX, y + graph->h - currVal, GLCD_COLOR_ON);
+					MonoGFX_draw_line(currX, y + graph->h, currX, y + graph->h - currVal, MonoGFX_COLOR_ON);
 				}
 			} break;
 			case GUI_GRAPH_MODE_AMPLITUDE: {
@@ -975,13 +975,13 @@ for (n = 0; n < numSamples; n++) {
 		}
 	}
 	
-	GLCD_draw_line(x + 19, y, x + 19, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top left box right line
-	GLCD_draw_line(x, y + GUI_ROW_HEIGHT - 1, x + 18, y + GUI_ROW_HEIGHT - 1, GLCD_COLOR_ON); // top left box bottom line
-	GLCD_fill_rect(x, y, 19, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // top left box background
+	MonoGFX_draw_line(x + 19, y, x + 19, y + GUI_ROW_HEIGHT - 2, MonoGFX_COLOR_ON); // top left box right line
+	MonoGFX_draw_line(x, y + GUI_ROW_HEIGHT - 1, x + 18, y + GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_ON); // top left box bottom line
+	MonoGFX_fill_rect(x, y, 19, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_OFF); // top left box background
 	
-	GLCD_draw_line(x + graph->w - 19, y, x + graph->w - 19, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top right box left line
-	GLCD_draw_line(x + graph->w, y + GUI_ROW_HEIGHT - 1, x + graph->w - 18, y + GUI_ROW_HEIGHT - 1, GLCD_COLOR_ON); // top right box bottom line
-	GLCD_fill_rect(x + graph->w - 18, y, 19, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // top right box background
+	MonoGFX_draw_line(x + graph->w - 19, y, x + graph->w - 19, y + GUI_ROW_HEIGHT - 2, MonoGFX_COLOR_ON); // top right box left line
+	MonoGFX_draw_line(x + graph->w, y + GUI_ROW_HEIGHT - 1, x + graph->w - 18, y + GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_ON); // top right box bottom line
+	MonoGFX_fill_rect(x + graph->w - 18, y, 19, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_OFF); // top right box background
 	
 	graph->vDiv1ScrollButtonComponent->x = x + 1;
 	graph->vDiv1ScrollButtonComponent->y = y + 1;
@@ -1008,10 +1008,10 @@ for (n = 0; n < numSamples; n++) {
 	} while(tmp != graph->labels);
 	
 	// draw center box after labels so it's not occluded by hScrollBtn
-	GLCD_draw_line(x + (graph->w - 19) / 2 - 1, y, x + (graph->w - 19) / 2 - 1, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top center box left line
-	GLCD_draw_line(x + (graph->w + 19) / 2, y, x + (graph->w + 19) / 2, y + GUI_ROW_HEIGHT - 2, GLCD_COLOR_ON); // top center box right line
-	GLCD_draw_line(x + (graph->w + 19) / 2 - 1, y + GUI_ROW_HEIGHT - 1, x + (graph->w - 19) / 2, y + GUI_ROW_HEIGHT - 1, GLCD_COLOR_ON); // top center box bottom line
-	GLCD_fill_rect(x + (graph->w - 19) / 2, y, 19, GUI_ROW_HEIGHT - 1, GLCD_COLOR_OFF); // top center box background
+	MonoGFX_draw_line(x + (graph->w - 19) / 2 - 1, y, x + (graph->w - 19) / 2 - 1, y + GUI_ROW_HEIGHT - 2, MonoGFX_COLOR_ON); // top center box left line
+	MonoGFX_draw_line(x + (graph->w + 19) / 2, y, x + (graph->w + 19) / 2, y + GUI_ROW_HEIGHT - 2, MonoGFX_COLOR_ON); // top center box right line
+	MonoGFX_draw_line(x + (graph->w + 19) / 2 - 1, y + GUI_ROW_HEIGHT - 1, x + (graph->w - 19) / 2, y + GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_ON); // top center box bottom line
+	MonoGFX_fill_rect(x + (graph->w - 19) / 2, y, 19, GUI_ROW_HEIGHT - 1, MonoGFX_COLOR_OFF); // top center box background
 	
 	graph->hDivScrollButtonComponent->x = x + (graph->w - 19) / 2 + 1;
 	graph->hDivScrollButtonComponent->y = y + 1;

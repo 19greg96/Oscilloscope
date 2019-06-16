@@ -65,47 +65,12 @@ void MX_TIM8_Init(void);
 void MX_GLCD_GPIO_Init(void);
 
 // API functions
-void GLCD_init();
+void GLCD_init(uint32_t w, uint32_t h);
 void GLCD_update();
-void GLCD_clear();
-
-uint8_t* GLCD_getBuffer(uint32_t* buffSize); // for UART screen capture
-void GLCD_getSize(uint32_t* w, uint32_t* h);
-
-uint32_t GLCD_width;
-uint32_t GLCD_height;
-
-#define GLCD_COLOR_OFF		0
-#define GLCD_COLOR_ON		1
-#define GLCD_COLOR_INVERT	2
-
-typedef enum {
-	GLCD_LINE_STYLE_NONE,
-	GLCD_LINE_STYLE_SOLID,
-	GLCD_LINE_STYLE_DOTS,
-	GLCD_LINE_STYLE_DASHES,
-	GLCD_LINE_STYLE_SPARSE_DOTS
-} GLCD_LineStyle;
-
-uint8_t GLCD_set_pixel(int32_t x, int32_t y, uint8_t v);
-uint8_t GLCD_get_pixel(int32_t x, int32_t y);
-void GLCD_flood_fill(int32_t x, int32_t y, uint8_t newC);
-void GLCD_draw_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color);
-void GLCD_fill_circle(int32_t x0, int32_t y0, int32_t r, uint8_t color);
-void GLCD_draw_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color);
-void GLCD_draw_line_style(int32_t x0, int32_t y0, int32_t x1, int32_t y1, GLCD_LineStyle style, uint8_t color);
-void GLCD_draw_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint8_t color);
-void GLCD_fill_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, uint8_t color);
-void GLCD_draw_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t r, uint8_t color);
-void GLCD_fill_round_rect(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t r, uint8_t color);
-void GLCD_draw_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
-void GLCD_fill_triangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
 
 
 void GLCDEN(int newState);
 void GLCD_Write(int8_t cs_s, int8_t d_i, int8_t g_data);
-void GLCD_Clear(void);
-void GLCD_Delay(char value);
 void GLCD_Write_Block(int8_t m_data, int8_t cX, int8_t cY);
 /*
 void GLCD_Write_Char(char cPlace,char cX,char cY);

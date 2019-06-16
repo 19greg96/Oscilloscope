@@ -1,5 +1,5 @@
 
-
+#include "MonoGFX.h"
 #include "BSP_UART.h"
 #include "BSP_ADC.h"
 #include <string.h>
@@ -71,8 +71,8 @@ void UART_update() {
 				uint32_t displayBuffSize;
 				uint32_t displayW;
 				uint32_t displayH;
-				uint8_t* displayBuff = GLCD_getBuffer(&displayBuffSize);
-				GLCD_getSize(&displayW, &displayH);
+				uint8_t* displayBuff = MonoGFX_getBuffer(&displayBuffSize);
+				MonoGFX_getDisplaySize(&displayW, &displayH);
 				// width, height, number of data, data size
 				sprintf(tmpBuff, "s %lu %lu %lu %u\n", displayW, displayH, displayBuffSize, sizeof(*displayBuff));
 				UART_writeString(tmpBuff);

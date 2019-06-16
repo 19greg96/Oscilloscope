@@ -143,10 +143,13 @@ void mainScreenSetup() { // main screen
 	sb->largeStep = 5.0f;
 	sb->panelEnabled = 1;
 	
-	ms1_scopeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		2,							GLCD_height - LINE_HEIGHT, GUI_button_create("Scope", defaultFont, onScopeBtnClick));
-	ms2_fnGenButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 + 2,			GLCD_height - LINE_HEIGHT, GUI_button_create("Fn gen", defaultFont, onFnGenBtnClick));
-	ms3_bodeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 * 2 + 2,		GLCD_height - LINE_HEIGHT, GUI_button_create("Bode", defaultFont, onBodeBtnClick));
-	ms4_backlightScrollButton= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,GLCD_width / 4 * 3 + 2,		GLCD_height - LINE_HEIGHT, sb);
+	uint32_t display_w, display_h;
+	MonoGFX_getDisplaySize(&display_w, &display_h);
+	
+	ms1_scopeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		2,							display_h - LINE_HEIGHT, GUI_button_create("Scope", defaultFont, onScopeBtnClick));
+	ms2_fnGenButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 + 2,			display_h - LINE_HEIGHT, GUI_button_create("Fn gen", defaultFont, onFnGenBtnClick));
+	ms3_bodeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 * 2 + 2,		display_h - LINE_HEIGHT, GUI_button_create("Bode", defaultFont, onBodeBtnClick));
+	ms4_backlightScrollButton= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,display_w / 4 * 3 + 2,		display_h - LINE_HEIGHT, sb);
 	
 	GUI_scrollButton_scroll(sb, 0, 0); // DEFAULT CONFIG
 	
@@ -159,7 +162,10 @@ void mainScreenSetup() { // main screen
 void scopeScreenSetup() { // scope screen
 	GUI_Screen* scopeScreen = GUI_screen_create();
 	
-	scopeGraph = GUI_graph_create(GLCD_width, GLCD_height - 9);
+	uint32_t display_w, display_h;
+	MonoGFX_getDisplaySize(&display_w, &display_h);
+	
+	scopeGraph = GUI_graph_create(display_w, display_h - 9);
 	scopeGraph->data_1 = g_graphBuffer1_V;
 	scopeGraph->data_2 = g_graphBuffer2_V;
 	scopeGraph->dataBufferSize = ADC_INPUT_BUFFER_SIZE / 2;
@@ -168,28 +174,28 @@ void scopeScreenSetup() { // scope screen
 	
 	GUI_Component* scopeGraphComponent = GUI_component_create(GUI_COMPONENT_GRAPH, 0, 0, scopeGraph);
 	
-	zeroLevelALabel = GUI_graphLabel_create("A0", GLCD_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, NULL);
+	zeroLevelALabel = GUI_graphLabel_create("A0", MonoGFX_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, NULL);
 	GUI_Component* zeroLevelALabelComponent = GUI_component_create(GUI_COMPONENT_GRAPH_LABEL, 0, 0, zeroLevelALabel);
 	
 	zeroLevelALabel->nextLabel = zeroLevelALabelComponent;
 	scopeGraph->vOffset1GraphLabel = zeroLevelALabel;
 	GUI_graph_add_label(scopeGraph, zeroLevelALabelComponent);
 	
-	zeroLevelBLabel = GUI_graphLabel_create("B0", GLCD_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, NULL); // TODO: B channel zero level should only be visible when B channel is enabled
+	zeroLevelBLabel = GUI_graphLabel_create("B0", MonoGFX_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, NULL); // TODO: B channel zero level should only be visible when B channel is enabled
 	zeroLevelBLabel->rightChannel = 1;
 	GUI_Component* zeroLevelBLabelComponent = GUI_component_create(GUI_COMPONENT_GRAPH_LABEL, 0, 0, zeroLevelBLabel);
 	zeroLevelBLabel->nextLabel = zeroLevelBLabelComponent;
 	scopeGraph->vOffset2GraphLabel = zeroLevelBLabel;
 	GUI_graph_add_label(scopeGraph, zeroLevelBLabelComponent);
 	
-	trigLevelLabel = GUI_graphLabel_create("TA~", GLCD_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, onTrigScroll);
+	trigLevelLabel = GUI_graphLabel_create("TA~", MonoGFX_LINE_STYLE_SPARSE_DOTS, 0, 1, defaultFont, onTrigScroll);
 	trigLevelLabelComponent = GUI_component_create(GUI_COMPONENT_GRAPH_LABEL, 0, 0, trigLevelLabel);
 	trigLevelLabel->scrollButton->button->onClick = onTriggerToggle;
 	trigLevelLabel->nextLabel = trigLevelLabelComponent;
 	GUI_graph_add_label(scopeGraph, trigLevelLabelComponent);
 	GUI_scrollButton_scroll(trigLevelLabel->scrollButton, 0, 0); // DEFAULT CONFIG: set trigger level
 	
-	hScrollLabel = GUI_graphLabel_create("", GLCD_LINE_STYLE_SPARSE_DOTS, 0, 0, defaultFont, NULL);
+	hScrollLabel = GUI_graphLabel_create("", MonoGFX_LINE_STYLE_SPARSE_DOTS, 0, 0, defaultFont, NULL);
 	hScrollLabelComponent = GUI_component_create(GUI_COMPONENT_GRAPH_LABEL, 0, 0, hScrollLabel);
 	hScrollLabel->nextLabel = hScrollLabelComponent;
 	scopeGraph->hOffsetGraphLabel = hScrollLabel;
@@ -256,7 +262,7 @@ void scopeScreenSetup() { // scope screen
 	GUI_ToggleButton* ss1_runStopToggleButton = GUI_toggleButton_create("   RUN", defaultFont, onRunStopToggle);
 	ss1_runStopToggleButton->showCheckbox = 0;
 	strcpy(ss1_runStopToggleButton->checkedText, "  STOP");
-	ss1_runStopToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 2, GLCD_height - LINE_HEIGHT, ss1_runStopToggleButton);
+	ss1_runStopToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 2, display_h - LINE_HEIGHT, ss1_runStopToggleButton);
 	GUI_toggleButton_click(ss1_runStopToggleButton); // DEFAULT CONFIG: run
 	
 	
@@ -314,7 +320,7 @@ void scopeScreenSetup() { // scope screen
 	GUI_menu_add_column(cfgMenu, trigSourceMenuColumn);
 	GUI_menu_add_column(cfgMenu, scopeModeMenuColumn);
 	GUI_menu_add_column(cfgMenu, inputFilterMenuColumn);
-	ss4_cfgMenuButtonComponent		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	GLCD_width / 4 * 3 + 2,		GLCD_height - LINE_HEIGHT, GUI_menuButton_create("Cfg", defaultFont, NULL, cfgMenu));
+	ss4_cfgMenuButtonComponent		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	display_w / 4 * 3 + 2,		display_h - LINE_HEIGHT, GUI_menuButton_create("Cfg", defaultFont, NULL, cfgMenu));
 	GUI_screen_add_component(scopeScreen, ss1_runStopToggleButtonComponent);
 	// GUI_screen_add_component(scopeScreen, ss2_vdivScrollButtonComponent);
 	GUI_screen_add_component(scopeScreen, fs2_prevButton);
@@ -405,11 +411,14 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	GUI_menu_add_column(fnMenu, fnMenuColumn);
 	GUI_radioButton_click(fnSineRadioButton); // DEFAULT CONFIG: select sine
 	
-	fs1_fnMenuButton		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	2,						GLCD_height - LINE_HEIGHT, GUI_menuButton_create("Fn", defaultFont, NULL, fnMenu));
+	uint32_t display_w, display_h;
+	MonoGFX_getDisplaySize(&display_w, &display_h);
+	
+	fs1_fnMenuButton		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	2,						display_h - LINE_HEIGHT, GUI_menuButton_create("Fn", defaultFont, NULL, fnMenu));
 	
 	fs4_channelToggleButton = GUI_toggleButton_create("Toggle", defaultFont, onChannelSelect);
 	fs4_channelToggleButton->showCheckbox = 0;
-	fs4_channelToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, GLCD_width / 4 * 3 + 2,	GLCD_height - LINE_HEIGHT, fs4_channelToggleButton);
+	fs4_channelToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, display_w / 4 * 3 + 2,	display_h - LINE_HEIGHT, fs4_channelToggleButton);
 	GUI_screen_add_component(fnGenScreen, fs1_fnMenuButton);
 	GUI_screen_add_component(fnGenScreen, fs2_prevButton);
 	GUI_screen_add_component(fnGenScreen, fs3_nextButton);
@@ -420,14 +429,17 @@ void bodeScreenSetup() { // Bode screen
 	GUI_Screen* bodeScreen = GUI_screen_create();
 	GUI_screen_add_component(bodeScreen, bottomMenuOutlineSpriteComponent);
 	
-	bs1_measureButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		2,						GLCD_height - LINE_HEIGHT, GUI_button_create("Measure", defaultFont, onBodeMeasureClick));
+	uint32_t display_w, display_h;
+	MonoGFX_getDisplaySize(&display_w, &display_h);
+	
+	bs1_measureButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		2,						display_h - LINE_HEIGHT, GUI_button_create("Measure", defaultFont, onBodeMeasureClick));
 	bs2_fminScrollButton = GUI_scrollButton_create("Fmin", defaultFont, 0, BODE_NUM_CONFIGURATIONS, 0, NULL);
 	bs2_fminScrollButton->panelEnabled = 1;
-	bs2_fminScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	GLCD_width / 4 + 2,		GLCD_height - LINE_HEIGHT, bs2_fminScrollButton);
+	bs2_fminScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	display_w / 4 + 2,		display_h - LINE_HEIGHT, bs2_fminScrollButton);
 	bs3_fmaxScrollButton = GUI_scrollButton_create("Fmax", defaultFont, 0, 10, 1, NULL);
 	bs3_fmaxScrollButton->panelEnabled = 1;
-	bs3_fmaxScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	GLCD_width / 4 * 2 + 2,	GLCD_height - LINE_HEIGHT, bs3_fmaxScrollButton);
-	bs4_toggleButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 * 3 + 2,	GLCD_height - LINE_HEIGHT, GUI_button_create("Toggle", defaultFont, NULL));
+	bs3_fmaxScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	display_w / 4 * 2 + 2,	display_h - LINE_HEIGHT, bs3_fmaxScrollButton);
+	bs4_toggleButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 * 3 + 2,	display_h - LINE_HEIGHT, GUI_button_create("Toggle", defaultFont, NULL));
 	
 	GUI_Sprite* bsProgressSprite = GUI_sprite_create(onDrawBodeProgressSprite);
 	GUI_Component* bsProgressSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 32, 10, bsProgressSprite);
@@ -447,8 +459,11 @@ void GUI_setup_init() {
 	GUI_Sprite* bottomMenuOutlineSprite = GUI_sprite_create(onDrawBottomMenuOutlineSprite);
 	bottomMenuOutlineSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 0, 56, bottomMenuOutlineSprite);
 	
-	fs2_prevButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 + 2,		GLCD_height - LINE_HEIGHT, GUI_button_create("   <", defaultFont, onPrevBtn));
-	fs3_nextButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		GLCD_width / 4 * 2 + 2,	GLCD_height - LINE_HEIGHT, GUI_button_create("   >", defaultFont, onNextBtn));
+	uint32_t display_w, display_h;
+	MonoGFX_getDisplaySize(&display_w, &display_h);
+	
+	fs2_prevButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 + 2,		display_h - LINE_HEIGHT, GUI_button_create("   <", defaultFont, onPrevBtn));
+	fs3_nextButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 * 2 + 2,	display_h - LINE_HEIGHT, GUI_button_create("   >", defaultFont, onNextBtn));
 	
 	mainScreenSetup();
 	scopeScreenSetup();
@@ -546,19 +561,20 @@ void onDrawEncoderDebugSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 	int8_t padding = 10;
 	int8_t lineLen = 20;
 	int8_t lineHeight = 10;
-	GLCD_draw_line(x + padding, y + padding + (lastStateA ? 0 : lineHeight), x + padding + lineLen, y + padding + (lastStateA ? 0 : lineHeight), GLCD_COLOR_ON);
-	GLCD_draw_line(x + padding + lineLen, y + padding + (lastStateA ? 0 : lineHeight), x + padding + lineLen, y + padding + (currStateA ? 0 : lineHeight), GLCD_COLOR_ON);
-	GLCD_draw_line(x + padding + lineLen, y + padding + (currStateA ? 0 : lineHeight), x + padding + lineLen * 2, y + padding + (currStateA ? 0 : lineHeight), GLCD_COLOR_ON);
-	GUI_write_string(x + padding + lineLen * 2 + 5, y + padding, "A", 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
 	
-	GLCD_draw_line(x + padding, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), x + padding + lineLen, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), GLCD_COLOR_ON);
-	GLCD_draw_line(x + padding + lineLen, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), x + padding + lineLen, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), GLCD_COLOR_ON);
-	GLCD_draw_line(x + padding + lineLen, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), x + padding + lineLen * 2, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), GLCD_COLOR_ON);
-	GUI_write_string(x + padding + lineLen * 2 + 5, y + lineHeight + padding * 2, "B", 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+	MonoGFX_draw_line(x + padding, y + padding + (lastStateA ? 0 : lineHeight), x + padding + lineLen, y + padding + (lastStateA ? 0 : lineHeight), MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + padding + lineLen, y + padding + (lastStateA ? 0 : lineHeight), x + padding + lineLen, y + padding + (currStateA ? 0 : lineHeight), MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + padding + lineLen, y + padding + (currStateA ? 0 : lineHeight), x + padding + lineLen * 2, y + padding + (currStateA ? 0 : lineHeight), MonoGFX_COLOR_ON);
+	GUI_write_string(x + padding + lineLen * 2 + 5, y + padding, "A", 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, MonoGFX_COLOR_ON);
+	
+	MonoGFX_draw_line(x + padding, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), x + padding + lineLen, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + padding + lineLen, y + lineHeight + padding * 2 + (lastStateB ? 0 : lineHeight), x + padding + lineLen, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + padding + lineLen, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), x + padding + lineLen * 2, y + lineHeight + padding * 2 + (currStateB ? 0 : lineHeight), MonoGFX_COLOR_ON);
+	GUI_write_string(x + padding + lineLen * 2 + 5, y + lineHeight + padding * 2, "B", 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, MonoGFX_COLOR_ON);
 	
 	char tmpBuff[10];
 	sprintf(tmpBuff, "%ld, %ld", TIM3->CNT, scrollCountr);
-	GUI_write_string(x + padding + lineLen * 2 + 10, y + padding + lineHeight, tmpBuff, 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, GLCD_COLOR_ON);
+	GUI_write_string(x + padding + lineLen * 2 + 10, y + padding + lineHeight, tmpBuff, 0, GUI_TEXT_ALIGN_LEFT, GUI_TEXT_DIRECTION_HORIZONTAL, MonoGFX_COLOR_ON);
 }
 
 
@@ -711,15 +727,15 @@ void drawFunctionSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 	float shape = shapeRange->scrollButton->value;
 	if (rbtn == fnSineRadioButton) { // Sine
 		for (uint32_t i = 0; i < w; i ++) {
-			GLCD_set_pixel(x + i, y + h - ((sinf(i * 2.0f * M_PI / w) + 1.0f) * ((max - min) / 2) + min) * (h / maxRange->scrollButton->max), GLCD_COLOR_ON);
+			MonoGFX_set_pixel(x + i, y + h - ((sinf(i * 2.0f * M_PI / w) + 1.0f) * ((max - min) / 2) + min) * (h / maxRange->scrollButton->max), MonoGFX_COLOR_ON);
 		}
 	} else if (rbtn == fnSquareRadioButton) { // Square
-		GLCD_draw_line(x, y + h - min * (h / maxRange->scrollButton->max), x + w * ((duty - rise / 2.0f) / 100.0f) - 1, y + h - min * (h / maxRange->scrollButton->max), GLCD_COLOR_ON);
-		GLCD_draw_line(x + w * ((duty - rise / 2.0f) / 100.0f), y + h - min * (h / maxRange->scrollButton->max), x + w * ((duty + rise / 2.0f) / 100.0f), y + h - max * (h / maxRange->scrollButton->max), GLCD_COLOR_ON);
-		GLCD_draw_line(x + w * ((duty + rise / 2.0f) / 100.0f), y + h - max * (h / maxRange->scrollButton->max), x + w - 1, y + h - max * (h / maxRange->scrollButton->max), GLCD_COLOR_ON);
+		MonoGFX_draw_line(x, y + h - min * (h / maxRange->scrollButton->max), x + w * ((duty - rise / 2.0f) / 100.0f) - 1, y + h - min * (h / maxRange->scrollButton->max), MonoGFX_COLOR_ON);
+		MonoGFX_draw_line(x + w * ((duty - rise / 2.0f) / 100.0f), y + h - min * (h / maxRange->scrollButton->max), x + w * ((duty + rise / 2.0f) / 100.0f), y + h - max * (h / maxRange->scrollButton->max), MonoGFX_COLOR_ON);
+		MonoGFX_draw_line(x + w * ((duty + rise / 2.0f) / 100.0f), y + h - max * (h / maxRange->scrollButton->max), x + w - 1, y + h - max * (h / maxRange->scrollButton->max), MonoGFX_COLOR_ON);
 	} else if (rbtn == fnTriRadioButton) { // Triangle
-		GLCD_draw_line(x, y + h - min * (h / maxRange->scrollButton->max), x + w * (shape / 100.0f) - 1, y + h - max * (h / maxRange->scrollButton->max), GLCD_COLOR_ON);
-		GLCD_draw_line(x + w * (shape / 100.0f) - 1, y + h - max * (h / maxRange->scrollButton->max), x + w - 1, y + h - min * (h / maxRange->scrollButton->max), GLCD_COLOR_ON);
+		MonoGFX_draw_line(x, y + h - min * (h / maxRange->scrollButton->max), x + w * (shape / 100.0f) - 1, y + h - max * (h / maxRange->scrollButton->max), MonoGFX_COLOR_ON);
+		MonoGFX_draw_line(x + w * (shape / 100.0f) - 1, y + h - max * (h / maxRange->scrollButton->max), x + w - 1, y + h - min * (h / maxRange->scrollButton->max), MonoGFX_COLOR_ON);
 	}
 }
 
@@ -935,26 +951,29 @@ void onBodeMeasureClick(void* caller) {
 void onDrawBodeProgressSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 	float deltaX = 128 / BODE_NUM_CONFIGURATIONS;
 	for (uint32_t i = 0; i < BODE_NUM_CONFIGURATIONS - 1; i ++) { 
-		GLCD_draw_line((float)i * deltaX, 32.0f - (BODE_measurements[i].gain_dB / 2.0f), ((float)i + 1) * deltaX, 32.0f - (BODE_measurements[i + 1].gain_dB / 2.0f), GLCD_COLOR_ON);
-		GLCD_draw_line_style((float)i * deltaX, 32.0f - (BODE_measurements[i].phase_deg / 4.0f), ((float)i + 1) * deltaX, 32.0f - (BODE_measurements[i + 1].phase_deg / 4.0f), GLCD_LINE_STYLE_DOTS, GLCD_COLOR_ON);
+		MonoGFX_draw_line((float)i * deltaX, 32.0f - (BODE_measurements[i].gain_dB / 2.0f), ((float)i + 1) * deltaX, 32.0f - (BODE_measurements[i + 1].gain_dB / 2.0f), MonoGFX_COLOR_ON);
+		MonoGFX_draw_line_style((float)i * deltaX, 32.0f - (BODE_measurements[i].phase_deg / 4.0f), ((float)i + 1) * deltaX, 32.0f - (BODE_measurements[i + 1].phase_deg / 4.0f), MonoGFX_LINE_STYLE_DOTS, MonoGFX_COLOR_ON);
 	}
 	if (BODE_status != -1) {
-		GLCD_fill_round_rect(x, y, 64, 7, 1, GLCD_COLOR_OFF); // clear background
-		GLCD_draw_round_rect(x, y, 64, 7, 1, GLCD_COLOR_ON); // clear background
+		MonoGFX_fill_round_rect(x, y, 64, 7, 1, MonoGFX_COLOR_OFF); // clear background
+		MonoGFX_draw_round_rect(x, y, 64, 7, 1, MonoGFX_COLOR_ON); // clear background
 		
 		float percent = ((float)(HAL_GetTick() - BODE_measurementStartTime)) / (float)BODE_measurementTime;
-		GLCD_fill_rect(x + 2, y + 2, percent * 64.0f, 3, GLCD_COLOR_ON); // progress bar
+		MonoGFX_fill_rect(x + 2, y + 2, percent * 64.0f, 3, MonoGFX_COLOR_ON); // progress bar
 	} else {
 		
 	}
 }
 
 void onDrawBottomMenuOutlineSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
-	GLCD_fill_rect(x, y, GLCD_width, 8, GLCD_COLOR_OFF); // clear background
+	uint32_t display_w, display_h;
+	MonoGFX_getDisplaySize(&display_w, &display_h);
 	
-	GLCD_draw_line(x, y, GLCD_width, y, GLCD_COLOR_ON);
-	GLCD_draw_line(x + GLCD_width / 4, y, GLCD_width / 4, GLCD_height, GLCD_COLOR_ON);
-	GLCD_draw_line(x + GLCD_width / 4 * 2, y, GLCD_width / 4 * 2, GLCD_height, GLCD_COLOR_ON);
-	GLCD_draw_line(x + GLCD_width / 4 * 3, y, GLCD_width / 4 * 3, GLCD_height, GLCD_COLOR_ON);
+	MonoGFX_fill_rect(x, y, display_w, 8, MonoGFX_COLOR_OFF); // clear background
+	
+	MonoGFX_draw_line(x, y, display_w, y, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + display_w / 4, y, display_w / 4, display_h, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + display_w / 4 * 2, y, display_w / 4 * 2, display_h, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + display_w / 4 * 3, y, display_w / 4 * 3, display_h, MonoGFX_COLOR_ON);
 }
 
