@@ -1,0 +1,3 @@
+[submodule "src/MonoGFX"]
+	path = src/MonoGFX
+	url = https://github.com/19greg96/MonoGFX.git
