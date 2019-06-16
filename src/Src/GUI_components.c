@@ -603,7 +603,7 @@ void GUI_menuButton_click(GUI_MenuButton* menuButton) {
 	}
 }
 
-GUI_GraphLabel* GUI_graphLabel_create(char* text, MonoGFX_LineStyle lineStyle, uint8_t floatRight, uint8_t vertical, uint32_t fontID, GUI_CallbackTypedef onScroll) {
+GUI_GraphLabel* GUI_graphLabel_create(char* text, MonoGFX_LineStyleTypedef lineStyle, uint8_t floatRight, uint8_t vertical, uint32_t fontID, GUI_CallbackTypedef onScroll) {
 	GUI_GraphLabel* graphLabel = (GUI_GraphLabel*)malloc(sizeof(GUI_GraphLabel));
 	
 	graphLabel->scrollButton = GUI_scrollButton_create(text, fontID, -1000000.0f, 1000000.0f, 0.0f, onScroll);

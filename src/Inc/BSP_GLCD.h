@@ -4,6 +4,7 @@
 
 
 #include "main.h"
+#include "MonoGFX.h"
 #include <stdint.h>
 
 
@@ -56,6 +57,8 @@
 
 TIM_HandleTypeDef htim4; // Signal timing
 TIM_HandleTypeDef htim8; // PWM
+
+MonoGFX_BufferTypedef MonoGFXDisplay;
 
 void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm);
 void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* htim_pwm);

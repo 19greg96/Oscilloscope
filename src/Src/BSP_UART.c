@@ -67,18 +67,12 @@ void UART_update() {
 
 				break;
 			case 's': { // screen capture
-				
-				uint32_t displayBuffSize;
-				uint32_t displayW;
-				uint32_t displayH;
-				uint8_t* displayBuff = MonoGFX_getBuffer(&displayBuffSize);
-				MonoGFX_getDisplaySize(&displayW, &displayH);
 				// width, height, number of data, data size
-				sprintf(tmpBuff, "s %lu %lu %lu %u\n", displayW, displayH, displayBuffSize, sizeof(*displayBuff));
+				sprintf(tmpBuff, "s %lu %lu %lu %u\n", MonoGFXDisplay.width, MonoGFXDisplay.height, MonoGFXDisplay.bufferSize, sizeof(*(MonoGFXDisplay.buffer)));
 				UART_writeString(tmpBuff);
 				
-				for (uint32_t i = 0; i < displayBuffSize; i ++) {
-					sprintf(tmpBuff, "%d\n", displayBuff[i]);
+				for (uint32_t i = 0; i < MonoGFXDisplay.bufferSize; i ++) {
+					sprintf(tmpBuff, "%d\n", MonoGFXDisplay.buffer[i]);
 					UART_writeString(tmpBuff);
 				}
 			}

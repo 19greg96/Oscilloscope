@@ -1,6 +1,5 @@
 
 #include "BSP_GLCD.h"
-#include "MonoGFX.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +28,10 @@ void TIM4_IRQHandler(void) {
 // TODO: separate graphics functions, STM32 and SBN6400G-D + SBN0064G-D code
 
 void GLCD_init(uint32_t w, uint32_t h) {
-	MonoGFX_init(w, h);
+	MonoGFXDisplay.width = w;
+	MonoGFXDisplay.height = h;
+	MonoGFXDisplay.mode = MonoGFX_DISPLAY_MODE_VERTICAL;
+	MonoGFX_init(&MonoGFXDisplay);
 	
 	MX_GLCD_GPIO_Init();
 	MX_TIM8_Init();
@@ -47,20 +49,19 @@ void GLCD_init(uint32_t w, uint32_t h) {
 }
 
 void GLCD_update() {
-	uint8_t* buffer = MonoGFX_getBuffer(NULL);
 	int8_t x, y;
 	uint32_t pos = 0;
 	for (y = 0; y < 8; y ++) {
 		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR); // set column to 0
 		GLCD_Write(GLCD_CS_1, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y)); // send row number
 		for (x = 0; x < 64; x ++) {
-			GLCD_Write(GLCD_CS_1, GLCD_DI_DATA, buffer[pos]);
+			GLCD_Write(GLCD_CS_1, GLCD_DI_DATA, MonoGFXDisplay.buffer[pos]);
 			pos++;
 		}
 		GLCD_Write(GLCD_CS_2, GLCD_DI_COMMAND, GLCD_REG_COLUMN_ADDR);
 		GLCD_Write(GLCD_CS_2, GLCD_DI_COMMAND, (GLCD_REG_PAGE_ADDR | y));
 		for (x = 0; x < 64; x ++) {
-			GLCD_Write(GLCD_CS_2, GLCD_DI_DATA, buffer[pos]);
+			GLCD_Write(GLCD_CS_2, GLCD_DI_DATA, MonoGFXDisplay.buffer[pos]);
 			pos++;
 		}
 	}

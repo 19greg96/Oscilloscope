@@ -187,11 +187,11 @@ typedef struct GUI_GraphLabel {
 	struct GUI_Graph* ownerGraph;
 	
 	GUI_Component* nextLabel;
-	MonoGFX_LineStyle lineStyle;
+	MonoGFX_LineStyleTypedef lineStyle;
 	uint8_t rightChannel; // bool (true if label should be on right side, only used when vertical=1)
 	uint8_t vertical; // bool (true if label is on Y axis)
 } GUI_GraphLabel;
-GUI_GraphLabel* GUI_graphLabel_create(char* text, MonoGFX_LineStyle lineStyle, uint8_t floatRight, uint8_t vertical, uint32_t fontID, GUI_CallbackTypedef onScroll);
+GUI_GraphLabel* GUI_graphLabel_create(char* text, MonoGFX_LineStyleTypedef lineStyle, uint8_t floatRight, uint8_t vertical, uint32_t fontID, GUI_CallbackTypedef onScroll);
 void GUI_graphLabel_render(GUI_GraphLabel* graphLabel, int32_t x, int32_t y);
 void GUI_graphLabel_select_render(GUI_GraphLabel* graphLabel, int32_t x, int32_t y);
 

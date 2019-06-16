@@ -143,13 +143,10 @@ void mainScreenSetup() { // main screen
 	sb->largeStep = 5.0f;
 	sb->panelEnabled = 1;
 	
-	uint32_t display_w, display_h;
-	MonoGFX_getDisplaySize(&display_w, &display_h);
-	
-	ms1_scopeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		2,							display_h - LINE_HEIGHT, GUI_button_create("Scope", defaultFont, onScopeBtnClick));
-	ms2_fnGenButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 + 2,			display_h - LINE_HEIGHT, GUI_button_create("Fn gen", defaultFont, onFnGenBtnClick));
-	ms3_bodeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 * 2 + 2,		display_h - LINE_HEIGHT, GUI_button_create("Bode", defaultFont, onBodeBtnClick));
-	ms4_backlightScrollButton= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,display_w / 4 * 3 + 2,		display_h - LINE_HEIGHT, sb);
+	ms1_scopeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		2,							MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("Scope", defaultFont, onScopeBtnClick));
+	ms2_fnGenButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		MonoGFXDisplay.width / 4 + 2,			MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("Fn gen", defaultFont, onFnGenBtnClick));
+	ms3_bodeButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		MonoGFXDisplay.width / 4 * 2 + 2,		MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("Bode", defaultFont, onBodeBtnClick));
+	ms4_backlightScrollButton= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,MonoGFXDisplay.width / 4 * 3 + 2,		MonoGFXDisplay.height - LINE_HEIGHT, sb);
 	
 	GUI_scrollButton_scroll(sb, 0, 0); // DEFAULT CONFIG
 	
@@ -162,10 +159,7 @@ void mainScreenSetup() { // main screen
 void scopeScreenSetup() { // scope screen
 	GUI_Screen* scopeScreen = GUI_screen_create();
 	
-	uint32_t display_w, display_h;
-	MonoGFX_getDisplaySize(&display_w, &display_h);
-	
-	scopeGraph = GUI_graph_create(display_w, display_h - 9);
+	scopeGraph = GUI_graph_create(MonoGFXDisplay.width, MonoGFXDisplay.height - 9);
 	scopeGraph->data_1 = g_graphBuffer1_V;
 	scopeGraph->data_2 = g_graphBuffer2_V;
 	scopeGraph->dataBufferSize = ADC_INPUT_BUFFER_SIZE / 2;
@@ -262,7 +256,7 @@ void scopeScreenSetup() { // scope screen
 	GUI_ToggleButton* ss1_runStopToggleButton = GUI_toggleButton_create("   RUN", defaultFont, onRunStopToggle);
 	ss1_runStopToggleButton->showCheckbox = 0;
 	strcpy(ss1_runStopToggleButton->checkedText, "  STOP");
-	ss1_runStopToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 2, display_h - LINE_HEIGHT, ss1_runStopToggleButton);
+	ss1_runStopToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, 2, MonoGFXDisplay.height - LINE_HEIGHT, ss1_runStopToggleButton);
 	GUI_toggleButton_click(ss1_runStopToggleButton); // DEFAULT CONFIG: run
 	
 	
@@ -320,7 +314,7 @@ void scopeScreenSetup() { // scope screen
 	GUI_menu_add_column(cfgMenu, trigSourceMenuColumn);
 	GUI_menu_add_column(cfgMenu, scopeModeMenuColumn);
 	GUI_menu_add_column(cfgMenu, inputFilterMenuColumn);
-	ss4_cfgMenuButtonComponent		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	display_w / 4 * 3 + 2,		display_h - LINE_HEIGHT, GUI_menuButton_create("Cfg", defaultFont, NULL, cfgMenu));
+	ss4_cfgMenuButtonComponent		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	MonoGFXDisplay.width / 4 * 3 + 2,		MonoGFXDisplay.height - LINE_HEIGHT, GUI_menuButton_create("Cfg", defaultFont, NULL, cfgMenu));
 	GUI_screen_add_component(scopeScreen, ss1_runStopToggleButtonComponent);
 	// GUI_screen_add_component(scopeScreen, ss2_vdivScrollButtonComponent);
 	GUI_screen_add_component(scopeScreen, fs2_prevButton);
@@ -411,14 +405,11 @@ void functionGeneratorScreenSetup() { // Fn gen screen
 	GUI_menu_add_column(fnMenu, fnMenuColumn);
 	GUI_radioButton_click(fnSineRadioButton); // DEFAULT CONFIG: select sine
 	
-	uint32_t display_w, display_h;
-	MonoGFX_getDisplaySize(&display_w, &display_h);
-	
-	fs1_fnMenuButton		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	2,						display_h - LINE_HEIGHT, GUI_menuButton_create("Fn", defaultFont, NULL, fnMenu));
+	fs1_fnMenuButton		= GUI_component_create(GUI_COMPONENT_MENU_BUTTON,	2,						MonoGFXDisplay.height - LINE_HEIGHT, GUI_menuButton_create("Fn", defaultFont, NULL, fnMenu));
 	
 	fs4_channelToggleButton = GUI_toggleButton_create("Toggle", defaultFont, onChannelSelect);
 	fs4_channelToggleButton->showCheckbox = 0;
-	fs4_channelToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, display_w / 4 * 3 + 2,	display_h - LINE_HEIGHT, fs4_channelToggleButton);
+	fs4_channelToggleButtonComponent = GUI_component_create(GUI_COMPONENT_TOGGLE_BUTTON, MonoGFXDisplay.width / 4 * 3 + 2,	MonoGFXDisplay.height - LINE_HEIGHT, fs4_channelToggleButton);
 	GUI_screen_add_component(fnGenScreen, fs1_fnMenuButton);
 	GUI_screen_add_component(fnGenScreen, fs2_prevButton);
 	GUI_screen_add_component(fnGenScreen, fs3_nextButton);
@@ -429,17 +420,14 @@ void bodeScreenSetup() { // Bode screen
 	GUI_Screen* bodeScreen = GUI_screen_create();
 	GUI_screen_add_component(bodeScreen, bottomMenuOutlineSpriteComponent);
 	
-	uint32_t display_w, display_h;
-	MonoGFX_getDisplaySize(&display_w, &display_h);
-	
-	bs1_measureButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		2,						display_h - LINE_HEIGHT, GUI_button_create("Measure", defaultFont, onBodeMeasureClick));
+	bs1_measureButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		2,						MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("Measure", defaultFont, onBodeMeasureClick));
 	bs2_fminScrollButton = GUI_scrollButton_create("Fmin", defaultFont, 0, BODE_NUM_CONFIGURATIONS, 0, NULL);
 	bs2_fminScrollButton->panelEnabled = 1;
-	bs2_fminScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	display_w / 4 + 2,		display_h - LINE_HEIGHT, bs2_fminScrollButton);
+	bs2_fminScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	MonoGFXDisplay.width / 4 + 2,		MonoGFXDisplay.height - LINE_HEIGHT, bs2_fminScrollButton);
 	bs3_fmaxScrollButton = GUI_scrollButton_create("Fmax", defaultFont, 0, 10, 1, NULL);
 	bs3_fmaxScrollButton->panelEnabled = 1;
-	bs3_fmaxScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	display_w / 4 * 2 + 2,	display_h - LINE_HEIGHT, bs3_fmaxScrollButton);
-	bs4_toggleButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 * 3 + 2,	display_h - LINE_HEIGHT, GUI_button_create("Toggle", defaultFont, NULL));
+	bs3_fmaxScrollButtonComponent	= GUI_component_create(GUI_COMPONENT_SCROLL_BUTTON,	MonoGFXDisplay.width / 4 * 2 + 2,	MonoGFXDisplay.height - LINE_HEIGHT, bs3_fmaxScrollButton);
+	bs4_toggleButton		= GUI_component_create(GUI_COMPONENT_BUTTON,		MonoGFXDisplay.width / 4 * 3 + 2,	MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("Toggle", defaultFont, NULL));
 	
 	GUI_Sprite* bsProgressSprite = GUI_sprite_create(onDrawBodeProgressSprite);
 	GUI_Component* bsProgressSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 32, 10, bsProgressSprite);
@@ -459,11 +447,8 @@ void GUI_setup_init() {
 	GUI_Sprite* bottomMenuOutlineSprite = GUI_sprite_create(onDrawBottomMenuOutlineSprite);
 	bottomMenuOutlineSpriteComponent = GUI_component_create(GUI_COMPONENT_SPRITE, 0, 56, bottomMenuOutlineSprite);
 	
-	uint32_t display_w, display_h;
-	MonoGFX_getDisplaySize(&display_w, &display_h);
-	
-	fs2_prevButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 + 2,		display_h - LINE_HEIGHT, GUI_button_create("   <", defaultFont, onPrevBtn));
-	fs3_nextButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		display_w / 4 * 2 + 2,	display_h - LINE_HEIGHT, GUI_button_create("   >", defaultFont, onNextBtn));
+	fs2_prevButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		MonoGFXDisplay.width / 4 + 2,		MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("   <", defaultFont, onPrevBtn));
+	fs3_nextButton			= GUI_component_create(GUI_COMPONENT_BUTTON,		MonoGFXDisplay.width / 4 * 2 + 2,	MonoGFXDisplay.height - LINE_HEIGHT, GUI_button_create("   >", defaultFont, onNextBtn));
 	
 	mainScreenSetup();
 	scopeScreenSetup();
@@ -966,14 +951,11 @@ void onDrawBodeProgressSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
 }
 
 void onDrawBottomMenuOutlineSprite(GUI_Sprite* sprite, int32_t x, int32_t y) {
-	uint32_t display_w, display_h;
-	MonoGFX_getDisplaySize(&display_w, &display_h);
+	MonoGFX_fill_rect(x, y, MonoGFXDisplay.width, 8, MonoGFX_COLOR_OFF); // clear background
 	
-	MonoGFX_fill_rect(x, y, display_w, 8, MonoGFX_COLOR_OFF); // clear background
-	
-	MonoGFX_draw_line(x, y, display_w, y, MonoGFX_COLOR_ON);
-	MonoGFX_draw_line(x + display_w / 4, y, display_w / 4, display_h, MonoGFX_COLOR_ON);
-	MonoGFX_draw_line(x + display_w / 4 * 2, y, display_w / 4 * 2, display_h, MonoGFX_COLOR_ON);
-	MonoGFX_draw_line(x + display_w / 4 * 3, y, display_w / 4 * 3, display_h, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x, y, MonoGFXDisplay.width, y, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + MonoGFXDisplay.width / 4, y, MonoGFXDisplay.width / 4, MonoGFXDisplay.height, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + MonoGFXDisplay.width / 4 * 2, y, MonoGFXDisplay.width / 4 * 2, MonoGFXDisplay.height, MonoGFX_COLOR_ON);
+	MonoGFX_draw_line(x + MonoGFXDisplay.width / 4 * 3, y, MonoGFXDisplay.width / 4 * 3, MonoGFXDisplay.height, MonoGFX_COLOR_ON);
 }
 
