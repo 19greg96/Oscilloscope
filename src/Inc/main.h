@@ -52,7 +52,6 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_msp.h"
-#define ARM_MATH_CM4
 #include "arm_math.h"
 #include "math.h"
 

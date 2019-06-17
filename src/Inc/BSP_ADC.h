@@ -5,7 +5,7 @@
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 
-#define ADC_VREF		3.3f
+#define ADC_VREF		(VDD_VALUE / 1000.0f)		// VDD_VALUE = Vdd in mV
 #define ADC_VMAX		(ADC_VREF * (3.0f / 2.0f))	// because of input division
 
 #define ADC_INPUT_BUFFER_SIZE	4096				// this has to be twice the size of usable buffer.

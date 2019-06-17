@@ -9,7 +9,7 @@
 #define DAC_OUTPUT_BUFFER_SIZE	1000
 // Clock frequency is 90MHz
 // 90MHz / (DAC_OUTPUT_BUFFER_SIZE * Timer Period)
-#define DAC_VREF		3.3f
+#define DAC_VREF		(VDD_VALUE / 1000.0f)		// VDD_VALUE = Vdd in mV
 #define DAC_ACCURACY	4095
 
 
