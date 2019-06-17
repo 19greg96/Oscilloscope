@@ -1,3 +1,6 @@
 [submodule "src/MonoGFX"]
 	path = src/MonoGFX
 	url = https://github.com/19greg96/MonoGFX.git
+[submodule "src/MonoGUI"]
+	path = src/MonoGUI
+	url = https://github.com/19greg96/MonoGUI.git
