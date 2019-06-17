@@ -39,19 +39,19 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <MonoGUI.h>
+#include <MonoGUI_font_legible3x5_6pt.h>
 #include "main.h"
 #include <string.h>
 
-#include "GUI.h"
 #include "BSP_GLCD.h"
-#include "GUI_font_legible3x5_6pt.h"
 #include "GUI_setup.h"
 #include "bode.h"
 
 int main(void) {
 	HAL_HardwareInit();
 	
-	GUI_init();
+	MonoGUI_init();
 	GUI_setup_init();
 	BODE_init();
 	
@@ -60,7 +60,7 @@ int main(void) {
 		UART_update(); // read commands from uart
 		
 		UIIO_update(); // update button states
-		GUI_render(); // draw GUI elements to buffer
+		MonoGUI_render(); // draw GUI elements to buffer
 		
 		GLCD_update(); // render buffer on GLCD
 	}

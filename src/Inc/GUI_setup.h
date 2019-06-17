@@ -8,7 +8,7 @@
 #ifndef GUI_SETUP_H_
 #define GUI_SETUP_H_
 
-#include "GUI.h"
+#include <MonoGUI.h>
 
 #define LINE_HEIGHT	6
 
