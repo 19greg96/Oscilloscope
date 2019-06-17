@@ -28,7 +28,7 @@ DItemRevisionGUID=
 ReportSuppressedErrorsInMessages=0
 FSMCodingStyle=eFMSDropDownList_OneProcess
 FSMEncodingStyle=eFMSDropDownList_OneHot
-OutputPath=Project Outputs for Oscilloscope
+OutputPath=
 LogFolderPath=
 ManagedProjectGUID=
 IncludeDesignInRelease=0
@@ -212,98 +212,54 @@ DocumentPath=Project Outputs for Oscilloscope\Design Rule Check - Oscilloscope.h
 DItemRevisionGUID=
 
 [GeneratedDocument2]
-DocumentPath=.\Gerbers\Oscilloscope-RoundHoles.TXT
-DItemRevisionGUID=
-
-[GeneratedDocument3]
 DocumentPath=Gerbers\Oscilloscope-RoundHoles.TXT
 DItemRevisionGUID=
 
-[GeneratedDocument4]
-DocumentPath=.\Gerbers\Oscilloscope-SlotHoles.TXT
-DItemRevisionGUID=
-
-[GeneratedDocument5]
+[GeneratedDocument3]
 DocumentPath=Gerbers\Oscilloscope-SlotHoles.TXT
 DItemRevisionGUID=
 
-[GeneratedDocument6]
-DocumentPath=.\Gerbers\Oscilloscope.DRR
-DItemRevisionGUID=
-
-[GeneratedDocument7]
+[GeneratedDocument4]
 DocumentPath=Gerbers\Oscilloscope.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument8]
-DocumentPath=.\Gerbers\Oscilloscope.EXTREP
-DItemRevisionGUID=
-
-[GeneratedDocument9]
+[GeneratedDocument5]
 DocumentPath=Gerbers\Oscilloscope.EXTREP
 DItemRevisionGUID=
 
-[GeneratedDocument10]
-DocumentPath=.\Gerbers\Oscilloscope.GBL
-DItemRevisionGUID=
-
-[GeneratedDocument11]
+[GeneratedDocument6]
 DocumentPath=Gerbers\Oscilloscope.GBL
 DItemRevisionGUID=
 
-[GeneratedDocument12]
-DocumentPath=.\Gerbers\Oscilloscope.GBO
+[GeneratedDocument7]
+DocumentPath=Gerbers\Oscilloscope.GBO
 DItemRevisionGUID=
 
-[GeneratedDocument13]
-DocumentPath=.\Gerbers\Oscilloscope.GBS
-DItemRevisionGUID=
-
-[GeneratedDocument14]
+[GeneratedDocument8]
 DocumentPath=Gerbers\Oscilloscope.GBS
 DItemRevisionGUID=
 
-[GeneratedDocument15]
-DocumentPath=.\Gerbers\Oscilloscope.GTL
-DItemRevisionGUID=
-
-[GeneratedDocument16]
+[GeneratedDocument9]
 DocumentPath=Gerbers\Oscilloscope.GTL
 DItemRevisionGUID=
 
-[GeneratedDocument17]
-DocumentPath=.\Gerbers\Oscilloscope.GTO
+[GeneratedDocument10]
+DocumentPath=Gerbers\Oscilloscope.GTO
 DItemRevisionGUID=
 
-[GeneratedDocument18]
-DocumentPath=.\Gerbers\Oscilloscope.GTS
-DItemRevisionGUID=
-
-[GeneratedDocument19]
+[GeneratedDocument11]
 DocumentPath=Gerbers\Oscilloscope.GTS
 DItemRevisionGUID=
 
-[GeneratedDocument20]
-DocumentPath=.\Gerbers\Oscilloscope.LDP
-DItemRevisionGUID=
-
-[GeneratedDocument21]
+[GeneratedDocument12]
 DocumentPath=Gerbers\Oscilloscope.LDP
 DItemRevisionGUID=
 
-[GeneratedDocument22]
-DocumentPath=.\Gerbers\Oscilloscope.REP
-DItemRevisionGUID=
-
-[GeneratedDocument23]
+[GeneratedDocument13]
 DocumentPath=Gerbers\Oscilloscope.REP
 DItemRevisionGUID=
 
-[GeneratedDocument24]
-DocumentPath=.\Gerbers\Oscilloscope.RUL
-DItemRevisionGUID=
-
-[GeneratedDocument25]
+[GeneratedDocument14]
 DocumentPath=Gerbers\Oscilloscope.RUL
 DItemRevisionGUID=
 
@@ -354,7 +310,7 @@ SCH_HasExpandLogicalToPhysicalSheets=-1
 SaveSettingsToOutJob=-1
 
 [Generic_EDE]
-OutputDir=Project Outputs for Oscilloscope
+OutputDir=
 
 [OutputGroup1]
 Name=Netlist Outputs

@@ -5,7 +5,7 @@
 
 #include "GUI_font.h"
 #include "BSP_GLCD.h"
-#include "../MonoGFX/Inc/MonoGFX.h"
+#include "MonoGFX.h"
 #include <stdint.h>
 
 typedef void (*GUI_CallbackTypedef)(void* caller);
